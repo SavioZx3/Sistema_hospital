@@ -1,4 +1,4 @@
-package ufjf.dcc025.hospital.model;
+package ufjf.dcc025.hospital.usuarios.médico;
 /**
  * Representa um horario de atendimento do medico.
  */

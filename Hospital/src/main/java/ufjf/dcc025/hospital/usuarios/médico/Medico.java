@@ -1,6 +1,16 @@
-package ufjf.dcc025.hospital.model;
-import java.util.List;
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package ufjf.dcc025.hospital.usuarios.médico;
+
 import java.util.ArrayList;
+import java.util.List;
+
+import ufjf.dcc025.hospital.exception.DadosInvalidosException;
+import ufjf.dcc025.hospital.servicos_hospital.Consulta;
+import ufjf.dcc025.hospital.usuarios.Usuario;
+
 /**
  * @author mjjun
  */
@@ -27,11 +37,12 @@ public class Medico extends Usuario{
     /**
     * Cria um medico com nome, CPF e especialidade.
     * @param nome nome do medico
-    * @param cpf cpf do medico
+    * @param email email do medico
+    * @param senha senha do medico
     * @param especialidade especialidade medica
     */
-    public Medico(String nome, String cpf, String especialidade){
-        super(nome, cpf);
+    public Medico(String nome, String email, String senha, String especialidade) throws DadosInvalidosException{
+        super(nome ,email, senha);
         if(especialidade == null || especialidade.isBlank()){
             throw new IllegalArgumentException("A especialidade do medico não pode ser vazia");
         }
@@ -136,7 +147,6 @@ public class Medico extends Usuario{
     public String toString(){
     return "Medico{" +
             "nome='" + nome + '\'' +
-            ", cpf='" + cpf + '\'' +
             ", especialidade='" + especialidade + '\'' +
             ", ativo=" + ativo +
             '}';
@@ -203,5 +213,10 @@ public class Medico extends Usuario{
         }
         return faltas;
      }
+
+     @Override
+    public String getTipo() {
+        return "MEDICO";
+    }
   
 }   
