@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 
-import ufjf.dcc025.hospital.usuarios.médico.Medico;
+import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
 /**
@@ -72,8 +72,6 @@ public class Consulta {
 
     /**
      * Reagenda a consulta para uma nova data e horário.
-     * Recebe LocalDate e LocalTime separadamente para facilitar
-     * validações externas (ex: agenda do médico).
      */
     public void reagendar(LocalDate novaData, LocalTime novaHora) {
         this.dataHora = LocalDateTime.of(novaData, novaHora);
