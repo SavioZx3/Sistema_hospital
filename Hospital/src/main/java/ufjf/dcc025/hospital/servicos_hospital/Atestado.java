@@ -65,8 +65,10 @@ public class Atestado {
      * Altera a mensagem do atestado apenas se ele ainda não tiver sido emitido.
      */
     public void alterarMensagem(String novaMensagem){
-        if(!emitido)
-            mensagem = novaMensagem;
+        if(emitido){
+            throw new IllegalStateException("Atestado já emitido e não pode ser alterado.");
+        }
+        this.mensagem = novaMensagem;
     }
 
      /**
