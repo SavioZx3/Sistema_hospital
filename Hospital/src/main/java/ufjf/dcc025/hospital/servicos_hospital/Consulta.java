@@ -32,6 +32,8 @@ public class Consulta {
     /** Indica se o paciente compareceu à consulta */
     private boolean compareceu;
 
+    /** Atestado emitido para a consulta */
+    private Atestado atestado;
     /**
      * Cria uma nova consulta médica.
      *
@@ -94,4 +96,27 @@ public class Consulta {
     public void registrarFalta() {
         this.compareceu = false;
     }
+
+    /**
+     * Emite um atestado médico a partir desta consulta.
+     * Só pode ser emitido se a consulta foi realizada e o paciente compareceu
+     */
+    public void emitirAtestado(String mensagem, int duracaoDias){
+        if(!realizada || !compareceu){
+            throw new IllegalStateException("Só é possível emitir atestado se a consulta foi realizada e o paciente compareceu.");
+}
+
+        if(this.atestado != null){
+            throw new IllegalStateException("Esta consulta já possui um atestado emitido");
+        }
+        this.atestado = new Atestado(medico, paciente, mensagem, LocalDate.now(), duracaoDias);
+        this.atestado.emitir();
+    }
+
+    public boolean possuiAtestado(){
+        return atestado != null;
+    }
+    public Atestado getAtestado(){
+        return atestado;
+    } 
 }
