@@ -1,6 +1,8 @@
 package ufjf.dcc025.hospital.servicos_hospital;
 
 import java.time.LocalDate;
+import ufjf.dcc025.hospital.exception.DadosInvalidosException;
+import ufjf.dcc025.hospital.exception.DataInvalidaException;
 
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
@@ -29,8 +31,25 @@ public class Atestado {
     private boolean emitido;
     
     
-    public Atestado(Medico medico, Paciente paciente , String mensagem ,LocalDate dataEmissao ,int duracaoDias){
+    public Atestado(Medico medico, Paciente paciente , String mensagem ,LocalDate dataEmissao ,int duracaoDias)
+        throws DadosInvalidosException, DataInvalidaException{
+        
+        if(medico == null || paciente == null){
+            throw new DadosInvalidosException("Paciente e Medico devem ser informados! ");
+        }
             
+        if(mensagem == null || mensagem.trim().isEmpty()){
+            throw new DadosInvalidosException("A mensagem do atestado deve ser preenchida! ");
+        }
+        
+        if(duracaoDias <= 0){
+            throw new DadosInvalidosException("Deve ser informada uma duração válida para o atestado, no minimo 1 dia");
+        }
+        
+        if(dataEmissao == null || dataEmissao.isAfter(LocalDate.now())){
+            throw new DataInvalidaException("Data de emissão inválida ");
+        }   
+        
         this.medicoResponsavel = medico;
         this.pacienteAlvo = paciente;
         this.mensagem = mensagem;
@@ -68,6 +87,11 @@ public class Atestado {
         if(emitido){
             throw new IllegalStateException("Atestado já emitido e não pode ser alterado.");
         }
+        
+        if(novaMensagem == null || novaMensagem.trim().isEmpty()){
+            throw new DadosInvalidosException("Nova mensagem não deve ser vazia!");
+        }
+        
         this.mensagem = novaMensagem;
     }
 
