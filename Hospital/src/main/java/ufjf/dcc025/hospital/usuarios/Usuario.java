@@ -24,9 +24,12 @@ public abstract class Usuario {
     private void validarCamposBasicos(String nome, String cpf, String login, String senha) throws DadosInvalidosException{
         
         if (nome == null || nome.isEmpty()) throw new DadosInvalidosException("Nome inválido");
-        if (cpf == null || cpf.length() != 11) throw new DadosInvalidosException("CPF deve ter 11 dígitos");
         if (login == null || login.isEmpty()) throw new DadosInvalidosException("Login inválido");
         if (senha == null || senha.isEmpty()) throw new DadosInvalidosException("Senha inválido");
+        
+        String cpfLimpo = (cpf != null) ? cpf.replaceAll("[^0-9]","") : "";
+        if (cpfLimpo.length() != 11) throw new DadosInvalidosException("CPF deve ter 11 dígitos");
+
     }
     
     public abstract String getTipo();

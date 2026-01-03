@@ -38,7 +38,8 @@ public class Medico extends Usuario{
     /**
     * Cria um medico com nome, CPF e especialidade.
     * @param nome nome do medico
-    * @param email email do medico
+     * @param cpf
+     * @param login
     * @param senha senha do medico
     * @param especialidade especialidade medica
     */
