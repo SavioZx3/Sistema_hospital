@@ -14,23 +14,19 @@ public abstract class Usuario {
     
     public Usuario(String nome , String cpf, String login, String senha) throws DadosInvalidosException {
         
-        validarCamposBasicos(nome, cpf, login, senha);
-        this.nome = nome;
-        this.cpf = cpf;
-        this . login = login;
-        this.senha = senha;
-    } 
-    
-    private void validarCamposBasicos(String nome, String cpf, String login, String senha) throws DadosInvalidosException{
         
-        if (nome == null || nome.isEmpty()) throw new DadosInvalidosException("Nome inválido");
+        if (nome  == null || nome.isEmpty()) throw new DadosInvalidosException("Nome inválido");
         if (login == null || login.isEmpty()) throw new DadosInvalidosException("Login inválido");
         if (senha == null || senha.isEmpty()) throw new DadosInvalidosException("Senha inválido");
         
         String cpfLimpo = (cpf != null) ? cpf.replaceAll("[^0-9]","") : "";
         if (cpfLimpo.length() != 11) throw new DadosInvalidosException("CPF deve ter 11 dígitos");
-
-    }
+        
+        this.nome = nome;
+        this.cpf = cpfLimpo;
+        this.login = login;
+        this.senha = senha;
+    } 
     
     public abstract String getTipo();
     
@@ -46,10 +42,10 @@ public abstract class Usuario {
     public String getCpf(){ return cpf; }
     
     public void setCpf(String cpf) throws DadosInvalidosException{
-        if (cpf == null || cpf.length() != 11) 
-            throw new DadosInvalidosException("CPF deve conter 11 dígitos numéricos");
+        String cpfLimpo = (cpf != null) ? cpf.replaceAll("[^0-9]","") : "";
+        if (cpfLimpo.length() != 11) throw new DadosInvalidosException("CPF deve ter 11 dígitos");
          
-        this.cpf = cpf;
+        this.cpf = cpfLimpo;
     }
  
     public String getLogin(){ return login; }
