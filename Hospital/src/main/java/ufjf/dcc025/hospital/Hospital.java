@@ -68,15 +68,51 @@ public class Hospital {
     }
 
     private static void realizarLogin(){
-        System.out.println("Login: ");
-        String login = scanner.nextLine();
+        int opcao;
+        do{
+            System.out.println("\n===LOGIN===");
+            System.out.println("1. Paciente");
+            System.out.println("2. Médico");
+            System.out.println("3. Recepcionista");
+            System.out.println("0. Voltar");
 
-        System.out.println("Senha:");
-        String senha = scanner.nextLine();
+            opcao = scanner.nextInt();
+            scanner.nextLine();
 
-        System.out.println("Login realizado(mock)");
+            switch(opcao){
+                case 1 -> menuPaciente();
+                case 2 -> menuMedico();
+                case 3 -> menuRecepcionista();
+                case 0 -> System.out.println("Voltando...");
+                default -> System.out.println("Opção inválida!");
+            }
+        } while(opcao != 0);
+    }
 
-        //por agora vou jogar direto pro menu paciente
-        menuPaciente();
+    private static void menuMedico(){
+        int opcao;
+    do {
+        System.out.println("\n=== MENU MÉDICO ===");
+        System.out.println("1. Ver agenda");
+        System.out.println("2. Ver consultas");
+        System.out.println("3. Emitir atestado");
+        System.out.println("0. Voltar");
+
+        opcao = scanner.nextInt();
+        scanner.nextLine();
+
+        switch(opcao){
+            case 1 -> System.out.println("Agenda em desenvolvimento...");
+            case 2 -> System.out.println("Consultas em desenvolvimento...");
+            case 3 -> System.out.println("Atestado em desenvolvimento...");
+            case 0 -> System.out.println("Voltando...");
+            default -> System.out.println("Opção inválida!");
+        }
+    } while(opcao != 0);
+    }
+
+    private static void menuRecepcionista(){
+        System.out.println("\n=== MENU RECEPCIONISTA ===");
+        System.out.println("Funcionalidade em desenvolvimento...");
     }
 }
