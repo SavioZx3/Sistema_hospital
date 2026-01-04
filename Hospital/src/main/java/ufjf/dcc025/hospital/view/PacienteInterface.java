@@ -9,5 +9,8 @@ package ufjf.dcc025.hospital.view;
  * @author mjjun
  */
 public class PacienteInterface {
-    
+    public static void exibir(){
+        System.out.println("\n===INTERFACE PACIENTE===");
+        System.out.println("Funcionalidades do paciente em desenvolvimento...");
+    }
 }
