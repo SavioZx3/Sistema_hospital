@@ -2,6 +2,7 @@ package ufjf.dcc025.hospital.controller;
 
 public class ConsultaController {
 
+    //parte do médico - inicio
     public void listarAgendaMedico(){
         System.out.println("\n=== AGENDA DO MÉDICO ===");
         System.out.println("09:00 - Consulta com paciente A");
@@ -16,7 +17,9 @@ public class ConsultaController {
         System.out.println("Paciente: Maria | Horário: 10:30");
         System.out.println("(dados simulados)");
     }
+    //parte do medico - fim
 
+    //parte da secretaria - inicio
     public void agendarConsulta() {
         System.out.println("\nAgendamento de consulta (mock)");
         System.out.println("Consulta agendada com sucesso!");
@@ -33,4 +36,5 @@ public class ConsultaController {
         System.out.println("10:30 - Maria");
         System.out.println("(dados simulados)");
     }
+    //parta da secretaria - fim 
 }
