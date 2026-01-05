@@ -1,9 +1,12 @@
 package ufjf.dcc025.hospital.view;
 
+import ufjf.dcc025.hospital.controller.LoginController;
 import java.util.Scanner;
 
 public class Login {
+
     private static Scanner scanner = new Scanner(System.in);
+    private static LoginController controller = new LoginController();
 
     public static void exibir(){
         int opcao;
@@ -19,21 +22,23 @@ public class Login {
             scanner.nextLine();
 
             switch(opcao){
-                case 1:
-                    PacienteInterface.exibir();
-                    break;
-                case 2:
-                    MedicoInterface.exibir();
-                    break;
-                case 3:
-                    SecretariaInterface.exibir();
-                    break;
-                case 0:
-                    System.out.println("Voltando ao menu principal...");
-                    break;
-                default:
-                    System.out.println("Opção inválida!");
-                    break;
+                case 1, 2, 3 -> {
+                    LoginController.TipoUsuario tipo = controller.escolheTipoUsuario(opcao);
+
+                    if(tipo == LoginController.TipoUsuario.PACIENTE){
+                        PacienteInterface.exibir();
+                    }
+
+                    else if(tipo == LoginController.TipoUsuario.MEDICO){
+                        MedicoInterface.exibir();
+                    }
+
+                    else if(tipo == LoginController.TipoUsuario.RECEPCIONISTA){
+                        SecretariaInterface.exibir();
+                    }
+                }
+                case 0 -> System.out.println("Voltando ao menu principal...");
+                default -> System.out.println("Opção inválida!");
             }
         }
         while(opcao != 0);
