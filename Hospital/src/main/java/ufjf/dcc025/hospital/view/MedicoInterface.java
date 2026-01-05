@@ -1,10 +1,12 @@
 package ufjf.dcc025.hospital.view;
 
+import ufjf.dcc025.hospital.controller.ConsultaController;
 import java.util.Scanner;
 
 public class MedicoInterface {
 
     private static Scanner scanner = new Scanner(System.in);
+    private static ConsultaController consultaController = new ConsultaController();
 
     public static void exibir(){
         int opcao;
@@ -22,10 +24,10 @@ public class MedicoInterface {
 
             switch(opcao){
                 case 1:
-                    verAgenda();
+                    consultaController.listarAgendaMedico();
                     break;
                 case 2:
-                    verConsultas();
+                    consultaController.listarConsultas();
                     break;
                 case 3:
                     emitirAtestado();
@@ -47,22 +49,7 @@ public class MedicoInterface {
         while (opcao != 0);
     }
 
-    ///MOCKS PARA OS TESTES, DEPOIS VOU TROCAR PARA CHAMADAS REAIS///
-    private static void verAgenda(){
-        System.out.println("\n===AGENDA DO MÉDICO===");
-        System.out.println("09:00 - Consulta com paciente A");
-        System.out.println("10:30 - Consulta com paciente B");
-        System.out.println("14:00 - Consulta com paciente C");
-        System.out.println("(dados simulados para os testes)");
-    }
-
-    private static void verConsultas(){
-        System.out.println("\n===CONSULTAS DO DIA===");
-        System.out.println("Paciente: João | Horário: 09:00");
-        System.out.println("Paciente: Maria | Horário: 10:30");
-        System.out.println("(dados simulados para os testes)");
-    }
-
+    ///MOCKS PARA OS TESTES, DEPOIS VOU TROCAR PARA CHAMADAS REAIS//
     private static void emitirAtestado(){
         System.out.println("\n===Emissão de Atestado===");
 
