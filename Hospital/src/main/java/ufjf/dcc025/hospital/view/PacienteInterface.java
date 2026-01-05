@@ -1,10 +1,12 @@
 package ufjf.dcc025.hospital.view;
 
 import java.util.Scanner;
+import ufjf.dcc025.hospital.controller.PacienteController;
 
 public class PacienteInterface {
 
-    private static Scanner scanner = new Scanner(System.in);   
+    private static Scanner scanner = new Scanner(System.in);  
+    private static PacienteController controller = new PacienteController(); 
 
     public static void exibir(){
         int opcao;
@@ -45,31 +47,22 @@ public class PacienteInterface {
 
     ///MOCKS PARA OS TESTES, DEPOIS VOU TROCAR PARA CHAMADAS REAIS///
     private static void verConsultas(){
-        System.out.println("\n=== MINHAS CONSULTAS ===");
-        System.out.println("Data: 10/01/2026 | Horário: 09:00 | Médico: Dr. João");
-        System.out.println("Data: 15/01/2026 | Horário: 14:30 | Médico: Dra. Maria");
-        System.out.println("(dados simulados)");
+        System.out.println("\n===MINHAS CONSULTAS===");
+        controller.listarConsultas().forEach(System.out::println);
     }
 
     private static void verExames(){
         System.out.println("\n=== MEUS EXAMES ===");
-        System.out.println("Exame: Hemograma | Data: 12/01/2026 | Status: Realizado");
-        System.out.println("Exame: Raio-X | Data: 20/01/2026 | Status: Agendado");
-        System.out.println("(dados simulados)");
+    controller.listarExames().forEach(System.out::println);
     }
 
     private static void verReceitas(){
         System.out.println("\n=== MINHAS RECEITAS ===");
-        System.out.println("Medicamento: Dipirona | Quantidade: 1 comprimido a cada 8h");
-        System.out.println("Medicamento: Amoxicilina | Quantidade: 500mg por 7 dias");
-        System.out.println("(dados simulados)");
+        controller.listarReceitas().forEach(System.out::println);
     }
 
     private static void verAtestados(){
         System.out.println("\n=== MEUS ATESTADOS ===");
-        System.out.println("Data de emissão: 08/01/2026 | Duração: 3 dias");
-        System.out.println("Motivo: Repouso médico");
-        System.out.println("(dados simulados)");
+        controller.listarAtestados().forEach(System.out::println);
     }
-
 }
