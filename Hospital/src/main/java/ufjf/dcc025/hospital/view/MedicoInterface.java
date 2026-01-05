@@ -1,12 +1,14 @@
 package ufjf.dcc025.hospital.view;
 
 import ufjf.dcc025.hospital.controller.ConsultaController;
+import ufjf.dcc025.hospital.controller.MedicoController;
 import java.util.Scanner;
 
 public class MedicoInterface {
 
     private static Scanner scanner = new Scanner(System.in);
     private static ConsultaController consultaController = new ConsultaController();
+    private static MedicoController medicoController = new MedicoController();
 
     public static void exibir(){
         int opcao;
@@ -51,39 +53,34 @@ public class MedicoInterface {
 
     ///MOCKS PARA OS TESTES, DEPOIS VOU TROCAR PARA CHAMADAS REAIS//
     private static void emitirAtestado(){
-        System.out.println("\n===Emissão de Atestado===");
+        System.out.println("\n=== EMISSÃO DE ATESTADO ===");
 
-        System.out.println("CPF do paciente: ");
+        System.out.print("CPF do paciente: ");
         String cpf = scanner.nextLine();
 
-        System.out.println("Duração do atestado (dias): ");
+        System.out.print("Duração do atestado (dias): ");
         int dias = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.println("Mensagem do atestado:");
+        System.out.print("Mensagem do atestado: ");
         String mensagem = scanner.nextLine();
 
-        System.out.println("\nAtestado emitido com sucesso!");
-        System.out.println("(mock) Paciente CPF: " + cpf);
-        System.out.println("Duração: " + dias + " dias");
-        System.out.println("Mensagem: " + mensagem);
+        medicoController.emitirAtestado(cpf, dias, mensagem);
     }
 
     private static void solicitarExame(){
-        System.out.println("\n===Solicitação de Exame===");
+        System.out.println("\n=== SOLICITAÇÃO DE EXAME ===");
 
-        System.out.println("CPF do paciente: ");
+        System.out.print("CPF do paciente: ");
         String cpf = scanner.nextLine();
 
-        System.out.println("Tipo de exame: ");
+        System.out.print("Tipo de exame: ");
         String tipoExame = scanner.nextLine();
 
-        System.out.println("Data do exame(dd/mm/aaaa");
+        System.out.print("Data do exame (dd/mm/aaaa): ");
         String data = scanner.nextLine();
 
-        System.out.println("\nExame solicitado com sucesso!");
-        System.out.println("(mock) Paciente CPF: " + cpf);
-        System.out.println("Exame: " + tipoExame + " | Data: " + data);
+        medicoController.solicitarExame(cpf, tipoExame, data);
     }
 
     private static void emitirReceita(){
@@ -98,9 +95,6 @@ public class MedicoInterface {
         System.out.print("Quantidade / Posologia: ");
         String quantidade = scanner.nextLine();
 
-        System.out.println("\nReceita emitida com sucesso!");
-        System.out.println("(mock) Paciente CPF: " + cpf);
-        System.out.println("Medicamento: " + medicamento);
-        System.out.println("Quantidade: " + quantidade);
+        medicoController.emitirReceita(cpf, medicamento, quantidade);
     }
 }
