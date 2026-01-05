@@ -8,39 +8,32 @@ public class Login {
     private static Scanner scanner = new Scanner(System.in);
     private static LoginController controller = new LoginController();
 
-    public static void exibir(){
+    public static void exibir() {
         int opcao;
-        do{
-            System.out.println("\n===LOGIN===");
-            System.out.println("1. Paciente");
-            System.out.println("2. Médico");
-            System.out.println("3. Recepcionista");
-            System.out.println("0. Voltar");
-            System.out.println("Escolha uma opção: ");
+        do {
+            System.out.println("\n=== LOGIN ===");
+            System.out.println("1. Entrar");
+            System.out.println("0. Sair");
+            System.out.print("Escolha uma opção: ");
 
             opcao = scanner.nextInt();
             scanner.nextLine();
 
-            switch(opcao){
-                case 1, 2, 3 -> {
-                    LoginController.TipoUsuario tipo = controller.escolheTipoUsuario(opcao);
+            if (opcao == 1) {
+                System.out.print("Email: ");
+                String email = scanner.nextLine();
 
-                    if(tipo == LoginController.TipoUsuario.PACIENTE){
-                        PacienteInterface.exibir();
-                    }
+                LoginController.TipoUsuario tipo = controller.autenticar(email);
 
-                    else if(tipo == LoginController.TipoUsuario.MEDICO){
-                        MedicoInterface.exibir();
-                    }
-
-                    else if(tipo == LoginController.TipoUsuario.RECEPCIONISTA){
-                        SecretariaInterface.exibir();
-                    }
+                switch (tipo) {
+                    case PACIENTE -> PacienteInterface.exibir();
+                    case MEDICO -> MedicoInterface.exibir();
+                    case RECEPCIONISTA -> SecretariaInterface.exibir();
                 }
-                case 0 -> System.out.println("Voltando ao menu principal...");
-                default -> System.out.println("Opção inválida!");
             }
-        }
-        while(opcao != 0);
+
+        } while (opcao != 0);
+
+        System.out.println("Encerrando sistema...");
     }
 }

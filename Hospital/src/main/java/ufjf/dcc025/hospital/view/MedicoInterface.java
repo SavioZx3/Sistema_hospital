@@ -52,49 +52,45 @@ public class MedicoInterface {
     }
 
     ///MOCKS PARA OS TESTES, DEPOIS VOU TROCAR PARA CHAMADAS REAIS//
-    private static void emitirAtestado(){
-        System.out.println("\n=== EMISSÃO DE ATESTADO ===");
-
+    private static void emitirAtestado() {
         System.out.print("CPF do paciente: ");
         String cpf = scanner.nextLine();
 
-        System.out.print("Duração do atestado (dias): ");
+        System.out.print("Duração (dias): ");
         int dias = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Mensagem do atestado: ");
+        System.out.print("Mensagem: ");
         String mensagem = scanner.nextLine();
 
         medicoController.emitirAtestado(cpf, dias, mensagem);
     }
 
     private static void solicitarExame(){
-        System.out.println("\n=== SOLICITAÇÃO DE EXAME ===");
-
         System.out.print("CPF do paciente: ");
         String cpf = scanner.nextLine();
 
-        System.out.print("Tipo de exame: ");
-        String tipoExame = scanner.nextLine();
+        System.out.print("Exame: ");
+        String exame= scanner.nextLine();
+        scanner.nextLine();
 
-        System.out.print("Data do exame (dd/mm/aaaa): ");
+        System.out.print("Data: ");
         String data = scanner.nextLine();
 
-        medicoController.solicitarExame(cpf, tipoExame, data);
+        medicoController.solicitarExame(cpf, exame, data);
     }
 
     private static void emitirReceita(){
-        System.out.println("\n=== EMISSÃO DE RECEITA ===");
-
         System.out.print("CPF do paciente: ");
         String cpf = scanner.nextLine();
 
         System.out.print("Medicamento: ");
         String medicamento = scanner.nextLine();
+        scanner.nextLine();
 
-        System.out.print("Quantidade / Posologia: ");
-        String quantidade = scanner.nextLine();
+        System.out.print("Posologia: ");
+        String posologia = scanner.nextLine();
 
-        medicoController.emitirReceita(cpf, medicamento, quantidade);
+        medicoController.emitirReceita(cpf, medicamento, posologia);
     }
 }

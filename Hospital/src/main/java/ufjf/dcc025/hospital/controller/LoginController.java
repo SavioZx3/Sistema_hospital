@@ -6,12 +6,15 @@ public class LoginController {
         PACIENTE, MEDICO, RECEPCIONISTA
     }
 
-    public TipoUsuario escolheTipoUsuario(int opcao){
-        return switch(opcao){
-            case 1 -> TipoUsuario.PACIENTE;
-            case 2 -> TipoUsuario.MEDICO;
-            case 3 -> TipoUsuario.RECEPCIONISTA;
-            default -> null;
-        };
+    ///MOCK de autentificação por email (ideia simples por enquanto)
+    public TipoUsuario autenticar(String email){
+        if(email.contains("medico")){
+            return TipoUsuario.MEDICO;
+        }
+        if(email.contains("recep")){
+            return TipoUsuario.RECEPCIONISTA;
+        }
+
+        return TipoUsuario.PACIENTE;
     }
 }
