@@ -10,50 +10,41 @@ public class PacienteInterface {
 
     public static void exibir(){
         int opcao;
+
         do{
-            System.out.println("\n===INTERFACE PACIENTE===");
+            System.out.println("INTERFACE PACIENTE");
             System.out.println("1. Ver consultas");
             System.out.println("2. Ver exames");
             System.out.println("3. Ver receitas");
             System.out.println("4. Ver atestados");
             System.out.println("0. Voltar");
+            System.out.print("Escolha uma opção: ");
 
             opcao = scanner.nextInt();
             scanner.nextLine();
 
             switch(opcao){
-                case 1:
-                    verConsultas();
-                    break;
-                case 2:
-                    verExames();
-                    break;
-                case 3:
-                    verReceitas();
-                    break;
-                case 4:
-                    verAtestados();
-                    break;
-                case 0:
-                    System.out.println("Voltando ao menu de login...");
-                    break;
-                default:
-                    System.out.println("Opção inválida!");
-                    break;
+                case 1 -> verConsultas();
+                case 2 -> verExames();
+                case 3 -> verReceitas();
+                case 4 -> verAtestados();
+                case 0 -> System.out.println("Voltando ao menu de login...");
+                default -> System.out.println("Opção inválida!");
             }
-        }
-        while(opcao != 0);
+
+        } while(opcao != 0);
     }
 
-    ///MOCKS PARA OS TESTES, DEPOIS VOU TROCAR PARA CHAMADAS REAIS///
+    /// ================= MOCKS =================
+
     private static void verConsultas(){
-        System.out.println("\n===MINHAS CONSULTAS===");
+        System.out.println("\n=== MINHAS CONSULTAS ===");
         controller.listarConsultas().forEach(System.out::println);
     }
 
     private static void verExames(){
         System.out.println("\n=== MEUS EXAMES ===");
-    controller.listarExames().forEach(System.out::println);
+        controller.listarExames().forEach(System.out::println);
     }
 
     private static void verReceitas(){
