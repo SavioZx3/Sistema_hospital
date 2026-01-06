@@ -72,7 +72,6 @@ public class MedicoInterface {
 
         System.out.print("Exame: ");
         String exame= scanner.nextLine();
-        scanner.nextLine();
 
         System.out.print("Data: ");
         String data = scanner.nextLine();
@@ -86,7 +85,6 @@ public class MedicoInterface {
 
         System.out.print("Medicamento: ");
         String medicamento = scanner.nextLine();
-        scanner.nextLine();
 
         System.out.print("Posologia: ");
         String posologia = scanner.nextLine();

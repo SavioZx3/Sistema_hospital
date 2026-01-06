@@ -11,7 +11,9 @@ public class Login {
     public static void exibir() {
         int opcao;
         do {
-            System.out.println("\n=== LOGIN ===");
+            System.out.println("\n=================================");
+            System.out.println("        SISTEMA HOSPITAL");
+            System.out.println("=================================");
             System.out.println("1. Entrar");
             System.out.println("0. Sair");
             System.out.print("Escolha uma opção: ");
@@ -20,20 +22,54 @@ public class Login {
             scanner.nextLine();
 
             if (opcao == 1) {
-                System.out.print("Email: ");
-                String email = scanner.nextLine();
+                realizarLogin();
+            } 
+            else if (opcao == 0) {
+                System.out.print("Deseja realmente sair? (s/n): ");
+                String confirmacao = scanner.nextLine();
 
-                LoginController.TipoUsuario tipo = controller.autenticar(email);
-
-                switch (tipo) {
-                    case PACIENTE -> PacienteInterface.exibir();
-                    case MEDICO -> MedicoInterface.exibir();
-                    case RECEPCIONISTA -> SecretariaInterface.exibir();
+                if (confirmacao.equalsIgnoreCase("s")) {
+                    System.out.println("\nEncerrando sistema...");
+                    break;
+                } else {
+                    opcao = -1; // força continuar no menu
                 }
+            } 
+            else {
+                System.out.println("Opção inválida. Tente novamente.");
             }
 
         } while (opcao != 0);
-
         System.out.println("Encerrando sistema...");
+    }
+
+    /// MOCK DE LOGIN — autenticação simplificada por email
+    private static void realizarLogin() {
+        System.out.print("\nEmail: ");
+        String email = scanner.nextLine();
+
+        LoginController.TipoUsuario tipo = controller.autenticar(email);
+
+        System.out.println("\nLogin realizado com sucesso!");
+        System.out.println("Perfil identificado: " + tipo);
+        System.out.println("---------------------------------");
+
+        switch (tipo) {
+            case PACIENTE:
+                PacienteInterface.exibir();
+                break;
+
+            case MEDICO:
+                MedicoInterface.exibir();
+                break;
+
+            case RECEPCIONISTA:
+                SecretariaInterface.exibir();
+                break;
+
+            default:
+                System.out.println("Perfil inválido.");
+                break;
+        }
     }
 }
