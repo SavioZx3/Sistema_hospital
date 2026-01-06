@@ -11,9 +11,7 @@ public class Login {
     public static void exibir() {
         int opcao;
         do {
-            System.out.println("\n=================================");
-            System.out.println("        SISTEMA HOSPITAL");
-            System.out.println("=================================");
+            System.out.println("SISTEMA HOSPITAL");
             System.out.println("1. Entrar");
             System.out.println("0. Sair");
             System.out.print("Escolha uma opção: ");
