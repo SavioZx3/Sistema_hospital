@@ -4,31 +4,39 @@ import ufjf.dcc025.hospital.controller.ConsultaController;
 import ufjf.dcc025.hospital.controller.MedicoController;
 import java.util.Scanner;
 
+/**
+ * Interface do médico.
+ * 
+ * Responsável por exibir menus e capturar dados.
+ * A lógica de negócio é delegada aos controllers.
+ */
 public class MedicoInterface {
 
     private static Scanner scanner = new Scanner(System.in);
+
+    // Controllers utilizados pela interface
     private static ConsultaController consultaController = new ConsultaController();
     private static MedicoController medicoController = new MedicoController();
 
-    public static void exibir(){
+    /**
+     * Exibe o menu principal do médico.
+     */
+    public static void exibir() {
         int opcao;
 
-        do{
-            System.out.println("\n=================================");
-            System.out.println("          INTERFACE MÉDICO");
-            System.out.println("=================================");
+        do {
+            System.out.println("\n=== INTERFACE MÉDICO ===");
             System.out.println("1. Ver agenda");
             System.out.println("2. Ver consultas");
             System.out.println("3. Emitir atestado");
-            System.out.println("4. Solicitar exame");
+            System.out.println("4. Solicitar exames");
             System.out.println("5. Emitir receita");
             System.out.println("0. Voltar");
-            System.out.print("Escolha uma opção: ");
 
             opcao = scanner.nextInt();
             scanner.nextLine();
 
-            switch(opcao){
+            switch (opcao) {
                 case 1 -> consultaController.listarAgendaMedico();
                 case 2 -> consultaController.listarConsultas();
                 case 3 -> emitirAtestado();
@@ -41,42 +49,44 @@ public class MedicoInterface {
         } while (opcao != 0);
     }
 
-    /// ================= MOCKS =================
-
+    /**
+     * Captura os dados e solicita ao controller a emissão de atestado.
+     * Método mock.
+     */
     private static void emitirAtestado() {
-        System.out.println("\n=== EMISSÃO DE ATESTADO ===");
-
         System.out.print("CPF do paciente: ");
         String cpf = scanner.nextLine();
 
-        System.out.print("Duração (em dias): ");
+        System.out.print("Duração (dias): ");
         int dias = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Mensagem do atestado: ");
+        System.out.print("Mensagem: ");
         String mensagem = scanner.nextLine();
 
         medicoController.emitirAtestado(cpf, dias, mensagem);
     }
 
-    private static void solicitarExame(){
-        System.out.println("\n=== SOLICITAÇÃO DE EXAME ===");
-
+    /**
+     * Solicita um exame para um paciente (mock).
+     */
+    private static void solicitarExame() {
         System.out.print("CPF do paciente: ");
         String cpf = scanner.nextLine();
 
-        System.out.print("Tipo de exame: ");
+        System.out.print("Exame: ");
         String exame = scanner.nextLine();
 
-        System.out.print("Data do exame (dd/mm/aaaa): ");
+        System.out.print("Data: ");
         String data = scanner.nextLine();
 
         medicoController.solicitarExame(cpf, exame, data);
     }
 
-    private static void emitirReceita(){
-        System.out.println("\n=== EMISSÃO DE RECEITA ===");
-
+    /**
+     * Emite uma receita médica (mock).
+     */
+    private static void emitirReceita() {
         System.out.print("CPF do paciente: ");
         String cpf = scanner.nextLine();
 
