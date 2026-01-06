@@ -12,74 +12,71 @@ public class MedicoInterface {
 
     public static void exibir(){
         int opcao;
+
         do{
-            System.out.println("\n===INTERFACE MÉDICO===");
+            System.out.println("\n=================================");
+            System.out.println("          INTERFACE MÉDICO");
+            System.out.println("=================================");
             System.out.println("1. Ver agenda");
             System.out.println("2. Ver consultas");
             System.out.println("3. Emitir atestado");
-            System.out.println("4. Solicitar exames");
+            System.out.println("4. Solicitar exame");
             System.out.println("5. Emitir receita");
             System.out.println("0. Voltar");
+            System.out.print("Escolha uma opção: ");
 
             opcao = scanner.nextInt();
             scanner.nextLine();
 
             switch(opcao){
-                case 1:
-                    consultaController.listarAgendaMedico();
-                    break;
-                case 2:
-                    consultaController.listarConsultas();
-                    break;
-                case 3:
-                    emitirAtestado();
-                    break;
-                case 4:
-                    solicitarExame();
-                    break;
-                case 5:
-                    emitirReceita();
-                    break;
-                case 0:
-                    System.out.println("Voltando ao menu de login...");
-                    break;
-                default:
-                    System.out.println("Opção inválida!");
-                    break;
+                case 1 -> consultaController.listarAgendaMedico();
+                case 2 -> consultaController.listarConsultas();
+                case 3 -> emitirAtestado();
+                case 4 -> solicitarExame();
+                case 5 -> emitirReceita();
+                case 0 -> System.out.println("Voltando ao menu de login...");
+                default -> System.out.println("Opção inválida!");
             }
-        } 
-        while (opcao != 0);
+
+        } while (opcao != 0);
     }
 
-    ///MOCKS PARA OS TESTES, DEPOIS VOU TROCAR PARA CHAMADAS REAIS//
+    /// ================= MOCKS =================
+
     private static void emitirAtestado() {
+        System.out.println("\n=== EMISSÃO DE ATESTADO ===");
+
         System.out.print("CPF do paciente: ");
         String cpf = scanner.nextLine();
 
-        System.out.print("Duração (dias): ");
+        System.out.print("Duração (em dias): ");
         int dias = scanner.nextInt();
         scanner.nextLine();
 
-        System.out.print("Mensagem: ");
+        System.out.print("Mensagem do atestado: ");
         String mensagem = scanner.nextLine();
 
         medicoController.emitirAtestado(cpf, dias, mensagem);
     }
 
     private static void solicitarExame(){
+        System.out.println("\n=== SOLICITAÇÃO DE EXAME ===");
+
         System.out.print("CPF do paciente: ");
         String cpf = scanner.nextLine();
 
-        System.out.print("Exame: ");
-        String exame= scanner.nextLine();
+        System.out.print("Tipo de exame: ");
+        String exame = scanner.nextLine();
 
-        System.out.print("Data: ");
+        System.out.print("Data do exame (dd/mm/aaaa): ");
         String data = scanner.nextLine();
 
         medicoController.solicitarExame(cpf, exame, data);
     }
 
     private static void emitirReceita(){
+        System.out.println("\n=== EMISSÃO DE RECEITA ===");
+
         System.out.print("CPF do paciente: ");
         String cpf = scanner.nextLine();
 
