@@ -1,4 +1,4 @@
-package ufjf.dcc025.hospital.usuarios.médico;
+package ufjf.dcc025.hospital.usuarios.medico;
 
 
 public enum DiaSemana {
