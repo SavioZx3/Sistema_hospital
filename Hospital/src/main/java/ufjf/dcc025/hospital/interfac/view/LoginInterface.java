@@ -1,16 +1,17 @@
-package ufjf.dcc025.hospital.view;
+package ufjf.dcc025.hospital.interfac.view;
 
-import ufjf.dcc025.hospital.controller.LoginController;
+
+import ufjf.dcc025.hospital.interfac.controller.LoginController;
 import java.util.Scanner;
 
 /**
  * Classe responsável pela interface de login do sistema.
- * 
+ * ufjf.dcc025.hospital.interfac.view
  * Esta classe apenas captura os dados do usuário e
  * direciona para a interface correta conforme o tipo de usuário.
  * Não contém regras de negócio.
  */
-public class Login {
+public class LoginInterface {
 
     // Scanner único para entrada de dados no console
     private static Scanner scanner = new Scanner(System.in);

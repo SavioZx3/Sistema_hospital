@@ -1,11 +1,11 @@
-package ufjf.dcc025.hospital.view;
+package ufjf.dcc025.hospital.interfac.view;
 
-import ufjf.dcc025.hospital.controller.ConsultaController;
+import ufjf.dcc025.hospital.interfac.controller.ConsultaController;
 import java.util.Scanner;
 
 /**
  * Interface da recepcionista.
- * 
+ * ufjf.dcc025.hospital.interfac.view
  * Responsável por agendamento e gerenciamento de consultas.
  */
 public class SecretariaInterface {

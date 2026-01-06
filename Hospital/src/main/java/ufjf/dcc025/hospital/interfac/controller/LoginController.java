@@ -1,4 +1,5 @@
-package ufjf.dcc025.hospital.controller;
+
+package ufjf.dcc025.hospital.interfac.controller;
 
 /**
  * Controller responsável pela autenticação do usuário.

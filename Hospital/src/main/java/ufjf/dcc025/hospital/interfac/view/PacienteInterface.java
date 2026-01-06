@@ -1,11 +1,11 @@
-package ufjf.dcc025.hospital.view;
+package ufjf.dcc025.hospital.interfac.view;
 
 import java.util.Scanner;
-import ufjf.dcc025.hospital.controller.PacienteController;
+import ufjf.dcc025.hospital.interfac.controller.PacienteController;
 
 /**
  * Interface do paciente.
- * 
+ * ufjf.dcc025.hospital.interfac.view
  * Exibe informações relacionadas ao paciente autenticado.
  */
 public class PacienteInterface {

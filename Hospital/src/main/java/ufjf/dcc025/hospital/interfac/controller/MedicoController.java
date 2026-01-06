@@ -1,4 +1,4 @@
-package ufjf.dcc025.hospital.controller;
+package ufjf.dcc025.hospital.interfac.controller;
 
 /**
  * Controller responsável pelas ações realizadas pelo médico.

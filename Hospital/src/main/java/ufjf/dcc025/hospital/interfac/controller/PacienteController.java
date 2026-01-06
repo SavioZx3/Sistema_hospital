@@ -1,4 +1,5 @@
-package ufjf.dcc025.hospital.controller;
+package ufjf.dcc025.hospital.interfac.controller;
+
 
 import java.util.ArrayList;
 import java.util.List;

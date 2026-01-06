@@ -1,11 +1,11 @@
-package ufjf.dcc025.hospital.view;
+package ufjf.dcc025.hospital.interfac.view;
 
-import ufjf.dcc025.hospital.controller.ConsultaController;
-import ufjf.dcc025.hospital.controller.MedicoController;
+import ufjf.dcc025.hospital.interfac.controller.ConsultaController;
+import ufjf.dcc025.hospital.interfac.controller.MedicoController;
 import java.util.Scanner;
 
 /**
- * Interface do médico.
+ * Interufjf.dcc025.hospital.interfac.view
  * 
  * Responsável por exibir menus e capturar dados.
  * A lógica de negócio é delegada aos controllers.
