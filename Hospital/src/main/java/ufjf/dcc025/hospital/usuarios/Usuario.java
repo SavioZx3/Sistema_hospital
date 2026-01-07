@@ -24,8 +24,6 @@ public abstract class Usuario {
         this.senha = new Senha(senha);
     } 
     
-    public abstract String getTipo();
-    
     public String getNome(){ return nome; }
     public void setNome(String nome)throws DadosInvalidosException{
         if(nome == null || nome.trim().isEmpty())
@@ -54,4 +52,6 @@ public abstract class Usuario {
     public boolean validarSenha(String senhaDigitada) {
         return senha.verificar(senhaDigitada);
     }
+    
+    public abstract String getTipo();
 }
