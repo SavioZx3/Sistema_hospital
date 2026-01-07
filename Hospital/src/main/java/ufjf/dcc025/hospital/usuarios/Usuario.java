@@ -35,9 +35,6 @@ public abstract class Usuario {
     }
     
     public String getCpf(){ return cpf.getNumero(); }
-    public void setCpf(String novoCpf) throws DadosInvalidosException{
-        this.cpf = new Cpf(novoCpf);
-    }
         
     public void setSenha(String novaSenha)throws DadosInvalidosException{
         this.senha = new Senha(novaSenha);
