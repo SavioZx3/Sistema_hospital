@@ -1,101 +1,79 @@
 package ufjf.dcc025.hospital.interfac.view;
 
-import ufjf.dcc025.hospital.interfac.controller.ConsultaController;
-import ufjf.dcc025.hospital.interfac.controller.MedicoController;
-import java.util.Scanner;
+import javax.swing.*;
+import java.awt.*;
 
 /**
- * Interufjf.dcc025.hospital.interfac.view
- * 
- * Responsável por exibir menus e capturar dados.
- * A lógica de negócio é delegada aos controllers.
+ * Interface gráfica do médico.
+ * Responsável por centralizar as telas:
+ * - Agenda
+ * - Consultas
+ * - Visitas
  */
-public class MedicoInterface {
+public class MedicoInterface extends JFrame {
 
-    private static Scanner scanner = new Scanner(System.in);
+    private CardLayout cardLayout;
+    private JPanel painelConteudo;
 
-    // Controllers utilizados pela interface
-    private static ConsultaController consultaController = new ConsultaController();
-    private static MedicoController medicoController = new MedicoController();
+    public MedicoInterface() {
+        setTitle("Sistema Hospitalar - Médico");
+        setSize(900, 600);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
 
-    /**
-     * Exibe o menu principal do médico.
-     */
-    public static void exibir() {
-        int opcao;
+        criarMenuLateral();
+        criarPainelConteudo();
 
-        do {
-            System.out.println("\n=== INTERFACE MÉDICO ===");
-            System.out.println("1. Ver agenda");
-            System.out.println("2. Ver consultas");
-            System.out.println("3. Emitir atestado");
-            System.out.println("4. Solicitar exames");
-            System.out.println("5. Emitir receita");
-            System.out.println("0. Voltar");
-
-            opcao = scanner.nextInt();
-            scanner.nextLine();
-
-            switch (opcao) {
-                case 1 -> consultaController.listarAgendaMedico();
-                case 2 -> consultaController.listarConsultas();
-                case 3 -> emitirAtestado();
-                case 4 -> solicitarExame();
-                case 5 -> emitirReceita();
-                case 0 -> System.out.println("Voltando ao menu de login...");
-                default -> System.out.println("Opção inválida!");
-            }
-
-        } while (opcao != 0);
+        setVisible(true);
     }
 
     /**
-     * Captura os dados e solicita ao controller a emissão de atestado.
-     * Método mock.
+     * Cria o menu lateral com as opções do médico.
      */
-    private static void emitirAtestado() {
-        System.out.print("CPF do paciente: ");
-        String cpf = scanner.nextLine();
+    private void criarMenuLateral() {
+        JPanel menu = new JPanel();
+        menu.setLayout(new GridLayout(5, 1, 10, 10));
+        menu.setPreferredSize(new Dimension(180, 0));
 
-        System.out.print("Duração (dias): ");
-        int dias = scanner.nextInt();
-        scanner.nextLine();
+        JButton btnAgenda = new JButton("Minha agenda");
+        JButton btnConsultas = new JButton("Minhas consultas");
+        JButton btnVisitas = new JButton("Visitas");
+        JButton btnSair = new JButton("Sair");
 
-        System.out.print("Mensagem: ");
-        String mensagem = scanner.nextLine();
+        btnAgenda.addActionListener(e -> cardLayout.show(painelConteudo, "AGENDA"));
+        btnConsultas.addActionListener(e -> cardLayout.show(painelConteudo, "CONSULTAS"));
+        btnVisitas.addActionListener(e -> cardLayout.show(painelConteudo, "VISITAS"));
+        btnSair.addActionListener(e -> sair());
 
-        medicoController.emitirAtestado(cpf, dias, mensagem);
+        menu.add(btnAgenda);
+        menu.add(btnConsultas);
+        menu.add(btnVisitas);
+        menu.add(new JLabel()); // espaço vazio
+        menu.add(btnSair);
+
+        add(menu, BorderLayout.WEST);
     }
 
     /**
-     * Solicita um exame para um paciente (mock).
+     * Cria o painel central que troca as telas.
      */
-    private static void solicitarExame() {
-        System.out.print("CPF do paciente: ");
-        String cpf = scanner.nextLine();
+    private void criarPainelConteudo() {
+        cardLayout = new CardLayout();
+        painelConteudo = new JPanel(cardLayout);
 
-        System.out.print("Exame: ");
-        String exame = scanner.nextLine();
+        painelConteudo.add(new AgendaMedicoView(),"AGENDA");
+        painelConteudo.add(new ConsultasMedicoView(), "CONSULTAS");
+        painelConteudo.add(new VisitasMedicoView(), "VISITAS");
 
-        System.out.print("Data: ");
-        String data = scanner.nextLine();
-
-        medicoController.solicitarExame(cpf, exame, data);
+        add(painelConteudo, BorderLayout.CENTER);
     }
-
     /**
-     * Emite uma receita médica (mock).
+     * Finaliza a sessão do médico.
      */
-    private static void emitirReceita() {
-        System.out.print("CPF do paciente: ");
-        String cpf = scanner.nextLine();
-
-        System.out.print("Medicamento: ");
-        String medicamento = scanner.nextLine();
-
-        System.out.print("Posologia: ");
-        String posologia = scanner.nextLine();
-
-        medicoController.emitirReceita(cpf, medicamento, posologia);
+    private void sair() {
+        dispose();
+        // depois você pode voltar para LoginInterface
+        // new LoginInterface();
     }
 }
