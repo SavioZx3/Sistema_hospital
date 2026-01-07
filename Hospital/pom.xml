@@ -12,7 +12,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>17</maven.compiler.release>
-        <exec.mainClass>ufjf.dcc025.hospital.Hospital</exec.mainClass>
+        <exec.mainClass>ufjf.dcc025.hospital.main</exec.mainClass>
     </properties>
 
     <dependencies>
@@ -20,6 +20,12 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.10.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.9.0</version>
         </dependency>
 
         <dependency>
