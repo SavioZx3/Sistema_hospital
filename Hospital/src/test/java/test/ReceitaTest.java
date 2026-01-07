@@ -10,7 +10,6 @@ import ufjf.dcc025.hospital.outros.Cpf;
 import ufjf.dcc025.hospital.outros.Email;
 import ufjf.dcc025.hospital.servicos_hospital.Receita;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
-import ufjf.dcc025.hospital.usuarios.paciente.Historico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
 public class ReceitaTest {
@@ -22,16 +21,24 @@ public class ReceitaTest {
 
     @BeforeEach
     public void setUp() throws DadosInvalidosException {
-        // Limpeza dos registros estáticos para evitar erro de duplicidade
+        // Limpeza dos registros estáticos
         Cpf.limparCpfCadastrados();
         Email.limparEmailsCadastrados();
 
-        hoje = LocalDate.now();
-        mesQueVem = hoje.plusMonths(1);
+        this.hoje = LocalDate.now();
+        this.mesQueVem = hoje.plusMonths(1);
 
-        // Médicos e Pacientes com e-mails que a Apache Validator aceita
-        medico = new Medico("Dr. House", "999.999.999-99", "house@hospital.com", "senha123", "Diagnóstico");
-        paciente = new Paciente("Wilson", "222.222.222-22", "wilson@oncologia.com", "senha123", new Historico(), "Endereço", "32 91111-2222");
+        this.medico = criarMedicoPadrao();
+        this.paciente = criarPacientePadrao();
+    }
+
+    private Medico criarMedicoPadrao() throws DadosInvalidosException {
+        return new Medico("Dr. House", "999.999.999-99", "house@hospital.com", "senha123", "Diagnóstico");
+    }
+
+    private Paciente criarPacientePadrao() throws DadosInvalidosException {
+        return new Paciente("James Wilson", "222.222.222-22", "wilson@hospital.com", "senha123", "32 91111-2222", "Princeton", "Mercer", "Baker Street", "221B"
+        );
     }
 
     @Test
@@ -52,7 +59,7 @@ public class ReceitaTest {
         } catch (DataInvalidaException e) {
             Assertions.assertTrue(e.getMessage().contains("não pode ser anterior"));
         } catch (DadosInvalidosException e) {
-            Assertions.fail("Lançou a exceção errada");
+            Assertions.fail("Lançou a exceção errada (DadosInvalidos em vez de DataInvalida)");
         }
     }
 

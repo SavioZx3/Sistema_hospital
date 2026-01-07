@@ -19,33 +19,35 @@ public class Paciente extends Usuario {
 
     private String telefone;
     private Endereco endereco; 
-    private Historico historico;
     private StatusVisita status;
 
-    public Paciente(String nome, String cpf, String email, String senha, Historico historico, String endereco, String telefone) throws DadosInvalidosException {
+    /**
+     *
+     * @param nome
+     * @param cpf
+     * @param email
+     * @param senha
+     * @param telefone
+     * @param cidade
+     * @param bairro
+     * @param rua
+     * @param numero
+     * @throws DadosInvalidosException
+     */
+    public Paciente(String nome, String cpf, String email,String senha, String telefone, String cidade, String bairro, String rua, String numero) throws DadosInvalidosException {
         super(nome, cpf, email, senha);
 
         if (telefone == null || telefone.trim().isEmpty()) {
             throw new DadosInvalidosException("É obrigatório um número de telefone");
         }
 
-        this.endereco = new Endereco(endereco);
-        this.telefone = telefone;
-        this.historico = (historico != null) ? historico : new Historico();
-        
+        this.endereco = new Endereco(cidade,bairro,rua,numero);
+        this.telefone = telefone;        
         // Inicializando as listas para evitar NullPointerException
         this.atestados = new ArrayList<>();
         this.consultas = new ArrayList<>();
         this.exames = new ArrayList<>();
         this.receitas = new ArrayList<>();
-    }
-
-    public Historico getHistorico() { 
-        return historico; 
-    }
-
-    public void setHistorico(Historico historico) {
-        this.historico = historico;
     }
 
     public String getTelefone() { 
@@ -62,8 +64,8 @@ public class Paciente extends Usuario {
         return endereco.getLogradouro(); 
     }
 
-    public void setEndereco(String novoEndereco) throws DadosInvalidosException {
-        this.endereco = new Endereco(novoEndereco);
+    public void setEndereco(String cidade, String bairro, String rua, String numero) throws DadosInvalidosException {
+        this.endereco = new Endereco(cidade,bairro,rua,numero);
     }
 
     @Override
