@@ -38,6 +38,12 @@ public class Email {
         emailsCadastrados.clear();
     }
     
+    public static void removerEmail(String emailAntigo) {
+        if (emailAntigo != null) {
+            emailsCadastrados.remove(emailAntigo.trim().toLowerCase());
+        }
+    }
+    
     @Override
     public String toString() {
         return endereco;

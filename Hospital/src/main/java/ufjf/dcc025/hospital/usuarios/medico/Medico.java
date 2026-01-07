@@ -39,14 +39,14 @@ public class Medico extends Usuario{
     * Cria um medico com nome, CPF e especialidade.
     * @param nome nome do medico
      * @param cpf
-     * @param login
+     * @param email
     * @param senha senha do medico
     * @param especialidade especialidade medica
     */
-    public Medico(String nome , String cpf, String login, String senha, String especialidade) throws DadosInvalidosException{
-        super(nome, cpf, login, senha);
-        if(especialidade == null || especialidade.isBlank()){
-            throw new IllegalArgumentException("A especialidade do medico não pode ser vazia");
+    public Medico(String nome , String cpf, String email, String senha, String especialidade) throws DadosInvalidosException{
+        super(nome, cpf, email, senha);
+        if(especialidade == null || especialidade.trim().isEmpty()){
+            throw new DadosInvalidosException("A especialidade do medico não pode ser vazia");
         }
         this.especialidade = especialidade;
         this.ativo = true;
@@ -153,13 +153,9 @@ public class Medico extends Usuario{
     * Retorna uma representacao em texto do medico.
     * @return string com os dados do medico
     */
-    @Override
-    public String toString(){
-    return "Medico{" +
-            "nome='" + nome + '\'' +
-            ", especialidade='" + especialidade + '\'' +
-            ", ativo=" + ativo +
-            '}';
+   @Override
+    public String toString() {
+        return "Medico: " + nome + " | Especialidade: " + especialidade + " | Ativo: " + (ativo ? "Sim" : "Não");
     }
 
     /**
@@ -213,16 +209,16 @@ public class Medico extends Usuario{
       * retorna as consultas em que o paciente faltou
       * @return lista de consultas com faltas
       */
-     public List<Consulta> getConsultasComFaltas(){
+     public List<Consulta> getConsultasComFaltas() {
         List<Consulta> faltas = new ArrayList<>();
-        for(int i=0; i < agenda.size(); i++){
-            Consulta consulta = agenda.get(i);
-            if(!consulta.isCompareceu()){
+        
+        for (Consulta consulta : agenda) {
+            if (!consulta.isCompareceu()) {
                 faltas.add(consulta);
             }
         }
         return faltas;
-     }
+    }
 
      @Override
     public String getTipo() {

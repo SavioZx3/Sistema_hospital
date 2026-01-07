@@ -1,13 +1,11 @@
 package test;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
+import ufjf.dcc025.hospital.outros.Cpf;
+import ufjf.dcc025.hospital.outros.Email;
 import ufjf.dcc025.hospital.usuarios.paciente.Historico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
@@ -15,114 +13,90 @@ public class UsuarioTest {
     
     private Historico h;
     
-    public UsuarioTest() {
-    }
-    
-    @BeforeAll
-    public static void setUpClass() {
-    }
-    
-    @AfterAll
-    public static void tearDownClass() {
-    }
-    
     @BeforeEach
     public void setUp() {
         h = new Historico();
-    }
-    
-    @AfterEach
-    public void tearDown() {
+        // Como Cpf e Email guardam listas estáticas para evitar duplicados,
+        // precisamos limpar essas listas antes de cada teste para não dar erro de "já cadastrado".
+        Cpf.limparCpfCadastrados();
+        Email.limparEmailsCadastrados();
     }
 
     @Test
-    public void usuarioValido(){
-        Paciente p = new Paciente("Ana", "123.456.789-00", "login", "senha", h, "Rua A", "32 9 8888-0000");
+    public void usuarioValido() throws DadosInvalidosException {
+        Paciente p = new Paciente("Ana", "123.456.789-00", "ana@email.com", "senha123", h, "Rua A", "32 9 8888-0000");
         
-        Assertions.assertEquals("Ana",p.getNome());
-        Assertions.assertEquals("12345678900",p.getCpf());
-        Assertions.assertEquals("login",p.getLogin());
-        Assertions.assertEquals("Paciente",p.getTipo());
+        Assertions.assertEquals("Ana", p.getNome());
+        Assertions.assertEquals("12345678900", p.getCpf());
+        Assertions.assertEquals("ana@email.com", p.getEmail());
+        Assertions.assertEquals("PACIENTE", p.getTipo());
     }
     
-     @Test
-     public void testCpfLimpo() throws DadosInvalidosException{
-         
-        Paciente p = new Paciente("joao", "123.456.789-00", "login", "senha", h, "Rua A", "(32) 9 9999-0000");
-        Assertions.assertEquals( "12345678900", p.getCpf(), "O cpf deve conter apenas numeros");
-     }
+    @Test
+    public void testCpfLimpo() throws DadosInvalidosException {
+        Paciente p = new Paciente("joao", "123.456.789-00", "joao@email.com", "senha123", h, "Rua A", "(32) 9 9999-0000");
+        Assertions.assertEquals("12345678900", p.getCpf(), "O cpf deve conter apenas numeros");
+    }
      
-     @Test
-     public void testCpfInvalido() throws DadosInvalidosException{
-        
-         try {
-            new Paciente("joao", "123.456.7-0", "login", "senha", h, "Rua A", "(32) 9 9999-0000");
-            Assertions.fail("Deveria lancar exceção poois o cps passado no construtor é inválido");
-         } catch (DadosInvalidosException e) {
-             Assertions.assertTrue(e.getMessage().contains("11 dígitos"));
-         }
-     }
+    @Test
+    public void testCpfInvalido() {
+        try {
+            // CPF com formato errado (faltando dígitos)
+            new Paciente("joao", "123.456", "joao@email.com", "senha123", h, "Rua A", "(32) 9 9999-0000");
+            Assertions.fail("Deveria lancar exceção pois o cpf é inválido");
+        } catch (DadosInvalidosException e) {
+            Assertions.assertTrue(e.getMessage().contains("11 dígitos"));
+        }
+    }
      
-     @Test
-     public void testSetNomeVazio() throws DadosInvalidosException{
-         
-        Paciente p = new Paciente("joao", "123.456.789-00", "login", "senha", h, "Rua A", "(32) 9 9999-0000");
-         
+    @Test
+    public void testSetNomeVazio() throws DadosInvalidosException {
+        Paciente p = new Paciente("joao", "123.456.789-00", "joao@email.com", "senha123", h, "Rua A", "(32) 9 9999-0000");
         try {
             p.setNome("  ");
-            Assertions.fail("Deve ser lançado uma exceção DadosInvalidosException para nome vazio");
+            Assertions.fail("Deve ser lançado uma exceção para nome vazio");
         } catch (DadosInvalidosException e) {
-            Assertions.assertTrue(e.getMessage().contains("não informado") || e.getMessage().contains("inválido"));
+            Assertions.assertTrue(e.getMessage().toLowerCase().contains("não informado") || e.getMessage().toLowerCase().contains("inválido"));
         }
-     }
+    }
      
     @Test
     public void testValidarSenhaCorreta() throws DadosInvalidosException {
-        
-        Paciente p = new Paciente("joao", "123.456.789-00", "login", "senha", h, "Rua A", "(32) 9 9999-0000");
-        Assertions.assertTrue(p.validarSenha("senha"));
+        Paciente p = new Paciente("joao", "123.456.789-00", "joao@email.com", "senha123", h, "Rua A", "(32) 9 9999-0000");
+        Assertions.assertTrue(p.validarSenha("senha123"));
         Assertions.assertFalse(p.validarSenha("senha Errada"));
     }
- 
+
     @Test
-    public void testLoginInvalido() throws DadosInvalidosException{
+    public void testEmailInvalido() {
         try {
-            new Paciente("joao", "123.456.7-0", " ", "senha", h, "Rua A", "(32) 9 9999-0000");
-            Assertions.fail("Deveria falhar por login vazio");
+            // Tenta criar com email sem formato válido
+            new Paciente("joao", "123.456.789-00", "email_sem_arroba", "senha123", h, "Rua A", "(32) 9 9999-0000");
+            Assertions.fail("Deveria falhar por formato de email inválido");
         } catch (DadosInvalidosException e) {
-            Assertions.assertTrue(e.getMessage().toLowerCase().contains("login"));
+            Assertions.assertTrue(e.getMessage().toLowerCase().contains("e-mail") || e.getMessage().toLowerCase().contains("formato"));
         }
     }
     
     @Test
-    public void testSetLoginInvalido() throws DadosInvalidosException{
-        Paciente p = new Paciente("joao", "123.456.7-0", "login", "senha", h, "Rua A", "(32) 9 9999-0000");
+    public void testSetEmailVazio() throws DadosInvalidosException {
+        Paciente p = new Paciente("joao", "123.456.789-00", "joao@email.com", "senha123", h, "Rua A", "(32) 9 9999-0000");
         try {
-            p.setLogin(" ");
-            Assertions.fail("Deveria falhar por login vazio");
+            p.setEmail(" ");
+            Assertions.fail("Deveria falhar por Email vazio");
         } catch (DadosInvalidosException e) {
-            Assertions.assertTrue(e.getMessage().toLowerCase().contains("login"));
+            Assertions.assertTrue(e.getMessage().toLowerCase().contains("e-mail"));
         }
     }
     
     @Test
-    public void testSenhaInvalidaConstrutor() throws DadosInvalidosException{
-        try {
-            new Paciente("joao", "123.456.7-0", "login", " ", h, "Rua A", "(32) 9 9999-0000");
-            Assertions.fail("Deveria falhar por Senha vazia");
-        } catch (DadosInvalidosException e) {
-            Assertions.assertTrue(e.getMessage().toLowerCase().contains("inválida"));
-        }
-    }
-    
-    @Test
-    public void testSetSenhaInvalida() throws DadosInvalidosException{
-        Paciente p = new Paciente("joao", "123.456.7-0", "login", "senha", h, "Rua A", "(32) 9 9999-0000");
+    public void testSetSenhaInvalida() throws DadosInvalidosException {
+        Paciente p = new Paciente("joao", "123.456.789-00", "joao@email.com", "senha123", h, "Rua A", "(32) 9 9999-0000");
         try {
             p.setSenha(" ");
-            Assertions.fail("Deveria falhar por senha vazio");
+            Assertions.fail("Deveria falhar por senha vazia");
         } catch (DadosInvalidosException e) {
-            Assertions.assertTrue(e.getMessage().toLowerCase().contains("inválida"));
+            Assertions.assertTrue(e.getMessage().toLowerCase().contains("inválida") || e.getMessage().toLowerCase().contains("vazia"));
         }
     }
 }

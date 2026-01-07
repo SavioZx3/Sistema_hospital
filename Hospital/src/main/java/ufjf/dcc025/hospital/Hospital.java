@@ -45,13 +45,7 @@ public class Hospital {
      * @throws DadosInvalidosException se já existir um usuário com o mesmo CPF
      */
     public void cadastrarMedico(Medico medico) {
-        boolean existe = usuarios.stream()
-                .anyMatch(u -> u.getCpf().equals(medico.getCpf()));
-
-        if (existe) {
-            throw new DadosInvalidosException("Médico já cadastrado com esse CPF");
-        }
-
+        //A unicidade do médico já esta garantida pelos validadores da classe Cpf e Email
         usuarios.add(medico);
     }
 
@@ -62,13 +56,7 @@ public class Hospital {
      * @throws DadosInvalidosException se já existir um usuário com o mesmo CPF
      */
     public void cadastrarPaciente(Paciente paciente) {
-        boolean existe = usuarios.stream()
-                .anyMatch(u -> u.getCpf().equals(paciente.getCpf()));
-
-        if (existe) {
-            throw new DadosInvalidosException("Paciente já cadastrado com esse CPF");
-        }
-
+        //De igual forma a unicidade do paciente também está garantida
         usuarios.add(paciente);
     }
 
@@ -81,13 +69,15 @@ public class Hospital {
      * @throws UsuarioNaoEncontradoException se não existir médico com o CPF informado
      */
     public Medico buscarMedicoPorCpf(String cpf) {
-        return usuarios.stream()
-                .filter(u -> u instanceof Medico)
-                .map(u -> (Medico) u)
-                .filter(m -> m.getCpf().equals(cpf))
-                .findFirst()
-                .orElseThrow(() ->
-                        new UsuarioNaoEncontradoException("Médico não encontrado"));
+        // Removemos caracteres especiais ( pontos e traços
+        String cpfLimpo = cpf.replaceAll("[^0-9]", "");
+        
+        for (Usuario u : usuarios) {
+            if (u instanceof Medico && u.getCpf().equals(cpfLimpo)) {
+                return (Medico) u;
+            }
+        }
+        throw new UsuarioNaoEncontradoException("Médico não encontrado");
     }
 
     /**
@@ -98,13 +88,14 @@ public class Hospital {
      * @throws UsuarioNaoEncontradoException se não existir paciente com o CPF informado
      */
     public Paciente buscarPacientePorCpf(String cpf) {
-        return usuarios.stream()
-                .filter(u -> u instanceof Paciente)
-                .map(u -> (Paciente) u)
-                .filter(p -> p.getCpf().equals(cpf))
-                .findFirst()
-                .orElseThrow(() ->
-                        new UsuarioNaoEncontradoException("Paciente não encontrado"));
+        String cpfLimpo = cpf.replaceAll("[^0-9]", "");
+        
+        for (Usuario u : usuarios) {
+            if (u instanceof Paciente && u.getCpf().equals(cpfLimpo)) {
+                return (Paciente) u;
+            }
+        }
+        throw new UsuarioNaoEncontradoException("Paciente não encontrado");
     }
 
     //LISTAGEM DOS USUÁRIOS NO SISTEMA
@@ -114,10 +105,15 @@ public class Hospital {
      * @return lista de médicos
      */
     public List<Medico> listarMedicos() {
-        return usuarios.stream()
-                .filter(u -> u instanceof Medico)
-                .map(u -> (Medico) u)
-                .toList();
+        
+        List<Medico> listaMedicos = new ArrayList<>();
+        
+        for (Usuario u : usuarios) {
+            if (u.getTipo().trim().toUpperCase().equals("MEDICO")) {
+                listaMedicos.add((Medico) u);
+            }
+        }
+        return new ArrayList<>(listaMedicos); //retorna uma copia da lista 
     }
 
     /**
@@ -126,34 +122,36 @@ public class Hospital {
      * @return lista de pacientes
      */
     public List<Paciente> listarPacientes() {
-        return usuarios.stream()
-                .filter(u -> u instanceof Paciente)
-                .map(u -> (Paciente) u)
-                .toList();
+        
+        List<Paciente> listaPacientes = new ArrayList<>();
+        for (Usuario u : usuarios) {
+            if (u.getTipo().trim().toUpperCase().equals("PACIENTE") ) {
+                listaPacientes.add((Paciente) u);
+            }
+        }
+         return new ArrayList<>(listaPacientes); //retorna uma copia da lista
     }
 
     //AUTENTICAÇÃO DOS USUÁRIOS NO SISTEMA
     /**
      * Realiza o login de um usuário no sistema.
      *
-     * @param login login do usuário
+     * @param email login do usuário
      * @param senha senha do usuário
      * @return usuário autenticado
      * @throws UsuarioNaoEncontradoException se o login não existir
      * @throws DadosInvalidosException se a senha estiver incorreta
      */
-    public Usuario login(String login, String senha) {
-        Usuario usuario = usuarios.stream()
-                .filter(u -> u.getLogin().equals(login))
-                .findFirst()
-                .orElseThrow(() ->
-                        new UsuarioNaoEncontradoException("Usuário não encontrado"));
-
-        if (!usuario.validarSenha(senha)) {
-            throw new DadosInvalidosException("Senha incorreta");
+    public Usuario login(String email, String senha) {
+        for (Usuario u : usuarios) {
+            if (u.getEmail().equalsIgnoreCase(email)) {
+                if (u.validarSenha(senha)) {
+                    return u;
+                }
+                throw new DadosInvalidosException("Senha incorreta");
+            }
         }
-
-        return usuario;
+        throw new UsuarioNaoEncontradoException("Usuário não encontrado");
     }
 
     //GERENCIAMENTO DE CONSULTAS NO HOSPITAL
@@ -240,11 +238,14 @@ public class Hospital {
      * @return lista de consultas do dia
      */
     public List<Consulta> listarConsultasDoDia(LocalDate data) {
-        return consultas.stream()
-                // Extrai apenas a data do LocalDateTime da consulta
-                // para comparar com o dia informado
-                .filter(c -> c.getDataHora().toLocalDate().equals(data))
-                .toList();
+        
+        List<Consulta> consultasDoDia = new ArrayList<>();
+        
+        for (Consulta c : consultas) {
+            if(c.getDataHora().toLocalDate().equals(data))
+                consultasDoDia.add(c);
+        }
+       return new ArrayList<>(consultasDoDia);
     }
 
     //VALIDAÇÕES INTERNAS DO SISTEMA
@@ -284,14 +285,20 @@ public class Hospital {
      */
     private void validarConflitoHorario(Medico medico, LocalDate data, LocalTime hora) {
 
-        boolean conflito = consultas.stream().anyMatch(c ->
-                c.getMedico().equals(medico)
-                        && c.getDataHora().toLocalDate().equals(data)
-                        && c.getDataHora().toLocalTime().equals(hora));
+        // Percorremos a lista de consultas uma a uma
+        for (Consulta c : consultas) {
+        
+            // Verificamos se o médico é o mesmo
+            boolean mesmoMedico = c.getMedico().equals(medico);
 
-        if (conflito) {
-            throw new DadosInvalidosException(
-                    "Médico já possui consulta nesse horário");
+            // Extraí a data e a hora da consulta da lista para comparar
+            boolean mesmaData = c.getDataHora().toLocalDate().equals(data);
+            boolean mesmaHora = c.getDataHora().toLocalTime().equals(hora);
+
+            // Se as três condições forem verdadeiras, há um conflito
+            if (mesmoMedico && mesmaData && mesmaHora) {
+                throw new DadosInvalidosException("Médico já possui consulta nesse horário");
+            }
         }
     }
 }
