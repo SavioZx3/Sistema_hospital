@@ -68,6 +68,7 @@ public class MedicoInterface extends JFrame {
 
         add(painelConteudo, BorderLayout.CENTER);
     }
+    
     /**
      * Finaliza a sessão do médico.
      */
