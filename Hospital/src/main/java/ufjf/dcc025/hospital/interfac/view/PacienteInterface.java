@@ -67,8 +67,7 @@ public class PacienteInterface extends JFrame {
     }
 
     private void sair() {
-        dispose();
-        // depois pode voltar para LoginInterface
-        // new LoginInterface();
+        dispose();              //fecha a jenela atual
+        new LoginInterface();   //volta para tela de login
     }
 }

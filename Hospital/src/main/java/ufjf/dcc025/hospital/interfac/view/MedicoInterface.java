@@ -3,13 +3,6 @@ package ufjf.dcc025.hospital.interfac.view;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Interface gráfica do médico.
- * Responsável por centralizar as telas:
- * - Agenda
- * - Consultas
- * - Visitas
- */
 public class MedicoInterface extends JFrame {
 
     private CardLayout cardLayout;
@@ -28,12 +21,8 @@ public class MedicoInterface extends JFrame {
         setVisible(true);
     }
 
-    /**
-     * Cria o menu lateral com as opções do médico.
-     */
     private void criarMenuLateral() {
-        JPanel menu = new JPanel();
-        menu.setLayout(new GridLayout(5, 1, 10, 10));
+        JPanel menu = new JPanel(new GridLayout(5, 1, 10, 10));
         menu.setPreferredSize(new Dimension(180, 0));
 
         JButton btnAgenda = new JButton("Minha agenda");
@@ -49,32 +38,25 @@ public class MedicoInterface extends JFrame {
         menu.add(btnAgenda);
         menu.add(btnConsultas);
         menu.add(btnVisitas);
-        menu.add(new JLabel()); // espaço vazio
+        menu.add(new JLabel());
         menu.add(btnSair);
 
         add(menu, BorderLayout.WEST);
     }
 
-    /**
-     * Cria o painel central que troca as telas.
-     */
     private void criarPainelConteudo() {
         cardLayout = new CardLayout();
         painelConteudo = new JPanel(cardLayout);
 
-        painelConteudo.add(new AgendaMedicoView(),"AGENDA");
+        painelConteudo.add(new AgendaMedicoView(), "AGENDA");
         painelConteudo.add(new ConsultasMedicoView(), "CONSULTAS");
         painelConteudo.add(new VisitasMedicoView(), "VISITAS");
 
         add(painelConteudo, BorderLayout.CENTER);
     }
-    
-    /**
-     * Finaliza a sessão do médico.
-     */
+
     private void sair() {
-        dispose();
-        // depois você pode voltar para LoginInterface
-        // new LoginInterface();
+        dispose();              //fecha a jenela atual
+        new LoginInterface();   //volta para tela de login
     }
 }

@@ -60,7 +60,8 @@ public class SecretariaInterface extends JFrame{
     }
 
     private void sair(){
-        dispose();
-        new LoginInterface();
+        dispose();              //fecha a jenela atual 
+        new LoginInterface();   //volta para tela de login
     }
+    
 }
