@@ -1,64 +1,73 @@
 package ufjf.dcc025.hospital.interfac.view;
 
-import java.util.Scanner;
-import ufjf.dcc025.hospital.interfac.controller.PacienteController;
+import javax.swing.*;
+import java.awt.*;
 
 /**
- * Interface do paciente.
- * ufjf.dcc025.hospital.interfac.view
- * Exibe informações relacionadas ao paciente autenticado.
+ * Interface gráfica do paciente.
+ * Centraliza as telas:
+ * - Minhas consultas
+ * - Visitas
+ * - Meus dados
  */
-public class PacienteInterface {
+public class PacienteInterface extends JFrame {
 
-    private static Scanner scanner = new Scanner(System.in);
-    private static PacienteController controller = new PacienteController();
+    private CardLayout cardLayout;
+    private JPanel painelConteudo;
 
-    /**
-     * Exibe o menu principal do paciente.
-     */
-    public static void exibir() {
-        int opcao;
+    public PacienteInterface() {
+        setTitle("Sistema Hospitalar - Paciente");
+        setSize(900, 600);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
 
-        do {
-            System.out.println("\n=== INTERFACE PACIENTE ===");
-            System.out.println("1. Ver consultas");
-            System.out.println("2. Ver exames");
-            System.out.println("3. Ver receitas");
-            System.out.println("4. Ver atestados");
-            System.out.println("0. Voltar");
+        criarMenuLateral();
+        criarPainelConteudo();
 
-            opcao = scanner.nextInt();
-            scanner.nextLine();
-
-            switch (opcao) {
-                case 1 -> verConsultas();
-                case 2 -> verExames();
-                case 3 -> verReceitas();
-                case 4 -> verAtestados();
-                case 0 -> System.out.println("Voltando ao menu de login...");
-                default -> System.out.println("Opção inválida!");
-            }
-
-        } while (opcao != 0);
+        setVisible(true);
     }
 
-    private static void verConsultas() {
-        System.out.println("\n=== MINHAS CONSULTAS ===");
-        controller.listarConsultas().forEach(System.out::println);
+    private void criarMenuLateral() {
+        JPanel menu = new JPanel();
+        menu.setLayout(new GridLayout(5, 1, 10, 10));
+        menu.setPreferredSize(new Dimension(180, 0));
+
+        JButton btnConsultas = new JButton("Minhas consultas");
+        JButton btnVisitas = new JButton("Visitas");
+        JButton btnDados = new JButton("Meus dados");
+        JButton btnSair = new JButton("Sair");
+
+        btnConsultas.addActionListener(e ->
+                cardLayout.show(painelConteudo, "CONSULTAS"));
+        btnVisitas.addActionListener(e ->
+                cardLayout.show(painelConteudo, "VISITAS"));
+        btnDados.addActionListener(e ->
+                cardLayout.show(painelConteudo, "DADOS"));
+        btnSair.addActionListener(e -> sair());
+
+        menu.add(btnConsultas);
+        menu.add(btnVisitas);
+        menu.add(btnDados);
+        menu.add(new JLabel());
+        menu.add(btnSair);
+
+        add(menu, BorderLayout.WEST);
     }
 
-    private static void verExames() {
-        System.out.println("\n=== MEUS EXAMES ===");
-        controller.listarExames().forEach(System.out::println);
+    private void criarPainelConteudo() {
+        cardLayout = new CardLayout();
+        painelConteudo = new JPanel(cardLayout);
+
+        painelConteudo.add(new ConsultasPacienteView(), "CONSULTAS");
+        painelConteudo.add(new VisitasPacienteView(), "VISITAS");
+        painelConteudo.add(new DadosPacienteView(), "DADOS");
+
+        add(painelConteudo, BorderLayout.CENTER);
     }
 
-    private static void verReceitas() {
-        System.out.println("\n=== MINHAS RECEITAS ===");
-        controller.listarReceitas().forEach(System.out::println);
-    }
-
-    private static void verAtestados() {
-        System.out.println("\n=== MEUS ATESTADOS ===");
-        controller.listarAtestados().forEach(System.out::println);
+    private void sair() {
+        dispose();              //fecha a jenela atual
+        new LoginInterface();   //volta para tela de login
     }
 }
