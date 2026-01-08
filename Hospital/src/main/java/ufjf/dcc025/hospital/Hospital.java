@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import ufjf.dcc025.hospital.exception.UsuarioNaoEncontradoException;
-import ufjf.dcc025.hospital.servicos_hospital.Consulta;
+import ufjf.dcc025.hospital.servicos_hospital.consulta.Agenda;
+import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
 import ufjf.dcc025.hospital.usuarios.Usuario;
-import ufjf.dcc025.hospital.usuarios.medico.Agenda;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 

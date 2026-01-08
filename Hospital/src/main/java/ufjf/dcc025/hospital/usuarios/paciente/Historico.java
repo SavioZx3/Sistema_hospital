@@ -3,8 +3,9 @@ package ufjf.dcc025.hospital.usuarios.paciente;
 import java.util.ArrayList;
 //import java.util.Collections; necessário para retornar listas imutáveis
 import java.util.List;
-import ufjf.dcc025.hospital.servicos_hospital.Consulta;
+
 import ufjf.dcc025.hospital.servicos_hospital.Exame;
+import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
 
 public class Historico {
     
