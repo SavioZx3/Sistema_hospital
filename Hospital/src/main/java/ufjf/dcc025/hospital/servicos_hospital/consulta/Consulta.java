@@ -1,4 +1,4 @@
-package ufjf.dcc025.hospital.servicos_hospital;
+package ufjf.dcc025.hospital.servicos_hospital.consulta;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import ufjf.dcc025.hospital.exception.UsuarioNaoEncontradoException;
-import ufjf.dcc025.hospital.usuarios.medico.Agenda;
+import ufjf.dcc025.hospital.servicos_hospital.Atestado;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
@@ -19,26 +19,25 @@ import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
  */
 public class Consulta {
 
+    private LocalDate data;
+    private LocalTime horarioInicio;
+    private LocalTime horarioFim;
+
     private Medico medico;
     private Paciente paciente;
-    private LocalDateTime dataHora;
-    private boolean realizada;
-    private boolean compareceu;
-
 
     private Atestado atestado;
-    
-    /**
-     * @param medico médico responsável
-     * @param paciente paciente atendido
-     * @param dataHora data e horário da consulta
-     */
-    public Consulta(Medico medico, LocalDateTime dataHora) {
+
+    private StatusConsulta status;
+
+    public Consulta( LocalDate data, LocalTime horarioInicio, LocalTime horarioFim, Medico medico) {
+        this.data = data;
+        this.horarioInicio = horarioInicio;
+        this.horarioFim = horarioFim;
         this.medico = medico;
+
         this.paciente = null;
-        this.dataHora = dataHora;
-        this.realizada = false;
-        this.compareceu = false;
+        this.status = StatusConsulta.DISPONIVEL;
     }
 
     public Medico getMedico() {
@@ -49,36 +48,34 @@ public class Consulta {
         return paciente;
     }
 
-    public LocalDateTime getDataHora() {
-        return dataHora;
+    public LocalDateTime getDataHoraInicio() {
+        return horarioInicio.atDate(data);
     }
 
     public boolean isRealizada() {
-        return realizada;
+        if(this.status == StatusConsulta.REALIZADA)
+            return true;
+        else
+            return false;
     }
 
     public void marcarConcluida() {
-        this.realizada = true;
+        this.status = StatusConsulta.REALIZADA;
     }
 
-    public boolean isCompareceu() {
-        return compareceu;
-    }
-
-    public void registrarPresenca() {
-        this.compareceu = true;
+    public boolean isAusente() {
+        if(this.status == StatusConsulta.FALTA)
+            return true;
+        else
+            return false;
     }
 
     public void registrarFalta() {
-        this.compareceu = false;
-    }
-
-    public void reagendar(LocalDate novaData, LocalTime novaHora) {
-        this.dataHora = LocalDateTime.of(novaData, novaHora);
+        this.status = StatusConsulta.FALTA;
     }
 
     public void emitirAtestado(String mensagem, int duracaoDias){
-        if(!realizada || !compareceu){
+        if(this.status != StatusConsulta.REALIZADA && this.status != StatusConsulta.EM_ANDAMENTO){
             throw new IllegalStateException("Só é possível emitir atestado se a consulta foi realizada e o paciente compareceu.");
 }
         if(possuiAtestado()){

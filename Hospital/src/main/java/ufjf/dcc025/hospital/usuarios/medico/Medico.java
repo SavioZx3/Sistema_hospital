@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
-import ufjf.dcc025.hospital.servicos_hospital.Consulta;
+import ufjf.dcc025.hospital.servicos_hospital.consulta.Agenda;
+import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
 import ufjf.dcc025.hospital.usuarios.Usuario;
 
 /**
@@ -29,11 +30,7 @@ public class Medico extends Usuario{
     //cada medico vai ter uma agenda de consultas que começa vazia
     private List<Consulta> agenda;
 
-    //horarios de atendimento definidos pelo medico
-    private List<HorarioAtendimento> horariosAtendimento;
-
-    //lista de historico clinico dos pacientes atendidos
-    private List<HistoricoClinico> historicos;
+    private List<DisponibilidadeSemanal> disponibilidades;
 
     /**
     * Cria um medico com nome, CPF e especialidade.
@@ -51,8 +48,15 @@ public class Medico extends Usuario{
         this.especialidade = especialidade;
         this.ativo = true;
         this.agenda = new ArrayList<>();
-        this.historicos = new ArrayList<>();
-        this.horariosAtendimento = new ArrayList<>();
+        this.disponibilidades = new ArrayList<>();
+    }
+
+    public void adicionarDisponibilidade(DisponibilidadeSemanal disponibilidade) {
+        disponibilidades.add(disponibilidade);
+    }
+
+    public List<DisponibilidadeSemanal> getDisponibilidades() {
+        return disponibilidades;
     }
 
     public void definirAgenda(Agenda agenda){
