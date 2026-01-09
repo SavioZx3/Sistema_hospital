@@ -64,4 +64,9 @@ public class Agenda {
         }
        return new ArrayList<>(consultasDoDia);
     }
+
+    public boolean isDataDisponivel(LocalDate data, LocalTime horarioInicio, LocalTime horarioFim) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'isDataDisponivel'");
+    }
 }
