@@ -7,7 +7,7 @@ import java.util.List;
 import java.time.LocalDateTime;
 
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
-import ufjf.dcc025.hospital.exception.UsuarioNaoEncontradoException;
+import ufjf.dcc025.hospital.exception.DataInvalidaException;
 import ufjf.dcc025.hospital.servicos_hospital.Atestado;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
@@ -78,15 +78,14 @@ public class Consulta {
         this.status = StatusConsulta.FALTA;
     }
 
-    public void emitirAtestado(String mensagem, int duracaoDias){
+    public void emitirAtestado(int duracaoDias) throws IllegalStateException, DadosInvalidosException, DataInvalidaException {
         if(this.status != StatusConsulta.REALIZADA && this.status != StatusConsulta.EM_ANDAMENTO)
             throw new IllegalStateException("Só é possível emitir atestado se a consulta foi realizada e o paciente compareceu.");
 
         if(possuiAtestado())
             throw new IllegalStateException("Esta consulta já possui um atestado emitido");
 
-        this.atestado = new Atestado(medico, paciente, mensagem, LocalDate.now(), duracaoDias);
-        this.atestado.emitir();
+        this.atestado = new Atestado(medico, paciente, LocalDate.now(), duracaoDias);
     }
 
     public boolean possuiAtestado(){
