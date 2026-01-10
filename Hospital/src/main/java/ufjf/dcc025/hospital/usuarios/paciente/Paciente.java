@@ -3,11 +3,11 @@ package ufjf.dcc025.hospital.usuarios.paciente;
 import java.util.List;
 import java.util.ArrayList;
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
-import ufjf.dcc025.hospital.servicos_hospital.Atestado;
 import ufjf.dcc025.hospital.usuarios.Usuario;
-import ufjf.dcc025.hospital.servicos_hospital.Exame;
-import ufjf.dcc025.hospital.servicos_hospital.Receita;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
+import ufjf.dcc025.hospital.servicos_hospital.documento_medico.Atestado;
+import ufjf.dcc025.hospital.servicos_hospital.documento_medico.Exame;
+import ufjf.dcc025.hospital.servicos_hospital.documento_medico.Receita;
 import ufjf.dcc025.hospital.outros.Endereco; 
 
 public class Paciente extends Usuario {

@@ -13,9 +13,14 @@ import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
 public class Agenda {
 
+    private Medico medico;  //médico dono da agenda
     private List<Consulta> consultas;
 
-    public Agenda() {
+    public Agenda(Medico medico) throws DadosInvalidosException {
+        if (medico == null)
+            throw new DadosInvalidosException("Médico inválido para criação da agenda.");
+
+        this.medico = medico;
         this.consultas = new ArrayList<>();
     }
 
@@ -40,6 +45,8 @@ public class Agenda {
         
         consulta.agendar(paciente);
     }
+
+
 
     public void cancelarConsulta(Consulta consulta) {
         if (!consultas.remove(consulta)) {
