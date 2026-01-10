@@ -2,13 +2,13 @@ package ufjf.dcc025.hospital.servicos_hospital.consulta;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.time.LocalDateTime;
 
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import ufjf.dcc025.hospital.exception.DataInvalidaException;
-import ufjf.dcc025.hospital.servicos_hospital.Atestado;
+import ufjf.dcc025.hospital.servicos_hospital.documento_medico.Atestado;
+import ufjf.dcc025.hospital.servicos_hospital.documento_medico.Exame;
+import ufjf.dcc025.hospital.servicos_hospital.documento_medico.Receita;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
@@ -19,14 +19,16 @@ import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
  */
 public class Consulta {
 
-    private LocalDate data;
-    private LocalTime horarioInicio;
-    private LocalTime horarioFim;
+    private final LocalDate data;
+    private final LocalTime horarioInicio;
+    private final LocalTime horarioFim;
 
-    private Medico medico;
+    private final Medico medico;
     private Paciente paciente;
 
     private Atestado atestado;
+    private Receita receita;
+    private Exame exame;
 
     private StatusConsulta status;
 
@@ -37,25 +39,25 @@ public class Consulta {
         if(!medico.isAtivo())
             throw new DadosInvalidosException("O médico informado está inativo no sistema.");
 
+        if(data == null || data.isBefore(LocalDate.now()))
+            throw new DataInvalidaException("Data inválida.");
+
+        if (horarioInicio == null || horarioFim == null)
+            throw new DadosInvalidosException("Horário de início e fim devem ser informados.");
+
+        if (!horarioFim.isAfter(horarioInicio))
+            throw new DadosInvalidosException("O horário de fim deve ser posterior ao horário de início.");
+
         if(!medico.getAgenda1().isDataDisponivel(data, horarioInicio, horarioFim))
             throw new DadosInvalidosException("O médico não está disponível neste dia e horário.");
 
-        if(data == null || data.isBefore(LocalDate.now()))
-            throw new DataInvalidaException("Data de emissão inválida ");
+        this.data = data;
+        this.horarioInicio = horarioInicio;
+        this.horarioFim = horarioFim;
+        this.medico = medico;
 
-        if (horarioInicio == null || horarioFim == null)
-            throw new DadosInvalidosException("Horário de início e fim devem ser informados");
-
-        if (!horarioFim.isAfter(horarioInicio))
-            throw new DadosInvalidosException("O horário de fim deve ser posterior ao horário de início");
-
-    this.data = data;
-    this.horarioInicio = horarioInicio;
-    this.horarioFim = horarioFim;
-    this.medico = medico;
-
-    this.paciente = null;
-    this.status = StatusConsulta.DISPONIVEL;
+        this.paciente = null;
+        this.status = StatusConsulta.DISPONIVEL;
     }
 
 
@@ -77,6 +79,21 @@ public class Consulta {
         return horarioFim.atDate(data);
     }
 
+    public StatusConsulta getStatus() {
+        return status;
+    }
+
+    public Atestado getAtestado(){
+        return atestado;
+    }
+
+    public Receita getReceita(){
+        return receita;
+    }
+
+    public Exame getExame(){
+        return exame;
+    }
 
     //================================= Métodos de status =================================//
 
@@ -84,11 +101,11 @@ public class Consulta {
         this.status = StatusConsulta.DISPONIVEL;
     }
 
-    public boolean isDisponivel() {
+    private boolean isDisponivel() {
         return this.status == StatusConsulta.DISPONIVEL;
     }
     
-    protected void agendar(Paciente paciente) throws DadosInvalidosException, IllegalStateException {
+    public void agendar(Paciente paciente) throws DadosInvalidosException, IllegalStateException {
         if(!isDisponivel())
             throw new IllegalStateException("Só é possível agendar uma consulta que está disponível.");
 
@@ -99,7 +116,7 @@ public class Consulta {
         this.status = StatusConsulta.AGENDADA;
     }
     
-    public boolean isAgendada() {
+    private boolean isAgendada() {
         return this.status == StatusConsulta.AGENDADA;  
     }
 
@@ -116,7 +133,7 @@ public class Consulta {
         this.status = StatusConsulta.EM_ANDAMENTO;
     }
 
-    public boolean isEmAndamento() {
+    private boolean isEmAndamento() {
         return this.status == StatusConsulta.EM_ANDAMENTO;
     }
 
@@ -127,7 +144,7 @@ public class Consulta {
         this.status = StatusConsulta.REALIZADA;
     }
 
-    public boolean isRealizada() {
+    private boolean isRealizada() {
         return this.status == StatusConsulta.REALIZADA;
     }
 
@@ -142,10 +159,6 @@ public class Consulta {
         this.status = StatusConsulta.FALTA;
     }
 
-    public boolean isAusente() {
-        return this.status == StatusConsulta.FALTA;
-    }
-
     public void cancelarConsulta() throws IllegalStateException {
         if(!isAgendada())
             throw new IllegalStateException("Só é possível cancelar uma consulta que foi agendada.");
@@ -158,8 +171,8 @@ public class Consulta {
     //================================= Métodos de recursos da consulta =================================//
 
     public void emitirAtestado(int duracaoDias) throws IllegalStateException, DadosInvalidosException, DataInvalidaException {
-        if(this.status != StatusConsulta.REALIZADA && this.status != StatusConsulta.EM_ANDAMENTO)
-            throw new IllegalStateException("Só é possível emitir atestado se a consulta foi realizada e o paciente compareceu.");
+        if(!isRealizada() && !isEmAndamento())
+            throw new IllegalStateException("Só é possível emitir atestado se a consulta foi realizada ou se ela está em andamento.");
 
         if(possuiAtestado())
             throw new IllegalStateException("Esta consulta já possui um atestado emitido");
@@ -167,14 +180,37 @@ public class Consulta {
         this.atestado = new Atestado(medico, paciente, LocalDate.now(), duracaoDias);
     }
 
-    public boolean possuiAtestado(){
+    private boolean possuiAtestado(){
         return atestado != null;
     }
-    public Atestado getAtestado(){
-        return atestado;
+
+    public void emitirReceita(String medicamento , String quantidade , LocalDate validade) throws IllegalStateException, DadosInvalidosException, DataInvalidaException {
+        
+        if(!isRealizada() && !isEmAndamento())
+            throw new IllegalStateException("Só é possível emitir receita se a consulta foi realizada e o paciente compareceu.");
+
+        if(possuiReceita())
+            throw new IllegalStateException("Esta consulta já possui uma receita emitida");
+
+        this.receita = new Receita(medicamento, quantidade, paciente, medico, LocalDate.now(), validade);
     }
 
-    public StatusConsulta getStatus() {
-        return status;
-    } 
+    private boolean possuiReceita(){
+        return receita != null;
+    }
+
+    public void emitirExame(String tipoExame, String resultado) throws IllegalStateException{
+        
+        if(!isRealizada() && !isEmAndamento())
+            throw new IllegalStateException("Só é possível solicitar exame se a consulta foi realizada e o paciente compareceu.");
+
+        if(possuiExame())
+            throw new IllegalStateException("Esta consulta já possui um exame solicitado");
+
+        this.exame = new Exame(tipoExame, LocalDate.now(), medico, paciente, resultado);
+    }
+    
+    private boolean possuiExame(){
+        return exame != null;
+    }
 }

@@ -1,4 +1,4 @@
-package ufjf.dcc025.hospital.servicos_hospital;
+package ufjf.dcc025.hospital.servicos_hospital.documento_medico;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -13,27 +13,27 @@ import ufjf.dcc025.hospital.usuarios.medico.Medico;
  * Representa um atestado médico emitido a partir de uma consulta
  * O atestado só pode ser alterado enquanto não for emitido.
  */
-public class Atestado {
+public class Atestado implements DocumentoMedico {
 
 
-    private LocalDate dataEmissao;
+    private final LocalDate dataEmissao;
 
     /** Duração do afastamento (em dias) */
-    private int duracaoDias;
+    private final int diasAfastamento;
 
  
-    private Paciente pacienteAlvo;
+    private final Paciente pacienteAlvo;
 
 
-    private Medico medicoResponsavel;
+    private final Medico medicoResponsavel;
         
-    public Atestado(Medico medico, Paciente paciente ,LocalDate dataEmissao ,int duracaoDias) throws DadosInvalidosException, DataInvalidaException{
+    public Atestado(Medico medico, Paciente paciente ,LocalDate dataEmissao ,int diasAfastamento) throws DadosInvalidosException, DataInvalidaException{
         
         if(medico == null || paciente == null){
             throw new DadosInvalidosException("Paciente e Medico devem ser informados! ");
         }
         
-        if(duracaoDias <= 0){
+        if(diasAfastamento <= 0){
             throw new DadosInvalidosException("Deve ser informada uma duração válida para o atestado, no minimo 1 dia");
         }
         
@@ -44,25 +44,19 @@ public class Atestado {
         this.medicoResponsavel = medico;
         this.pacienteAlvo = paciente;
         this.dataEmissao = dataEmissao;
-        this.duracaoDias = duracaoDias;
+        this.diasAfastamento = diasAfastamento;
     }
 
+    @Override
+    public Medico getMedico() { return medicoResponsavel; }
+    @Override
+    public Paciente getPaciente() { return pacienteAlvo; }
 
-    public LocalDate getDataEmissao(){
-        return dataEmissao;
-    }
+    @Override
+    public LocalDate getDataEmissao() { return dataEmissao; }
 
-    public int getDuracaoDias(){
-        return duracaoDias;
-    }
+    public int getDiasAfastamento(){ return diasAfastamento; }
 
-    public Paciente getPacienteAlvo(){
-        return pacienteAlvo;
-    }
-
-    public Medico getMedicoResponsavel(){
-        return medicoResponsavel;
-    }
 
     @Override
     public String toString() {
@@ -77,6 +71,6 @@ public class Atestado {
             ------------------------------------
             O PACIENTE ACIMA FOI AFASTADO DE SUAS ATIVIDADES PELO PERÍODO INDICADO.
             =====================================""", 
-            pacienteAlvo.getNome(), medicoResponsavel.getNome(), dataEmissao.format(dtf), duracaoDias);
+            pacienteAlvo.getNome(), medicoResponsavel.getNome(), dataEmissao.format(dtf), diasAfastamento);
     }
 }
