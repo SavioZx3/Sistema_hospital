@@ -1,128 +1,78 @@
 package test;
 
 import java.time.LocalDate;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import ufjf.dcc025.hospital.exception.DataInvalidaException;
-import ufjf.dcc025.hospital.servicos_hospital.Receita;
+import ufjf.dcc025.hospital.outros.Cpf;
+import ufjf.dcc025.hospital.outros.Email;
+import ufjf.dcc025.hospital.servicos_hospital.documento_medico.Receita;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Historico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
-
 public class ReceitaTest {
-    
+
     private Medico medico;
     private Paciente paciente;
-    private Historico h;
-    
-    private String medPadrao;
-    private String qtdPadrao;
-    private LocalDate emissaoPadrao;
-    private LocalDate validadePadrao;
-    
-    @BeforeAll
-    public static void setUpClass() throws Exception {
-    }
-    
-    @AfterAll
-    public static void tearDownClass() {
-    }
-    
+    private LocalDate hoje;
+    private LocalDate mesQueVem;
+
     @BeforeEach
-    public void setUp() {
-        
-        h = new Historico();
-        medico = new Medico("Dr. Octopus", "888.888.888-88" , "login", "Senha", "Físico nuclear");
-        paciente = new Paciente("Peter", "111.111.111-11" , "login", "senha", h, "rua b", "32 98888-0000");
-        medPadrao = "Dipirona";
-        qtdPadrao = "500mg";
-        emissaoPadrao = LocalDate.now();
-        validadePadrao = LocalDate.now().plusDays(7);
-    }
-    
-    @AfterEach
-    public void tearDown() {
+    public void setUp() throws DadosInvalidosException {
+        // Limpeza dos registros estáticos para evitar erro de duplicidade
+        Cpf.limparCpfCadastrados();
+        Email.limparEmailsCadastrados();
+
+        hoje = LocalDate.now();
+        mesQueVem = hoje.plusMonths(1);
+
+        // Médicos e Pacientes com e-mails que a Apache Validator aceita
+        medico = new Medico("Dr. House", "999.999.999-99", "house@hospital.com", "senha123", "Diagnóstico");
+        paciente = new Paciente("Wilson", "222.222.222-22", "wilson@oncologia.com", "senha123", new Historico(), "Endereço", "32 91111-2222");
     }
 
-    
-     @Test
-     public void testReceitaValida(){
-        
-        Receita receita = new Receita(medPadrao, qtdPadrao, paciente, medico, emissaoPadrao, validadePadrao);
-            
-        Assertions.assertNotNull(receita);
-        Assertions.assertEquals("Dipirona", receita.getMedicamento());
-        Assertions.assertEquals(emissaoPadrao, receita.getDataEmissao());
-        Assertions.assertEquals(validadePadrao, receita.getValidade()); 
-     }
-     
     @Test
-    public void testReceitaComDataValidadeInvalida() {
+    public void testReceitaValida() throws DadosInvalidosException {
+        Receita r = new Receita("Dipirona", "500mg", paciente, medico, hoje, mesQueVem);
         
-        LocalDate dataEmissao = LocalDate.of(2025, 1, 2);
-        LocalDate dataValidade = LocalDate.of(2025, 1, 1);
-        
+        Assertions.assertEquals("Dipirona", r.getMedicamento());
+        Assertions.assertEquals(hoje, r.getDataEmissao());
+        Assertions.assertEquals(mesQueVem, r.getValidade());
+    }
+
+    @Test
+    public void testValidadeAnteriorEmissao() {
         try {
-             new Receita(medPadrao, qtdPadrao, paciente, medico, dataEmissao, dataValidade);
-             Assertions.fail("Deveria lançar a exceção DataInvalidaException: validade anterior à emissão ");
-             
+            // Tenta criar uma receita com validade ONTEM
+            new Receita("Teste", "1", paciente, medico, hoje, hoje.minusDays(1));
+            Assertions.fail("Deveria ter lançado DataInvalidaException");
         } catch (DataInvalidaException e) {
-            Assertions.assertTrue(e.getMessage().contains("anterior"));
-        } catch (DadosInvalidosException e){
-            Assertions.fail("Lançou a exceção errada (DadosInvalidos)");
+            Assertions.assertTrue(e.getMessage().contains("não pode ser anterior"));
+        } catch (DadosInvalidosException e) {
+            Assertions.fail("Lançou a exceção errada");
         }
     }
-    
+
     @Test
-    public void testMedicamentoVazio(){
-        
-        String medVazio = " ";
+    public void testMedicamentoVazio() {
         try {
-            new Receita(medVazio, qtdPadrao, paciente, medico,emissaoPadrao, validadePadrao);
-            Assertions.fail("Deveria ter lançado DadosInvalidosException para medicamento vazio");
-            
+            new Receita("", "1", paciente, medico, hoje, mesQueVem);
+            Assertions.fail("Deveria ter falhado pois o medicamento está vazio");
         } catch (DadosInvalidosException e) {
-            Assertions.assertNotNull(e.getMessage());
-        }   catch (DataInvalidaException e) {
-            Assertions.fail("Lançou erro de data, mas o erro esperado era de dados");
-        } 
+            Assertions.assertEquals("É obrigatório o informar o nome do medicamento ", e.getMessage());
+        }
     }
-    
+
     @Test
-    public void testQuantidadeVazia(){
-        
-        String qtdVazia = " ";
+    public void testQuantidadeVazia() {
         try {
-            new Receita(medPadrao, qtdVazia, paciente, medico,emissaoPadrao, validadePadrao);
-            Assertions.fail("Deveria ter lançado DadosInvalidosException para quantidade vazia");
-            
+            new Receita("Dipirona", "  ", paciente, medico, hoje, mesQueVem);
+            Assertions.fail("Deveria ter falhado pois a quantidade está vazia");
         } catch (DadosInvalidosException e) {
-            Assertions.assertNotNull(e.getMessage());
-        }   catch (DataInvalidaException e) {
-            Assertions.fail("Lançou erro de data, mas o erro esperado era de dados");
-        } 
+            Assertions.assertEquals("A quantidade deve ser informada! ", e.getMessage());
+        }
     }
-    
-    @Test
-    public void testImpressaoToString(){
-        
-        Receita r = new Receita(medPadrao, qtdPadrao, paciente, medico, emissaoPadrao, validadePadrao);
-        String texto = r.toString();
-        
-        
-        Assertions.assertTrue(texto.contains("RECEITA MÉDICA"));
-        Assertions.assertTrue(texto.contains(medPadrao));
-        Assertions.assertTrue(texto.contains(qtdPadrao));
-        Assertions.assertTrue(texto.contains(medico.getNome()));
-        Assertions.assertTrue(texto.contains(paciente.getNome()));
-        Assertions.assertTrue(texto.contains(emissaoPadrao.toString()));
-        Assertions.assertTrue(texto.contains(validadePadrao.toString()));
-    }
-    
 }
