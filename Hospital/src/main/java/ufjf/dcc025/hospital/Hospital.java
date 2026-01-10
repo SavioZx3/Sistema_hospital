@@ -1,16 +1,17 @@
 package ufjf.dcc025.hospital;
 
-import java.time.LocalDate; //representa apenas a data , sem horário
-import java.time.LocalTime; //representa apenas o horário , sem data
-import java.time.LocalDateTime; //representa data e horário juntos
-
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import ufjf.dcc025.hospital.data.BancoDados;
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import ufjf.dcc025.hospital.exception.UsuarioNaoEncontradoException;
-import ufjf.dcc025.hospital.servicos_hospital.consulta.Agenda;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
 import ufjf.dcc025.hospital.usuarios.Usuario;
+import ufjf.dcc025.hospital.servicos_hospital.consulta.Agenda;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
@@ -22,22 +23,15 @@ import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
 public class Hospital {
 
-    /** Lista de usuários cadastrados no sistema (médicos e pacientes) */
-    private List<Usuario> usuarios;
+    private final List<Usuario> usuarios;
+    private final List<Consulta> consultas;
 
-    /** Lista de consultas registradas no hospital */
-    private List<Consulta> consultas;
-
-    /**
-     * Construtor padrão do hospital.
-     * Inicializa as listas de usuários e consultas.
-     */
     public Hospital() {
-        this.usuarios = new ArrayList<>();
+        this.usuarios = BancoDados.usuarios;
         this.consultas = new ArrayList<>();
     }
 
-    //CADASTRO DOS USUÁRIOS NO SISTEMA
+        //CADASTRO DOS USUÁRIOS NO SISTEMA
     /**
      * Cadastra um médico no sistema.
      *
@@ -142,7 +136,8 @@ public class Hospital {
      * @throws UsuarioNaoEncontradoException se o login não existir
      * @throws DadosInvalidosException se a senha estiver incorreta
      */
-    public Usuario login(String email, String senha) {
+
+    public Usuario autenticar(String email, String senha) {
         for (Usuario u : usuarios) {
             if (u.getEmail().equalsIgnoreCase(email)) {
                 if (u.validarSenha(senha)) {
@@ -153,4 +148,5 @@ public class Hospital {
         }
         throw new UsuarioNaoEncontradoException("Usuário não encontrado");
     }
+
 }

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package ufjf.dcc025.hospital.usuarios.medico;
 
 import java.util.ArrayList;
@@ -30,7 +26,7 @@ public class Medico extends Usuario{
     //cada medico vai ter uma agenda de consultas que começa vazia
     private List<Consulta> agenda;
 
-    private List<DisponibilidadeSemanal> disponibilidades;
+    private List<DisponibilidadeDiaSemana> disponibilidades;
 
     /**
     * Cria um medico com nome, CPF e especialidade.
@@ -51,11 +47,11 @@ public class Medico extends Usuario{
         this.disponibilidades = new ArrayList<>();
     }
 
-    public void adicionarDisponibilidade(DisponibilidadeSemanal disponibilidade) {
+    public void adicionarDisponibilidade(DisponibilidadeDiaSemana disponibilidade) {
         disponibilidades.add(disponibilidade);
     }
 
-    public List<DisponibilidadeSemanal> getDisponibilidades() {
+    public List<DisponibilidadeDiaSemana> getDisponibilidades() {
         return disponibilidades;
     }
 
@@ -224,9 +220,8 @@ public class Medico extends Usuario{
         return faltas;
     }
 
-     @Override
+    @Override
     public String getTipo() {
         return "MEDICO";
     }
-  
-}   
+}

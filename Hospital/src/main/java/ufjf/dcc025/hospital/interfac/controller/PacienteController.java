@@ -1,52 +1,51 @@
 package ufjf.dcc025.hospital.interfac.controller;
 
-
-import java.util.ArrayList;
-import java.util.List;
+//import java.util.List;
+//import java.util.ArrayList;
 
 /**
  * Controller responsável pelas operações do paciente.
- * 
- * Retorna listas simuladas para testes da interface.
+ *
+ * Retorna dados simulados para exibição na interface gráfica.
  */
 public class PacienteController {
 
     /**
-     * Lista as consultas do paciente (mock).
+     * Lista as consultas do paciente.
      */
-    public List<String> listarConsultas() {
-        List<String> consultas = new ArrayList<>();
-        consultas.add("09:00 - Consulta com Dr. Carlos");
-        consultas.add("14:30 - Consulta com Dra. Ana");
-        return consultas;
+    public String[][] listarConsultas() {
+        return new String[][]{
+                {"09:00", "Dr. Carlos"},
+                {"14:30", "Dra. Ana"}
+        };
     }
 
     /**
-     * Lista os exames do paciente (mock).
+     * Lista os exames do paciente.
      */
-    public List<String> listarExames() {
-        List<String> exames = new ArrayList<>();
-        exames.add("Exame de sangue - 10/01/2026");
-        exames.add("Raio-X - 15/01/2026");
-        return exames;
+    public String[][] listarExames() {
+        return new String[][]{
+                {"Exame de sangue", "10/01/2026"},
+                {"Raio-X", "15/01/2026"}
+        };
     }
 
     /**
-     * Lista as receitas do paciente (mock).
+     * Lista as receitas do paciente.
      */
-    public List<String> listarReceitas() {
-        List<String> receitas = new ArrayList<>();
-        receitas.add("Dipirona - 3x ao dia");
-        receitas.add("Amoxicilina - 7 dias");
-        return receitas;
+    public String[][] listarReceitas() {
+        return new String[][]{
+                {"Dipirona", "3x ao dia"},
+                {"Amoxicilina", "7 dias"}
+        };
     }
 
     /**
-     * Lista os atestados do paciente (mock).
+     * Lista os atestados do paciente.
      */
-    public List<String> listarAtestados() {
-        List<String> atestados = new ArrayList<>();
-        atestados.add("Atestado Médico - 2 dias");
-        return atestados;
+    public String[][] listarAtestados() {
+        return new String[][]{
+                {"Atestado médico", "2 dias"}
+        };
     }
 }

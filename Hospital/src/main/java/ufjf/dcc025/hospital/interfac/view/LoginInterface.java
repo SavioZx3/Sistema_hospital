@@ -1,56 +1,56 @@
 package ufjf.dcc025.hospital.interfac.view;
 
-
+import javax.swing.*;
 import ufjf.dcc025.hospital.interfac.controller.LoginController;
-import java.util.Scanner;
+import ufjf.dcc025.hospital.usuarios.Usuario;
+import ufjf.dcc025.hospital.usuarios.medico.Medico;
+import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
+import ufjf.dcc025.hospital.usuarios.Recepcionista;
 
-/**
- * Classe responsável pela interface de login do sistema.
- * ufjf.dcc025.hospital.interfac.view
- * Esta classe apenas captura os dados do usuário e
- * direciona para a interface correta conforme o tipo de usuário.
- * Não contém regras de negócio.
- */
-public class LoginInterface {
+public class LoginInterface extends JFrame {
 
-    // Scanner único para entrada de dados no console
-    private static Scanner scanner = new Scanner(System.in);
+    private JTextField email;
+    private JPasswordField senha;
+    private LoginController controller = new LoginController();
 
-    // Controller responsável pela autenticação
-    private static LoginController controller = new LoginController();
+    public LoginInterface() {
+        setTitle("Login");
+        setSize(350, 200);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-    /**
-     * Exibe o menu inicial de login do sistema.
-     */
-    public static void exibir() {
-        int opcao;
+        email = new JTextField(20);
+        senha = new JPasswordField(20);
+        JButton entrar = new JButton("Entrar");
 
-        do {
-            System.out.println("\n=== LOGIN ===");
-            System.out.println("1. Entrar");
-            System.out.println("0. Sair");
-            System.out.print("Escolha uma opção: ");
+        entrar.addActionListener(e -> autenticar());
 
-            opcao = scanner.nextInt();
-            scanner.nextLine();
+        JPanel p = new JPanel();
+        p.add(new JLabel("Email:"));
+        p.add(email);
+        p.add(new JLabel("Senha:"));
+        p.add(senha);
+        p.add(entrar);
 
-            if (opcao == 1) {
-                System.out.print("Email: ");
-                String email = scanner.nextLine();
+        add(p);
+        setVisible(true);
+    }
 
-                // Autenticação mock baseada no email
-                LoginController.TipoUsuario tipo = controller.autenticar(email);
+    private void autenticar() {
+        try {
+            Usuario u = controller.autenticar(
+                email.getText(),
+                new String(senha.getPassword())
+            );
 
-                // Direciona para a interface correta
-                switch (tipo) {
-                    case PACIENTE -> PacienteInterface.exibir();
-                    case MEDICO -> MedicoInterface.exibir();
-                    case RECEPCIONISTA -> SecretariaInterface.exibir();
-                }
-            }
+            dispose();
 
-        } while (opcao != 0);
+            if (u instanceof Paciente) new PacienteInterface();
+            else if (u instanceof Medico) new MedicoInterface();
+            else if (u instanceof Recepcionista) new SecretariaInterface();
 
-        System.out.println("Encerrando sistema...");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
     }
 }
