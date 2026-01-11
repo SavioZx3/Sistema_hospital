@@ -1,7 +1,16 @@
 package ufjf.dcc025.hospital.usuarios.medico;
 
+import java.time.DayOfWeek;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Agenda;
@@ -21,12 +30,9 @@ import ufjf.dcc025.hospital.usuarios.Usuario;
 public class Medico extends Usuario{
     private String especialidade;
     private boolean ativo;
-    private Agenda agenda1;
+    private final Agenda agenda;
 
-    //cada medico vai ter uma agenda de consultas que começa vazia
-    private List<Consulta> agenda;
-
-    private List<DisponibilidadeDiaSemana> disponibilidades;
+    private List<DisponibilidadeDiaSemana> disponibilidadeSemanal;
 
     /**
     * Cria um medico com nome, CPF e especialidade.
@@ -43,18 +49,104 @@ public class Medico extends Usuario{
         }
         this.especialidade = especialidade;
         this.ativo = true;
-        this.agenda = new ArrayList<>();
-        this.disponibilidades = new ArrayList<>();
+        this.agenda = new Agenda(this);
+        this.disponibilidadeSemanal = new ArrayList<>();
     }
 
-    public void adicionarDisponibilidade(DisponibilidadeDiaSemana disponibilidade) {
-        disponibilidades.add(disponibilidade);
+    public void atualizarDisponibilidadeSemanal(
+            List<DisponibilidadeDiaSemana> novaDisponibilidade) {
+
+        validarDisponibilidadeSemanal(novaDisponibilidade);
+
+        LocalDate proximaSegunda = calcularProximaSegunda();
+
+        // Remove qualquer configuração que entraria em vigor na próxima semana
+        disponibilidadeSemanal.removeIf(d ->
+            d.getDataInicioVigencia().equals(proximaSegunda)
+        );
+
+        for (DisponibilidadeDiaSemana d : novaDisponibilidade) {
+            d.definirDataInicioVigencia(proximaSegunda);
+            disponibilidadeSemanal.add(d);
+        }
     }
 
-    public List<DisponibilidadeDiaSemana> getDisponibilidades() {
-        return disponibilidades;
+    public Agenda getAgenda(){
+        return this.agenda;
     }
 
+    private void validarDisponibilidadeSemanal(List<DisponibilidadeDiaSemana> lista) {
+
+        if (lista == null || lista.isEmpty())
+            throw new IllegalArgumentException("Disponibilidade inválida");
+
+        Set<DayOfWeek> diasUsados = new HashSet<>();
+        Duration cargaHorariaTotal = Duration.ZERO;
+
+        for (DisponibilidadeDiaSemana d : lista) {
+
+            if (!diasUsados.add(d.getDiaSemana()))
+                throw new IllegalArgumentException(
+                    "Dia da semana duplicado: " + d.getDiaSemana()
+                );
+
+            if (!d.getHorarioInicio().isBefore(d.getHorarioFim()))
+                throw new IllegalArgumentException(
+                    "Horário inválido em " + d.getDiaSemana()
+                );
+
+            Duration intervalo = Duration.between(
+                d.getHorarioInicio(),
+                d.getHorarioFim()
+            );
+
+            if (intervalo.isNegative() || intervalo.isZero())
+                throw new IllegalArgumentException(
+                    "Intervalo inválido em " + d.getDiaSemana()
+                );
+
+            if (d.getDuracaoConsulta().isZero() ||
+                d.getDuracaoConsulta().isNegative())
+                throw new IllegalArgumentException(
+                    "Duração de consulta inválida em " + d.getDiaSemana()
+                );
+
+            if (intervalo.compareTo(d.getDuracaoConsulta()) < 0)
+                throw new IllegalArgumentException(
+                    "Duração da consulta não cabe no horário em " + d.getDiaSemana()
+                );
+
+            cargaHorariaTotal = cargaHorariaTotal.plus(intervalo);
+        }
+
+        if (cargaHorariaTotal.compareTo(Duration.ofHours(8)) < 0)
+            throw new IllegalArgumentException(
+                "Carga horária semanal mínima de 8h não atingida"
+            );
+    }
+
+
+
+    public List<DisponibilidadeDiaSemana> getDisponibilidadesProximaSemana() {
+        LocalDate proximaSegunda = calcularProximaSegunda();
+
+        return disponibilidadeSemanal.stream()
+            .filter(d -> d.getDataInicioVigencia().equals(proximaSegunda))
+            .collect(Collectors.toList());
+    }
+
+    private LocalDate calcularProximaSegunda() {
+        return LocalDate.now()
+            .with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+    }
+
+
+
+
+
+
+
+    
     public void definirAgenda(Agenda agenda){
         this.agenda1 = agenda;
     }
@@ -81,9 +173,7 @@ public class Medico extends Usuario{
     * Retorna a lista de consultas do medico.
     * @return lista de consultas
     */
-    public List<Consulta> getAgenda(){
-        return new ArrayList<>(agenda);
-    }
+
 
     /**
      * retorna todos os historicos clinicos dos pacientes

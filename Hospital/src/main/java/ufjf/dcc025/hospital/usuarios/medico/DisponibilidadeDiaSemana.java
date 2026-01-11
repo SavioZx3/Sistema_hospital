@@ -4,6 +4,7 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Objects;
 
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 
@@ -13,9 +14,9 @@ public class DisponibilidadeDiaSemana {
     private final LocalTime horarioInicio;
     private final LocalTime horarioFim;
     private final Duration duracaoConsulta;
-    private final LocalDate dataInicioVigencia;
+    private LocalDate dataInicioVigencia;
 
-    public DisponibilidadeDiaSemana(DayOfWeek diaSemana, LocalTime horarioInicio, LocalTime horarioFim, Duration duracaoConsulta, LocalDate dataInicioVigencia) throws DadosInvalidosException {
+    public DisponibilidadeDiaSemana(DayOfWeek diaSemana, LocalTime horarioInicio, LocalTime horarioFim, Duration duracaoConsulta) throws DadosInvalidosException {
 
         if (diaSemana == null)
             throw new DadosInvalidosException("Dia da semana inválido.");
@@ -29,14 +30,14 @@ public class DisponibilidadeDiaSemana {
         if (duracaoConsulta.compareTo(Duration.between(horarioInicio, horarioFim)) > 0)
             throw new DadosInvalidosException("Duração da consulta maior que o período disponível.");
 
-        if (dataInicioVigencia == null)
-            throw new DadosInvalidosException("Data de início de vigência inválida.");
-
         this.diaSemana = diaSemana;
         this.horarioInicio = horarioInicio;
         this.horarioFim = horarioFim;
         this.duracaoConsulta = duracaoConsulta;
-        this.dataInicioVigencia = dataInicioVigencia;
+    }
+
+    protected void definirDataInicioVigencia(LocalDate data) {
+        this.dataInicioVigencia = data;
     }
 
     public DayOfWeek getDiaSemana() {
@@ -59,15 +60,33 @@ public class DisponibilidadeDiaSemana {
         return dataInicioVigencia;
     }
 
-    public boolean estaVigenteEm(LocalDate data) {
-        return !data.isBefore(dataInicioVigencia);
-    }
-
     public Duration getCargaHorariaDia() {
         return Duration.between(horarioInicio, horarioFim);
     }
 
     public int getQuantidadeSlots() {
         return (int) (getCargaHorariaDia().toMinutes() / duracaoConsulta.toMinutes());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DisponibilidadeDiaSemana)) return false;
+
+        DisponibilidadeDiaSemana d = (DisponibilidadeDiaSemana) o;
+        return diaSemana == d.diaSemana &&
+            horarioInicio.equals(d.horarioInicio) &&
+            horarioFim.equals(d.horarioFim) &&
+            duracaoConsulta.equals(d.duracaoConsulta);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+            diaSemana,
+            horarioInicio,
+            horarioFim,
+            duracaoConsulta
+        );
     }
 }
