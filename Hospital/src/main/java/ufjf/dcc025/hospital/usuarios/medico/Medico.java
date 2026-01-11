@@ -53,26 +53,26 @@ public class Medico extends Usuario{
         this.disponibilidadeSemanal = new ArrayList<>();
     }
 
+    public Agenda getAgenda(){
+        return this.agenda;
+    }
+
     public void atualizarDisponibilidadeSemanal(
             List<DisponibilidadeDiaSemana> novaDisponibilidade) {
 
         validarDisponibilidadeSemanal(novaDisponibilidade);
 
-        LocalDate proximaSegunda = calcularProximaSegunda();
+        LocalDate segundaMaisDuasSemanas = calcularSegundaMaisDuasSemanas();
 
         // Remove qualquer configuração que entraria em vigor na próxima semana
         disponibilidadeSemanal.removeIf(d ->
-            d.getDataInicioVigencia().equals(proximaSegunda)
+            d.getDataInicioVigencia().equals(segundaMaisDuasSemanas)
         );
 
         for (DisponibilidadeDiaSemana d : novaDisponibilidade) {
-            d.definirDataInicioVigencia(proximaSegunda);
+            d.definirDataInicioVigencia(segundaMaisDuasSemanas);
             disponibilidadeSemanal.add(d);
         }
-    }
-
-    public Agenda getAgenda(){
-        return this.agenda;
     }
 
     private void validarDisponibilidadeSemanal(List<DisponibilidadeDiaSemana> lista) {
@@ -125,27 +125,18 @@ public class Medico extends Usuario{
             );
     }
 
-
-
-    public List<DisponibilidadeDiaSemana> getDisponibilidadesProximaSemana() {
-        LocalDate proximaSegunda = calcularProximaSegunda();
+    public List<DisponibilidadeDiaSemana> getDisponibilidadesDaquiDuasSemanas() {
+        LocalDate segundaMaisDuasSemanas = calcularSegundaMaisDuasSemanas();
 
         return disponibilidadeSemanal.stream()
-            .filter(d -> d.getDataInicioVigencia().equals(proximaSegunda))
+            .filter(d -> d.getDataInicioVigencia().equals(segundaMaisDuasSemanas))
             .collect(Collectors.toList());
     }
 
-    private LocalDate calcularProximaSegunda() {
+    private LocalDate calcularSegundaMaisDuasSemanas() {
         return LocalDate.now()
-            .with(TemporalAdjusters.next(DayOfWeek.MONDAY));
-    }
-
-    public void definirAgenda(Agenda agenda){
-        this.agenda1 = agenda;
-    }
-
-    public Agenda getAgenda1(){
-        return agenda1;
+            .with(TemporalAdjusters.next(DayOfWeek.MONDAY))
+            .plusWeeks(1);
     }
 
     /**
