@@ -21,7 +21,7 @@ public class MedicoInterface extends JFrame {
         this.hospital = hospital;
 
         setTitle("Consultório - Dr(a). " + medicoLogado.getNome());
-        setSize(900, 500);
+        setSize(950, 550); // Aumentei um pouco para caber os botões confortavelmente
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
@@ -38,16 +38,17 @@ public class MedicoInterface extends JFrame {
         atualizarTabela();
 
         // --- PAINEL DE AÇÕES ---
-        JPanel pnlAcoes = new JPanel(new GridLayout(1, 4, 10, 10));
+        // Alterado para 5 colunas para incluir o Sair
+        JPanel pnlAcoes = new JPanel(new GridLayout(1, 5, 10, 10));
         pnlAcoes.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JButton btnIniciar = new JButton("Iniciar Consulta");
         JButton btnReceita = new JButton("Emitir Receita");
         JButton btnAtestado = new JButton("Emitir Atestado");
         JButton btnFinalizar = new JButton("Finalizar");
-
-        // Botão de Sair/Logout
         JButton btnSair = new JButton("Sair");
+
+        // Lógica do botão Sair (Logout)
         btnSair.addActionListener(e -> {
             dispose();
             new LoginInterface(hospital).setVisible(true);
@@ -62,6 +63,7 @@ public class MedicoInterface extends JFrame {
         pnlAcoes.add(btnReceita);
         pnlAcoes.add(btnAtestado);
         pnlAcoes.add(btnFinalizar);
+        pnlAcoes.add(btnSair);
 
         add(new JScrollPane(tabelaConsultas), BorderLayout.CENTER);
         add(pnlAcoes, BorderLayout.SOUTH);
@@ -73,6 +75,7 @@ public class MedicoInterface extends JFrame {
         model.setRowCount(0);
         DateTimeFormatter hm = DateTimeFormatter.ofPattern("HH:mm");
         if (medicoLogado.getAgenda() != null) {
+            // Usando o método tradicional para percorrer a lista
             for (Consulta c : medicoLogado.getAgenda().getConsultas()) {
                 model.addRow(new Object[]{
                     c.getDataHoraInicio().format(hm),
@@ -98,7 +101,7 @@ public class MedicoInterface extends JFrame {
         if (c == null) return;
         try {
             if (acao == 1) c.marcarInicioConsulta();
-            else c.marcarConcluida();
+            else if (acao == 2) c.marcarConcluida();
             atualizarTabela();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage());
@@ -107,7 +110,10 @@ public class MedicoInterface extends JFrame {
 
     private void abrirDialogoReceita() {
         Consulta c = getConsultaSelecionada();
-        if (c == null || c.getPaciente() == null) return;
+        if (c == null || c.getPaciente() == null) {
+            JOptionPane.showMessageDialog(this, "Só é possível emitir receita para consultas com paciente agendado.");
+            return;
+        }
 
         Paciente p = c.getPaciente();
         JTextField txtMedicamento = new JTextField();
@@ -118,12 +124,12 @@ public class MedicoInterface extends JFrame {
             "Quantidade/Instruções:", txtQtd,
         };
 
-        int option = JOptionPane.showConfirmDialog(null, message, "Nova Receita", JOptionPane.OK_CANCEL_OPTION);
+        int option = JOptionPane.showConfirmDialog(this, message, "Nova Receita", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) {
             try {
                 c.emitirReceita(txtMedicamento.getText(), txtQtd.getText(), LocalDate.now().plusMonths(1));
                 
-                // INTEGRANDO COM O PACIENTE:
+                // INTEGRAÇÃO: Salva no histórico do paciente (Importante para o requisito de acesso digital)
                 p.adicionarReceita(c.getReceita()); 
                 
                 JOptionPane.showMessageDialog(this, "Receita emitida e salva no histórico do paciente!");
@@ -145,10 +151,10 @@ public class MedicoInterface extends JFrame {
                 int dias = Integer.parseInt(diasStr);
                 c.emitirAtestado(dias);
                 
-                // INTEGRANDO COM O PACIENTE:
+                // INTEGRAÇÃO: Salva no histórico do paciente
                 p.adicionarAtestado(c.getAtestado());
                 
-                JOptionPane.showMessageDialog(this, "Atestado de " + dias + " dias registrado.");
+                JOptionPane.showMessageDialog(this, "Atestado de " + dias + " dias registrado no histórico.");
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Erro: Insira um número válido.");
             }

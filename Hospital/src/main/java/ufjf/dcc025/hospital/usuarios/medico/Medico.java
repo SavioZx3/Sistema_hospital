@@ -1,4 +1,3 @@
-
 package ufjf.dcc025.hospital.usuarios.medico;
 
 import java.time.DayOfWeek;
@@ -35,20 +34,30 @@ public class Medico extends Usuario {
         this.disponibilidadeSemanal = new ArrayList<>();
     }
 
+    // Getters e Setters
+    @Override
+    public String getTipo() { return "Médico"; }
+    public Agenda getAgenda() { return this.agenda; }
+    public String getEspecialidade() { return especialidade; }
+    public boolean isAtivo() { return ativo; }
+    public void desativar() { this.ativo = false; }
+    public void ativar() { this.ativo = true; }
+
+    // Disponibilidade
     public void atualizarDisponibilidadeSemanal(List<DisponibilidadeDiaSemana> novaDisponibilidade) {
         validarDisponibilidadeSemanal(novaDisponibilidade);
-        LocalDate proximaSegunda = calcularProximaSegunda();
+        LocalDate proximaVigencia = calcularProximaSegunda();
 
         List<DisponibilidadeDiaSemana> paraRemover = new ArrayList<>();
         for (DisponibilidadeDiaSemana d : disponibilidadeSemanal) {
-            if (d.getDataInicioVigencia() != null && d.getDataInicioVigencia().equals(proximaSegunda)) {
+            if (d.getDataInicioVigencia() != null && d.getDataInicioVigencia().equals(proximaVigencia)) {
                 paraRemover.add(d);
             }
         }
         disponibilidadeSemanal.removeAll(paraRemover);
 
         for (DisponibilidadeDiaSemana d : novaDisponibilidade) {
-            d.definirDataInicioVigencia(proximaSegunda);
+            d.definirDataInicioVigencia(proximaVigencia);
             disponibilidadeSemanal.add(d);
         }
     }
@@ -66,17 +75,26 @@ public class Medico extends Usuario {
 
     private void validarDisponibilidadeSemanal(List<DisponibilidadeDiaSemana> lista) {
         if (lista == null || lista.isEmpty()) throw new IllegalArgumentException("Disponibilidade inválida");
-        
+
         Set<DayOfWeek> diasUsados = new HashSet<>();
         Duration cargaHorariaTotal = Duration.ZERO;
-        
+
         for (DisponibilidadeDiaSemana d : lista) {
             if (!diasUsados.add(d.getDiaSemana())) {
                 throw new IllegalArgumentException("Dia duplicado: " + d.getDiaSemana());
             }
-            cargaHorariaTotal = cargaHorariaTotal.plus(d.getCargaHorariaDia());
+
+            if (!d.getHorarioInicio().isBefore(d.getHorarioFim())) {
+                throw new IllegalArgumentException("Horário inválido em " + d.getDiaSemana());
+            }
+
+            Duration intervalo = Duration.between(d.getHorarioInicio(), d.getHorarioFim());
+            if (intervalo.compareTo(d.getDuracaoConsulta()) < 0) {
+                throw new IllegalArgumentException("Duração da consulta não cabe no horário em " + d.getDiaSemana());
+            }
+            cargaHorariaTotal = cargaHorariaTotal.plus(intervalo);
         }
-        
+
         if (cargaHorariaTotal.compareTo(Duration.ofHours(8)) < 0) {
             throw new IllegalArgumentException("Carga horária semanal mínima de 8h não atingida");
         }
@@ -86,45 +104,17 @@ public class Medico extends Usuario {
         return LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
     }
 
-    public void internarPaciente(Paciente paciente, StatusVisita permissaoVisita) {
-        if (paciente != null) {
-            paciente.setStatusInternacao(StatusInternacao.INTERNADO);
-            paciente.setStatusVisita(permissaoVisita);
-        }
-    }
-
-    public void darAlta(Paciente paciente) {
-        if (paciente != null) {
-            paciente.setStatusInternacao(StatusInternacao.NAO_INTERNADO);
-            paciente.setStatusVisita(StatusVisita.APTO);
-        }
-    }
-
+    // Ações Médicas
     public void realizarAtendimento(Consulta consulta, int diasAtestado, String remedio, String dose, LocalDate validade) {
         Paciente p = consulta.getPaciente();
         if (p == null) return;
-        
-        // Emite os documentos na consulta
+
         consulta.emitirAtestado(diasAtestado);
         consulta.emitirReceita(remedio, dose, validade);
-        
-        // Adiciona fisicamente às listas do paciente para o requisito de "Acesso Digital"
         p.adicionarAtestado(consulta.getAtestado());
         p.adicionarReceita(consulta.getReceita());
-        
         consulta.marcarConcluida();
     }
-
-    // --- GETTERS E SETTERS ---
-
-    public Agenda getAgenda() { return this.agenda; }
-    public String getEspecialidade() { return especialidade; }
-    public boolean isAtivo() { return ativo; }
-    public void desativar() { this.ativo = false; }
-    public void ativar() { this.ativo = true; }
-
-    @Override
-    public String getTipo() { return "MEDICO"; }
 
     @Override
     public String toString() {

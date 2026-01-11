@@ -116,6 +116,7 @@ public class Consulta {
         
         this.paciente = paciente;
         this.status = StatusConsulta.AGENDADA;
+        this.medico.getAgenda().notificarAgendamento();
     }
     
     private boolean isAgendada() {
@@ -159,6 +160,7 @@ public class Consulta {
 
 
         this.status = StatusConsulta.FALTA;
+        this.medico.getAgenda().notificarFalta();
     }
 
     public void cancelarConsulta() throws IllegalStateException {
@@ -167,6 +169,7 @@ public class Consulta {
 
         this.paciente = null;
         marcarDisponivel();
+        this.medico.getAgenda().notificarCancelamento();
     }
 
 
