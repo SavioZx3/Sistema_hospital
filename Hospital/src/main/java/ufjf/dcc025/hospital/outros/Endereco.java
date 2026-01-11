@@ -5,18 +5,32 @@ import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 public class Endereco {
     private String logradouro;
     
-    public Endereco(String endereco) throws DadosInvalidosException {
-        validar(endereco);
-        this.logradouro = endereco.trim();
+    
+    public Endereco(String rua , String bairro, String cidade, String numero ) throws DadosInvalidosException {
+        
+        atualizarEndereco(rua, bairro, cidade, numero);
+    }
+    
+    private void atualizarEndereco(String cidade, String bairro, String rua, String numero) throws DadosInvalidosException {
+        
+        validar(cidade);
+        validar(bairro);
+        validar(rua);
+        validar(numero);
+        
+        if(!rua.toUpperCase().contains("RUA")){
+            rua = "Rua " + rua;
+        }
+        
+        this.logradouro = "Cidade: " + cidade +
+                          "\nBairro " + bairro + 
+                          "\n" + rua + 
+                          "\nNúmero: " + numero;
     }
 
     private void validar(String endereco) throws DadosInvalidosException {
         if (endereco == null || endereco.trim().isEmpty()) {
             throw new DadosInvalidosException("O endereço não pode estar vazio.");
-        }
-        
-        if (endereco.trim().length() < 5) {
-            throw new DadosInvalidosException("Endereço muito curto. Informe rua e número.");
         }
     }
 
@@ -24,9 +38,8 @@ public class Endereco {
         return logradouro;
     }
 
-    public void setLogradouro(String logradouro) throws DadosInvalidosException {
-        validar(logradouro);
-        this.logradouro = logradouro.trim();
+    public void setLogradouro(String rua , String bairro, String cidade, String numero ) throws DadosInvalidosException {
+        atualizarEndereco(rua,bairro,cidade,numero);
     }
 
     @Override

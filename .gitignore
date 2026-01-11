@@ -6,3 +6,9 @@
 *.class
 /Hospital/nbproject/
 /Hospital/target/
+
+# Pasta de banco de dados local
+Hospital/database/
+
+# Arquivos de dados JSON
+*.json
