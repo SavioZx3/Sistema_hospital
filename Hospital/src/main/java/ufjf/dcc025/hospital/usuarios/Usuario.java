@@ -1,3 +1,4 @@
+
 package ufjf.dcc025.hospital.usuarios;
 
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
@@ -47,10 +48,10 @@ public abstract class Usuario {
         this.senha = new Senha(novaSenha);
     }
     
-    public String getEmail() { return email.getEndereco(); }
+    public String getEmail() { return email.getEmail(); }
     public void setEmail(String novoEmail) throws DadosInvalidosException {
         
-        String antigo = this.email.getEndereco();
+        String antigo = this.email.getEmail();
         Email novoObj = new Email(novoEmail); // Valida formato e unicidade
         
         // Se criou o novo com sucesso, remove o antigo da lista estática
