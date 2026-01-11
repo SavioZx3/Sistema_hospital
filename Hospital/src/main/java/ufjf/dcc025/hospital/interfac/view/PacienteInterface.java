@@ -1,64 +1,41 @@
 package ufjf.dcc025.hospital.interfac.view;
 
-import java.util.Scanner;
-import ufjf.dcc025.hospital.interfac.controller.PacienteController;
+import javax.swing.*;
+import ufjf.dcc025.hospital.usuarios.Usuario;
+import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
-/**
- * Interface do paciente.
- * ufjf.dcc025.hospital.interfac.view
- * Exibe informações relacionadas ao paciente autenticado.
- */
-public class PacienteInterface {
+public class PacienteInterface extends JFrame {
 
-    private static Scanner scanner = new Scanner(System.in);
-    private static PacienteController controller = new PacienteController();
+    private Paciente paciente;
 
-    /**
-     * Exibe o menu principal do paciente.
-     */
-    public static void exibir() {
-        int opcao;
+    public PacienteInterface(Usuario u) {
+        this.paciente = (Paciente) u;
 
-        do {
-            System.out.println("\n=== INTERFACE PACIENTE ===");
-            System.out.println("1. Ver consultas");
-            System.out.println("2. Ver exames");
-            System.out.println("3. Ver receitas");
-            System.out.println("4. Ver atestados");
-            System.out.println("0. Voltar");
+        setTitle("Área do Paciente");
+        setSize(400, 300);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-            opcao = scanner.nextInt();
-            scanner.nextLine();
+        JButton consultas = new JButton("Minhas Consultas");
+        JButton receitas = new JButton("Minhas Receitas");
+        JButton atestados = new JButton("Meus Atestados");
+        JButton historico = new JButton("Histórico Médico");
 
-            switch (opcao) {
-                case 1 -> verConsultas();
-                case 2 -> verExames();
-                case 3 -> verReceitas();
-                case 4 -> verAtestados();
-                case 0 -> System.out.println("Voltando ao menu de login...");
-                default -> System.out.println("Opção inválida!");
-            }
+        consultas.addActionListener(e ->
+            paciente.getHistorico().getConsultas()
+        );
 
-        } while (opcao != 0);
-    }
+        historico.addActionListener(e ->
+            paciente.getHistorico().getExames()
+        );
 
-    private static void verConsultas() {
-        System.out.println("\n=== MINHAS CONSULTAS ===");
-        controller.listarConsultas().forEach(System.out::println);
-    }
+        JPanel p = new JPanel();
+        p.add(consultas);
+        p.add(receitas);
+        p.add(atestados);
+        p.add(historico);
 
-    private static void verExames() {
-        System.out.println("\n=== MEUS EXAMES ===");
-        controller.listarExames().forEach(System.out::println);
-    }
-
-    private static void verReceitas() {
-        System.out.println("\n=== MINHAS RECEITAS ===");
-        controller.listarReceitas().forEach(System.out::println);
-    }
-
-    private static void verAtestados() {
-        System.out.println("\n=== MEUS ATESTADOS ===");
-        controller.listarAtestados().forEach(System.out::println);
+        add(p);
+        setVisible(true);
     }
 }

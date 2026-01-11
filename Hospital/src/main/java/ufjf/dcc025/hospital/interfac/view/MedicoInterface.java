@@ -1,101 +1,51 @@
 package ufjf.dcc025.hospital.interfac.view;
 
-import ufjf.dcc025.hospital.interfac.controller.ConsultaController;
-import ufjf.dcc025.hospital.interfac.controller.MedicoController;
-import java.util.Scanner;
+import javax.swing.*;
+import java.awt.*;
+import ufjf.dcc025.hospital.usuarios.Usuario;
+import ufjf.dcc025.hospital.usuarios.medico.Medico;
 
-/**
- * Interufjf.dcc025.hospital.interfac.view
- * 
- * Responsável por exibir menus e capturar dados.
- * A lógica de negócio é delegada aos controllers.
- */
-public class MedicoInterface {
+public class MedicoInterface extends JFrame {
 
-    private static Scanner scanner = new Scanner(System.in);
+    private Medico medico;
 
-    // Controllers utilizados pela interface
-    private static ConsultaController consultaController = new ConsultaController();
-    private static MedicoController medicoController = new MedicoController();
+    public MedicoInterface(Usuario usuario) {
+        this.medico = (Medico) usuario;
 
-    /**
-     * Exibe o menu principal do médico.
-     */
-    public static void exibir() {
-        int opcao;
+        setTitle("Área do Médico");
+        setSize(450, 350);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        do {
-            System.out.println("\n=== INTERFACE MÉDICO ===");
-            System.out.println("1. Ver agenda");
-            System.out.println("2. Ver consultas");
-            System.out.println("3. Emitir atestado");
-            System.out.println("4. Solicitar exames");
-            System.out.println("5. Emitir receita");
-            System.out.println("0. Voltar");
+        JPanel painel = new JPanel(new GridLayout(4, 1, 10, 10));
 
-            opcao = scanner.nextInt();
-            scanner.nextLine();
+        JButton consultas = new JButton("Ver Consultas");
+        JButton pacientes = new JButton("Ver Pacientes");
+        JButton receita = new JButton("Emitir Receita");
+        JButton atestado = new JButton("Emitir Atestado");
 
-            switch (opcao) {
-                case 1 -> consultaController.listarAgendaMedico();
-                case 2 -> consultaController.listarConsultas();
-                case 3 -> emitirAtestado();
-                case 4 -> solicitarExame();
-                case 5 -> emitirReceita();
-                case 0 -> System.out.println("Voltando ao menu de login...");
-                default -> System.out.println("Opção inválida!");
-            }
+        consultas.addActionListener(e ->
+            new ConsultasMedicoView(medico)
+        );
 
-        } while (opcao != 0);
-    }
+        pacientes.addActionListener(e ->
+            medico.getAgenda1().getConsultas()
+        );
 
-    /**
-     * Captura os dados e solicita ao controller a emissão de atestado.
-     * Método mock.
-     */
-    private static void emitirAtestado() {
-        System.out.print("CPF do paciente: ");
-        String cpf = scanner.nextLine();
+        receita.addActionListener(e ->
+            new EmitirReceitaView(medico)
+        );
 
-        System.out.print("Duração (dias): ");
-        int dias = scanner.nextInt();
-        scanner.nextLine();
+        atestado.addActionListener(e ->
+            new EmitirAtestadoView(medico)
+        );
 
-        System.out.print("Mensagem: ");
-        String mensagem = scanner.nextLine();
+        painel.add(consultas);
+        painel.add(pacientes);
+        painel.add(receita);
+        painel.add(atestado);
 
-        medicoController.emitirAtestado(cpf, dias, mensagem);
-    }
-
-    /**
-     * Solicita um exame para um paciente (mock).
-     */
-    private static void solicitarExame() {
-        System.out.print("CPF do paciente: ");
-        String cpf = scanner.nextLine();
-
-        System.out.print("Exame: ");
-        String exame = scanner.nextLine();
-
-        System.out.print("Data: ");
-        String data = scanner.nextLine();
-
-        medicoController.solicitarExame(cpf, exame, data);
-    }
-
-    /**
-     * Emite uma receita médica (mock).
-     */
-    private static void emitirReceita() {
-        System.out.print("CPF do paciente: ");
-        String cpf = scanner.nextLine();
-
-        System.out.print("Medicamento: ");
-        String medicamento = scanner.nextLine();
-
-        System.out.print("Posologia: ");
-        String posologia = scanner.nextLine();
-
-        medicoController.emitirReceita(cpf, medicamento, posologia);
+        add(painel);
+        setVisible(true);
     }
 }

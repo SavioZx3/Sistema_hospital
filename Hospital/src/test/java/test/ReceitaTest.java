@@ -8,7 +8,7 @@ import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import ufjf.dcc025.hospital.exception.DataInvalidaException;
 import ufjf.dcc025.hospital.outros.Cpf;
 import ufjf.dcc025.hospital.outros.Email;
-import ufjf.dcc025.hospital.servicos_hospital.Receita;
+import ufjf.dcc025.hospital.servicos_hospital.documento_medico.Receita;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 

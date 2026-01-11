@@ -2,38 +2,59 @@ package ufjf.dcc025.hospital.interfac.controller;
 
 /**
  * Controller responsável pelas ações realizadas pelo médico.
- * 
- * Utiliza operações simuladas para testes da interface.
+ *
+ * Esta classe fornece dados simulados (mock) para
+ * alimentar as interfaces gráficas (Swing).
  */
 public class MedicoController {
 
     /**
-     * Emite um atestado médico (mock).
+     * Retorna os atestados emitidos pelo médico.
+     *
+     * @return matriz com CPF do paciente, dias e observação
      */
+    public String[][] listarAtestados() {
+        return new String[][]{
+                {"123.456.789-00", "2", "Repouso recomendado"},
+                {"987.654.321-00", "5", "Pós-operatório"}
+        };
+    }
+
+    /**
+     * Retorna os exames solicitados pelo médico.
+     *
+     * @return matriz com CPF, exame e data
+     */
+    public String[][] listarExamesSolicitados() {
+        return new String[][]{
+                {"123.456.789-00", "Exame de sangue", "10/01/2026"},
+                {"987.654.321-00", "Raio-X", "15/01/2026"}
+        };
+    }
+
+    /**
+     * Retorna as receitas emitidas pelo médico.
+     *
+     * @return matriz com CPF, medicamento e posologia
+     */
+    public String[][] listarReceitas() {
+        return new String[][]{
+                {"123.456.789-00", "Dipirona", "3x ao dia"},
+                {"987.654.321-00", "Amoxicilina", "7 dias"}
+        };
+    }
+
+    /* ===== AÇÕES (mock) ===== */
+
     public void emitirAtestado(String cpf, int dias, String mensagem) {
-        System.out.println("\nAtestado emitido com sucesso!");
-        System.out.println("CPF: " + cpf);
-        System.out.println("Dias: " + dias);
-        System.out.println("Mensagem: " + mensagem);
+        // futuramente conecta com model
     }
 
-    /**
-     * Solicita um exame para o paciente (mock).
-     */
     public void solicitarExame(String cpf, String exame, String data) {
-        System.out.println("\nExame solicitado!");
-        System.out.println("CPF: " + cpf);
-        System.out.println("Exame: " + exame);
-        System.out.println("Data: " + data);
+        // futuramente conecta com model
     }
 
-    /**
-     * Emite uma receita médica (mock).
-     */
     public void emitirReceita(String cpf, String medicamento, String posologia) {
-        System.out.println("\nReceita emitida!");
-        System.out.println("CPF: " + cpf);
-        System.out.println("Medicamento: " + medicamento);
-        System.out.println("Posologia: " + posologia);
+        // futuramente conecta com model
     }
 }

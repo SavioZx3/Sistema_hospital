@@ -1,4 +1,4 @@
-package ufjf.dcc025.hospital.servicos_hospital;
+package ufjf.dcc025.hospital.servicos_hospital.documento_medico;
 
 import java.time.LocalDate;
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
@@ -6,18 +6,17 @@ import ufjf.dcc025.hospital.exception.DataInvalidaException;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
-public class Receita {
+public class Receita implements DocumentoMedico {
+
+    private final LocalDate validade;
+    private final LocalDate dataEmissao;
+
+    private final String medicamento;
+    private final String quantidade;
+    private final Paciente paciente;
+    private final Medico medico;
     
-    private LocalDate validade;
-    private LocalDate dataEmissao;
-    
-    private String medicamento;
-    private String quantidade;
-    private Paciente paciente;
-    private Medico medico;
-    
-    public Receita(String medicamento , String quantidade , Paciente paciente , Medico medico , LocalDate dataEmissao , LocalDate validade) 
-        throws  DadosInvalidosException{
+    public Receita(String medicamento , String quantidade , Paciente paciente , Medico medico , LocalDate dataEmissao , LocalDate validade) throws  DadosInvalidosException, DataInvalidaException {
         
         if(medicamento == null || medicamento.trim().isEmpty()){
             throw new DadosInvalidosException("É obrigatório o informar o nome do medicamento ");
@@ -53,8 +52,16 @@ public class Receita {
         
     }
     
-    public String getMedicamento() { return medicamento; }
+    @Override
+    public Medico getMedico() { return medico; }
+
+    @Override
+    public Paciente getPaciente() { return paciente; }
+ 
+    @Override
     public LocalDate getDataEmissao() { return dataEmissao; }
+
+    public String getMedicamento() { return medicamento; }
     public LocalDate getValidade() { return validade; }  
     
     

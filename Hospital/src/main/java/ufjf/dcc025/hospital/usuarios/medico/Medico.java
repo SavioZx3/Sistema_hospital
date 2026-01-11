@@ -1,14 +1,20 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package ufjf.dcc025.hospital.usuarios.medico;
 
+import java.time.DayOfWeek;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
-import ufjf.dcc025.hospital.servicos_hospital.Consulta;
+import ufjf.dcc025.hospital.servicos_hospital.consulta.Agenda;
+import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
 import ufjf.dcc025.hospital.usuarios.Usuario;
 
 /**
@@ -24,16 +30,9 @@ import ufjf.dcc025.hospital.usuarios.Usuario;
 public class Medico extends Usuario{
     private String especialidade;
     private boolean ativo;
-    private Agenda agenda1;
+    private final Agenda agenda;
 
-    //cada medico vai ter uma agenda de consultas que começa vazia
-    private List<Consulta> agenda;
-
-    //horarios de atendimento definidos pelo medico
-    private List<HorarioAtendimento> horariosAtendimento;
-
-    //lista de historico clinico dos pacientes atendidos
-    private List<HistoricoClinico> historicos;
+    private List<DisponibilidadeDiaSemana> disponibilidadeSemanal;
 
     /**
     * Cria um medico com nome, CPF e especialidade.
@@ -50,17 +49,94 @@ public class Medico extends Usuario{
         }
         this.especialidade = especialidade;
         this.ativo = true;
-        this.agenda = new ArrayList<>();
-        this.historicos = new ArrayList<>();
-        this.horariosAtendimento = new ArrayList<>();
+        this.agenda = new Agenda(this);
+        this.disponibilidadeSemanal = new ArrayList<>();
     }
 
-    public void definirAgenda(Agenda agenda){
-        this.agenda1 = agenda;
+    public Agenda getAgenda(){
+        return this.agenda;
     }
 
-    public Agenda getAgenda1(){
-        return agenda1;
+    public void atualizarDisponibilidadeSemanal(
+            List<DisponibilidadeDiaSemana> novaDisponibilidade) {
+
+        validarDisponibilidadeSemanal(novaDisponibilidade);
+
+        LocalDate segundaMaisDuasSemanas = calcularSegundaMaisDuasSemanas();
+
+        // Remove qualquer configuração que entraria em vigor na próxima semana
+        disponibilidadeSemanal.removeIf(d ->
+            d.getDataInicioVigencia().equals(segundaMaisDuasSemanas)
+        );
+
+        for (DisponibilidadeDiaSemana d : novaDisponibilidade) {
+            d.definirDataInicioVigencia(segundaMaisDuasSemanas);
+            disponibilidadeSemanal.add(d);
+        }
+    }
+
+    private void validarDisponibilidadeSemanal(List<DisponibilidadeDiaSemana> lista) {
+
+        if (lista == null || lista.isEmpty())
+            throw new IllegalArgumentException("Disponibilidade inválida");
+
+        Set<DayOfWeek> diasUsados = new HashSet<>();
+        Duration cargaHorariaTotal = Duration.ZERO;
+
+        for (DisponibilidadeDiaSemana d : lista) {
+
+            if (!diasUsados.add(d.getDiaSemana()))
+                throw new IllegalArgumentException(
+                    "Dia da semana duplicado: " + d.getDiaSemana()
+                );
+
+            if (!d.getHorarioInicio().isBefore(d.getHorarioFim()))
+                throw new IllegalArgumentException(
+                    "Horário inválido em " + d.getDiaSemana()
+                );
+
+            Duration intervalo = Duration.between(
+                d.getHorarioInicio(),
+                d.getHorarioFim()
+            );
+
+            if (intervalo.isNegative() || intervalo.isZero())
+                throw new IllegalArgumentException(
+                    "Intervalo inválido em " + d.getDiaSemana()
+                );
+
+            if (d.getDuracaoConsulta().isZero() ||
+                d.getDuracaoConsulta().isNegative())
+                throw new IllegalArgumentException(
+                    "Duração de consulta inválida em " + d.getDiaSemana()
+                );
+
+            if (intervalo.compareTo(d.getDuracaoConsulta()) < 0)
+                throw new IllegalArgumentException(
+                    "Duração da consulta não cabe no horário em " + d.getDiaSemana()
+                );
+
+            cargaHorariaTotal = cargaHorariaTotal.plus(intervalo);
+        }
+
+        if (cargaHorariaTotal.compareTo(Duration.ofHours(8)) < 0)
+            throw new IllegalArgumentException(
+                "Carga horária semanal mínima de 8h não atingida"
+            );
+    }
+
+    public List<DisponibilidadeDiaSemana> getDisponibilidadesDaquiDuasSemanas() {
+        LocalDate segundaMaisDuasSemanas = calcularSegundaMaisDuasSemanas();
+
+        return disponibilidadeSemanal.stream()
+            .filter(d -> d.getDataInicioVigencia().equals(segundaMaisDuasSemanas))
+            .collect(Collectors.toList());
+    }
+
+    private LocalDate calcularSegundaMaisDuasSemanas() {
+        return LocalDate.now()
+            .with(TemporalAdjusters.next(DayOfWeek.MONDAY))
+            .plusWeeks(1);
     }
 
     /**
@@ -81,9 +157,7 @@ public class Medico extends Usuario{
     * Retorna a lista de consultas do medico.
     * @return lista de consultas
     */
-    public List<Consulta> getAgenda(){
-        return new ArrayList<>(agenda);
-    }
+
 
     /**
      * retorna todos os historicos clinicos dos pacientes
@@ -220,9 +294,8 @@ public class Medico extends Usuario{
         return faltas;
     }
 
-     @Override
+    @Override
     public String getTipo() {
         return "MEDICO";
     }
-  
-}   
+}

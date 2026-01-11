@@ -1,16 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- */
-
 package ufjf.dcc025.hospital;
 
-/**
- *
- * @author mjjun
- */
-public class main {
+import ufjf.dcc025.hospital.interfac.view.LoginInterface;
 
+public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        new LoginInterface();
     }
 }
