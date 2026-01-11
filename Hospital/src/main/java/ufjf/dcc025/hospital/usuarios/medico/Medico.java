@@ -140,13 +140,6 @@ public class Medico extends Usuario{
             .with(TemporalAdjusters.next(DayOfWeek.MONDAY));
     }
 
-
-
-
-
-
-
-    
     public void definirAgenda(Agenda agenda){
         this.agenda1 = agenda;
     }
