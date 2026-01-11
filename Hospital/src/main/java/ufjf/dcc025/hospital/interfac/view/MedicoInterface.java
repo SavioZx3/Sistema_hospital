@@ -2,85 +2,50 @@ package ufjf.dcc025.hospital.interfac.view;
 
 import javax.swing.*;
 import java.awt.*;
+import ufjf.dcc025.hospital.usuarios.Usuario;
+import ufjf.dcc025.hospital.usuarios.medico.Medico;
 
-/**
- * Interface gráfica da área do médico.
- */
 public class MedicoInterface extends JFrame {
 
-    public MedicoInterface() {
-        setTitle("Sistema Hospitalar - Área do Médico");
-        setSize(500, 400);
+    private Medico medico;
+
+    public MedicoInterface(Usuario usuario) {
+        this.medico = (Medico) usuario;
+
+        setTitle("Área do Médico");
+        setSize(450, 350);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        criarCabecalho();
-        criarMenu();
-        criarRodape();
-
-        setVisible(true);
-    }
-
-    private void criarCabecalho() {
-        JLabel titulo = new JLabel("Área do Médico", SwingConstants.CENTER);
-        titulo.setFont(new Font("Arial", Font.BOLD, 20));
-        titulo.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
-        add(titulo, BorderLayout.NORTH);
-    }
-
-    private void criarMenu() {
         JPanel painel = new JPanel(new GridLayout(4, 1, 10, 10));
-        painel.setBorder(BorderFactory.createEmptyBorder(20, 50, 20, 50));
 
-        JButton btnConsultas = new JButton("📋 Ver Consultas");
-        JButton btnPacientes = new JButton("🧑‍🤝‍🧑 Ver Pacientes");
-        JButton btnReceita = new JButton("📝 Emitir Receita");
-        JButton btnAtestado = new JButton("🧾 Emitir Atestado");
+        JButton consultas = new JButton("Ver Consultas");
+        JButton pacientes = new JButton("Ver Pacientes");
+        JButton receita = new JButton("Emitir Receita");
+        JButton atestado = new JButton("Emitir Atestado");
 
-        btnConsultas.addActionListener(e ->
-                mostrarMensagem("Lista de consultas do médico.")
+        consultas.addActionListener(e ->
+            new ConsultasMedicoView(medico)
         );
 
-        btnPacientes.addActionListener(e ->
-                mostrarMensagem("Lista de pacientes atendidos.")
+        pacientes.addActionListener(e ->
+            medico.getAgenda1().getConsultas()
         );
 
-        btnReceita.addActionListener(e ->
-                mostrarMensagem("Emissão de receita médica.")
+        receita.addActionListener(e ->
+            new EmitirReceitaView(medico)
         );
 
-        btnAtestado.addActionListener(e ->
-                mostrarMensagem("Emissão de atestado médico.")
+        atestado.addActionListener(e ->
+            new EmitirAtestadoView(medico)
         );
 
-        painel.add(btnConsultas);
-        painel.add(btnPacientes);
-        painel.add(btnReceita);
-        painel.add(btnAtestado);
+        painel.add(consultas);
+        painel.add(pacientes);
+        painel.add(receita);
+        painel.add(atestado);
 
-        add(painel, BorderLayout.CENTER);
-    }
-
-    private void criarRodape() {
-        JPanel rodape = new JPanel();
-
-        JButton btnLogout = new JButton("🚪 Logout");
-        btnLogout.addActionListener(e -> {
-            dispose();
-            new LoginInterface();
-        });
-
-        rodape.add(btnLogout);
-        add(rodape, BorderLayout.SOUTH);
-    }
-
-    private void mostrarMensagem(String mensagem) {
-        JOptionPane.showMessageDialog(
-                this,
-                mensagem + "\n(Funcionalidade em desenvolvimento)",
-                "Aviso",
-                JOptionPane.INFORMATION_MESSAGE
-        );
+        add(painel);
+        setVisible(true);
     }
 }
