@@ -6,7 +6,9 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import ufjf.dcc025.hospital.usuarios.medico.DisponibilidadeDiaSemana;
@@ -17,6 +19,10 @@ public class Agenda {
 
     private final Medico medico; // Médico dono da agenda
     private final List<Consulta> consultas;
+
+    private boolean houveAgendamento;
+    private boolean houveCancelamento;
+    private boolean houveFalta;
 
     public Agenda(Medico medico) {
         if (medico == null)
@@ -32,6 +38,39 @@ public class Agenda {
         return new ArrayList<>(consultas);
     }
 
+    public List<Consulta> getConsultasMarcadas() {
+        return consultas.stream()
+            .filter(c -> c.getStatus() == StatusConsulta.AGENDADA)
+            .sorted(Comparator.comparing(Consulta::getDataHoraInicio))
+            .collect(Collectors.toList());
+    }
+
+    public List<Consulta> getProximasConsultas() {
+        LocalDateTime agora = LocalDateTime.now();
+
+        return consultas.stream()
+            .filter(c -> c.getStatus() == StatusConsulta.AGENDADA)
+            .filter(c -> c.getDataHoraInicio().isAfter(agora))
+            .sorted(Comparator.comparing(Consulta::getDataHoraInicio))
+            .collect(Collectors.toList());
+    }
+
+    public List<Consulta> getConsultasDeHojeAteDomingo() {
+        LocalDate hoje = LocalDate.now();
+
+        LocalDate fimSemana = hoje.with(
+            TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)
+        );
+
+        return consultas.stream()
+            .filter(c -> c.getStatus() == StatusConsulta.AGENDADA)
+            .filter(c -> {
+                LocalDate data = c.getDataHoraInicio().toLocalDate();
+                return !data.isBefore(hoje) && !data.isAfter(fimSemana);
+            })
+            .sorted(Comparator.comparing(Consulta::getDataHoraInicio))
+            .collect(Collectors.toList());
+    }
 
     //=========================== Controle de Consulta =========================//
 
@@ -94,4 +133,39 @@ public class Agenda {
         }
     }
 
+    //=========================== Métodos de notificação =========================//
+
+    public void notificarAgendamento() {
+        houveAgendamento = true;
+    }
+
+    public void notificarCancelamento() {
+        houveCancelamento = true;
+    }
+
+    public void notificarFalta() {
+        houveFalta = true;
+    }
+
+    public List<String> consumirNotificacoes() {
+        List<String> avisos = new ArrayList<>();
+
+        if (houveAgendamento)
+            avisos.add("Há novos agendamentos.");
+
+        if (houveCancelamento)
+            avisos.add("Algumas consultas foram canceladas.");
+
+        if (houveFalta)
+            avisos.add("Pacientes não compareceram a consultas.");
+
+        limpar();
+        return avisos;
+    }
+
+    private void limpar() {
+        houveAgendamento = false;
+        houveCancelamento = false;
+        houveFalta = false;
+    }
 }
