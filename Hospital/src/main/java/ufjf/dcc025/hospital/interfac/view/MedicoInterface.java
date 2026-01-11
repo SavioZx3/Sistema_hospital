@@ -29,7 +29,7 @@ public class MedicoInterface extends JFrame {
         );
 
         pacientes.addActionListener(e ->
-            medico.getAgenda1().getConsultas()
+            medico.getAgenda().getConsultas()
         );
 
         receita.addActionListener(e ->
