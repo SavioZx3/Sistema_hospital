@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
-import ufjf.dcc025.hospital.exception.UsuarioNaoEncontradoException;
 import ufjf.dcc025.hospital.usuarios.medico.DisponibilidadeDiaSemana;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
@@ -49,23 +48,31 @@ public class Agenda {
         consulta.agendar(paciente);
     }
 
-    public void gerarConsultasProximaSemana() {
-        List<DisponibilidadeDiaSemana> disponibilidades = medico.getDisponibilidadesProximaSemana();
+    public void gerarConsultasDaquiDuasSemanas() {
+        List<DisponibilidadeDiaSemana> disponibilidades = medico.getDisponibilidadesDaquiDuasSemanas();
 
         if (disponibilidades.isEmpty())
             return;
 
-        LocalDate proximaSegunda = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+        LocalDate segundaDaquiDuasSemanas = calcularSegundaMaisDuasSemanas();
 
         // Remove consultas futuras da próxima semana (se houver)
         consultas.removeIf(c ->
-            !c.getData().isBefore(proximaSegunda) &&
-            !c.getData().isAfter(proximaSegunda.plusDays(6))
+            c.getStatus() == StatusConsulta.DISPONIVEL &&
+            !c.getData().isBefore(segundaDaquiDuasSemanas) &&
+            !c.getData().isAfter(segundaDaquiDuasSemanas.plusDays(6))
         );
 
+
         for (DisponibilidadeDiaSemana d : disponibilidades) {
-            gerarConsultasDoDia(d, proximaSegunda);
+            gerarConsultasDoDia(d, segundaDaquiDuasSemanas);
         }
+    }
+
+    private LocalDate calcularSegundaMaisDuasSemanas() {
+        return LocalDate.now()
+            .with(TemporalAdjusters.next(DayOfWeek.MONDAY))
+            .plusWeeks(1);
     }
 
     private void gerarConsultasDoDia(DisponibilidadeDiaSemana d, LocalDate proximaSegunda) {
@@ -82,32 +89,4 @@ public class Agenda {
         }
     }
 
-
-
-
-
-
-
-
-    /**
-     * Lista todas as consultas de um dia específico.
-     *
-     * @param data data desejada
-     * @return lista de consultas do dia
-     */
-    public List<Consulta> listarConsultasDoDia(LocalDate data) {
-        
-        List<Consulta> consultasDoDia = new ArrayList<>();
-        
-        for (Consulta c : consultas) {
-            if(c.getDataHora().toLocalDate().equals(data))
-                consultasDoDia.add(c);
-        }
-       return new ArrayList<>(consultasDoDia);
-    }
-
-    public boolean isDataDisponivel(LocalDate data, LocalTime horarioInicio, LocalTime horarioFim) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isDataDisponivel'");
-    }
 }
