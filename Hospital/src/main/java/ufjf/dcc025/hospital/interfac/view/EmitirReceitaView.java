@@ -9,7 +9,7 @@ public class EmitirReceitaView extends JFrame {
 
     public EmitirReceitaView(Medico medico) {
 
-        Consulta consulta = medico.getAgenda1().getConsultas().get(0);
+        Consulta consulta = medico.getAgenda().getConsultas().get(0);
 
         String med = JOptionPane.showInputDialog("Medicamento:");
         String qtd = JOptionPane.showInputDialog("Quantidade:");

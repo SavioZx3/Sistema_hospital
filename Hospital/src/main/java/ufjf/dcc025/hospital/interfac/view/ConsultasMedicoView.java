@@ -16,7 +16,7 @@ public class ConsultasMedicoView extends JFrame {
         String[] colunas = {"Data", "Início", "Fim", "Paciente", "Status"};
         DefaultTableModel model = new DefaultTableModel(colunas, 0);
 
-        for (Consulta c : medico.getAgenda1().getConsultas()) {
+        for (Consulta c : medico.getAgenda().getConsultas()) {
             model.addRow(new Object[]{
                 c.getDataHoraInicio().toLocalDate(),
                 c.getDataHoraInicio().toLocalTime(),

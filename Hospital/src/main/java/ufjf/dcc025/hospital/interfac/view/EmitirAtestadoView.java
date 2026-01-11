@@ -8,7 +8,7 @@ public class EmitirAtestadoView extends JFrame {
 
     public EmitirAtestadoView(Medico medico) {
 
-        Consulta consulta = medico.getAgenda1().getConsultas().get(0);
+        Consulta consulta = medico.getAgenda().getConsultas().get(0);
 
         String dias = JOptionPane.showInputDialog("Dias de afastamento:");
 
