@@ -30,7 +30,7 @@ import ufjf.dcc025.hospital.usuarios.Usuario;
 public class Medico extends Usuario{
     private String especialidade;
     private boolean ativo;
-    private Agenda agenda;
+    private final Agenda agenda;
 
     private List<DisponibilidadeDiaSemana> disponibilidadeSemanal;
 
@@ -49,6 +49,7 @@ public class Medico extends Usuario{
         }
         this.especialidade = especialidade;
         this.ativo = true;
+        this.agenda = new Agenda(this);
         this.disponibilidadeSemanal = new ArrayList<>();
     }
 
@@ -68,6 +69,10 @@ public class Medico extends Usuario{
             d.definirDataInicioVigencia(proximaSegunda);
             disponibilidadeSemanal.add(d);
         }
+    }
+
+    public Agenda getAgenda(){
+        return this.agenda;
     }
 
     private void validarDisponibilidadeSemanal(List<DisponibilidadeDiaSemana> lista) {
@@ -140,6 +145,8 @@ public class Medico extends Usuario{
 
 
 
+
+    
     public void definirAgenda(Agenda agenda){
         this.agenda1 = agenda;
     }
@@ -166,9 +173,7 @@ public class Medico extends Usuario{
     * Retorna a lista de consultas do medico.
     * @return lista de consultas
     */
-    public List<Consulta> getAgenda(){
-        return new ArrayList<>(agenda);
-    }
+
 
     /**
      * retorna todos os historicos clinicos dos pacientes

@@ -70,7 +70,9 @@ public class Consulta {
     public Paciente getPaciente() {
         return paciente;
     }
-
+    public LocalDate getData() {
+        return data;
+    }
     public LocalDateTime getDataHoraInicio() {
         return horarioInicio.atDate(data);
     }

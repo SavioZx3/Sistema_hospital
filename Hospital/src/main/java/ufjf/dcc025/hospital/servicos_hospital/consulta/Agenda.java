@@ -1,8 +1,10 @@
 package ufjf.dcc025.hospital.servicos_hospital.consulta;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,19 +16,19 @@ import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
 public class Agenda {
 
-    private Medico medico;  //médico dono da agenda
-    private List<Consulta> consultas;
+    private final Medico medico; // Médico dono da agenda
+    private final List<Consulta> consultas;
 
-    public Agenda(Medico medico) throws DadosInvalidosException {
+    public Agenda(Medico medico) {
         if (medico == null)
-            throw new DadosInvalidosException("Médico inválido para criação da agenda.");
+            throw new DadosInvalidosException("Médico inválido.");
 
         this.medico = medico;
         this.consultas = new ArrayList<>();
     }
 
-    public List<Consulta> getConsultas() {
-        return consultas;
+     public List<Consulta> getConsultas() {
+        return new ArrayList<>(consultas);
     }
 
     public void marcarConsulta(Consulta consulta, Paciente paciente) throws DadosInvalidosException {
@@ -48,19 +50,39 @@ public class Agenda {
     }
 
     public void gerarConsultasProximaSemana() {
-    List<DisponibilidadeDiaSemana> regras =
-        medico.getDisponibilidadesProximaSemana();
+        List<DisponibilidadeDiaSemana> disponibilidades = medico.getDisponibilidadesProximaSemana();
 
-    LocalDate proximaSegunda = calcularProximaSegunda();
+        if (disponibilidades.isEmpty())
+            return;
 
-    for (DisponibilidadeDiaSemana d : regras) {
-        gerarConsultasDoDia(d, proximaSegunda);
+        LocalDate proximaSegunda = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+
+        // Remove consultas futuras da próxima semana (se houver)
+        consultas.removeIf(c ->
+            !c.getData().isBefore(proximaSegunda) &&
+            !c.getData().isAfter(proximaSegunda.plusDays(6))
+        );
+
+        for (DisponibilidadeDiaSemana d : disponibilidades) {
+            gerarConsultasDoDia(d, proximaSegunda);
+        }
     }
-}
-    private LocalDate calcularProximaSegunda() {
-        LocalDate hoje = LocalDate.now();
-        return hoje.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+
+    private void gerarConsultasDoDia(DisponibilidadeDiaSemana d, LocalDate proximaSegunda) {
+        LocalDate dataConsulta = proximaSegunda.with(d.getDiaSemana());
+        LocalTime inicio = d.getHorarioInicio();
+        LocalTime fim = d.getHorarioFim();
+
+        while (!inicio.plus(d.getDuracaoConsulta()).isAfter(fim)) {
+
+            Consulta consulta = new Consulta(dataConsulta, inicio, inicio.plus(d.getDuracaoConsulta()), medico);
+
+            consultas.add(consulta);
+            inicio = inicio.plus(d.getDuracaoConsulta());
+        }
     }
+
+
 
 
 
