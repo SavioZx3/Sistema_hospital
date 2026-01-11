@@ -15,22 +15,29 @@ public class BancoDados {
 
     static {
         try {
-            // 1. Médicos (Nome, CPF, Email, Senha, Especialidade)
+            // 1. Médicos
             Medico joao = new Medico("Dr. João Silva", "11111111111", "joao@hospital.com", "1234", "Cardiologia");
             Medico ana = new Medico("Dra. Ana Costa", "22222222222", "ana@hospital.com", "1234", "Pediatria");
 
-            // 2. Gerar Consultas Manuais para amanhã (Slots de 30 min)
+            // 2. Gerar Consultas para AMBOS os médicos (Ajuste solicitado)
             LocalDate amanha = LocalDate.now().plusDays(1);
-            for (int i = 8; i <= 10; i++) {
-                // Cria consulta usando o construtor: (Data, Inicio, Fim, Medico)
+            
+            // Horários para o Dr. João (Manhã)
+            for (int i = 8; i <= 11; i++) {
                 Consulta c = new Consulta(amanha, LocalTime.of(i, 0), LocalTime.of(i, 30), joao);
                 joao.getAgenda().adicionarConsultaManual(c);
+            }
+            
+            // Horários para a Dra. Ana (Tarde)
+            for (int i = 14; i <= 17; i++) {
+                Consulta c = new Consulta(amanha, LocalTime.of(i, 0), LocalTime.of(i, 30), ana);
+                ana.getAgenda().adicionarConsultaManual(c);
             }
 
             usuarios.add(joao);
             usuarios.add(ana);
 
-            // 3. Pacientes (Nome, CPF, Email, Senha, Telefone, Cidade, Bairro, Rua, Numero)
+            // 3. Paciente
             usuarios.add(new Paciente("Pedro Rocha", "44444444444", "pedro@email.com", "1234", 
                                      "32988881111", "Juiz de Fora", "Centro", "Rua Principal", "10"));
 
