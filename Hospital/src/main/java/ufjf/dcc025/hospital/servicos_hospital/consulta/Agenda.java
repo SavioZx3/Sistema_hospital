@@ -8,6 +8,7 @@ import java.util.List;
 
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import ufjf.dcc025.hospital.exception.UsuarioNaoEncontradoException;
+import ufjf.dcc025.hospital.usuarios.medico.DisponibilidadeDiaSemana;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
@@ -46,13 +47,24 @@ public class Agenda {
         consulta.agendar(paciente);
     }
 
+    public void gerarConsultasProximaSemana() {
+    List<DisponibilidadeDiaSemana> regras =
+        medico.getDisponibilidadesProximaSemana();
 
+    LocalDate proximaSegunda = calcularProximaSegunda();
 
-    public void cancelarConsulta(Consulta consulta) {
-        if (!consultas.remove(consulta)) {
-            throw new UsuarioNaoEncontradoException("Consulta não encontrada");
-        }
+    for (DisponibilidadeDiaSemana d : regras) {
+        gerarConsultasDoDia(d, proximaSegunda);
     }
+}
+    private LocalDate calcularProximaSegunda() {
+        LocalDate hoje = LocalDate.now();
+        return hoje.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+    }
+
+
+
+
 
 
     /**
