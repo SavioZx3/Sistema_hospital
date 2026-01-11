@@ -26,9 +26,14 @@ public class Agenda {
         this.consultas = new ArrayList<>();
     }
 
+    //=========================== Getters =========================//
+
      public List<Consulta> getConsultas() {
         return new ArrayList<>(consultas);
     }
+
+
+    //=========================== Controle de Consulta =========================//
 
     public void marcarConsulta(Consulta consulta, Paciente paciente) throws DadosInvalidosException {
         if (consulta == null) 
