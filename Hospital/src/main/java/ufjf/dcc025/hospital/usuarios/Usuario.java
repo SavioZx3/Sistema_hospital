@@ -1,4 +1,3 @@
-
 package ufjf.dcc025.hospital.usuarios;
 
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
@@ -11,7 +10,7 @@ public abstract class Usuario {
     protected String nome;
     protected Cpf cpf;
     protected Email email;
-   protected Senha senha;
+    protected Senha senha;
 
     public Usuario(String nome, String cpf, String email, String senha) {
         if (nome == null || nome.isBlank())
@@ -32,29 +31,33 @@ public abstract class Usuario {
     public abstract String getTipo();
     
     public String getNome(){ return nome; }
-    public void setNome(String nome)throws DadosInvalidosException{
+    
+    public void setNome(String nome) throws DadosInvalidosException {
         if(nome == null || nome.trim().isEmpty())
-            
             throw new DadosInvalidosException("Nome não informado");
         this.nome = nome;
     }
     
     public String getCpf(){ return cpf.getNumero(); }
-    public void setCpf(String novoCpf) throws DadosInvalidosException{
+    
+    public void setCpf(String novoCpf) throws DadosInvalidosException {
         this.cpf = new Cpf(novoCpf);
     }
         
-    public void setSenha(String novaSenha)throws DadosInvalidosException{
+    public void setSenha(String novaSenha) throws DadosInvalidosException {
         this.senha = new Senha(novaSenha);
     }
     
-    public String getEmail() { return email.getEmail(); }
+    public String getEmail() { 
+        return email.getEmail(); 
+    }
+    
     public void setEmail(String novoEmail) throws DadosInvalidosException {
-        
         String antigo = this.email.getEmail();
         Email novoObj = new Email(novoEmail); // Valida formato e unicidade
         
-        // Se criou o novo com sucesso, remove o antigo da lista estática
+        // Se o novo objeto foi criado sem disparar exception (unicidade garantida),
+        // removemos o registro do e-mail antigo da lista global.
         Email.removerEmail(antigo);
         this.email = novoObj;
     }
