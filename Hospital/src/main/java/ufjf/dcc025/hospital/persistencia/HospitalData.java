@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import ufjf.dcc025.hospital.usuarios.Recepcionista;
+import ufjf.dcc025.hospital.usuarios.medico.Especialidade;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
@@ -26,7 +27,7 @@ public class HospitalData {
         HospitalData dados = new HospitalData();
         try{
             //Criando médico padrão
-            Medico medicoDefault = new Medico("Adm Médico", "000.000.000-00", "med@hospital.com", "1234", "Clinico Geral");
+            Medico medicoDefault = new Medico("Adm Médico", "000.000.000-00", "med@hospital.com", "1234", Especialidade.CLINICA_GERAL);
             
             //Criando paciente padrão
             Paciente pacienteDefault = new Paciente("Adm Paciente", "111.111.111-11", "pac@hospital.com", "1234", "(32) 9 8888-0000", "Juiz de fora", "São pedro", "Rua a", "27");

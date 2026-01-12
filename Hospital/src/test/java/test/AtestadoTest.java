@@ -8,6 +8,7 @@ import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import ufjf.dcc025.hospital.outros.Cpf;
 import ufjf.dcc025.hospital.outros.Email;
 import ufjf.dcc025.hospital.servicos_hospital.documento_medico.Atestado;
+import ufjf.dcc025.hospital.usuarios.medico.Especialidade;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
@@ -18,6 +19,7 @@ public class AtestadoTest {
     private String msgPadrao;
     private LocalDate dataPadrao;
     private int duracaoPadrao;
+    
     
     @BeforeEach
     public void setUp() throws DadosInvalidosException {
@@ -34,7 +36,7 @@ public class AtestadoTest {
 
 
     private Medico criarMedicoPadrao() throws DadosInvalidosException {
-        return new Medico("Dr. Estranho", "888.888.888-88", "estranho@marvel.com", "senha123", "Neurocirurgião");
+        return new Medico("Dr. Estranho", "888.888.888-88", "estranho@marvel.com", "senha123", Especialidade.CARDIOLOGIA);
     }
 
     private Paciente criarPacientePadrao() throws DadosInvalidosException {
@@ -44,42 +46,21 @@ public class AtestadoTest {
 
     @Test
     public void atestadoValido() throws Exception {
-        Atestado a = new Atestado(medico, paciente, msgPadrao, dataPadrao, duracaoPadrao);
-        Assertions.assertEquals(duracaoPadrao, a.getDuracaoDias());
-        Assertions.assertEquals(medico, a.getMedicoResponsavel());
-        Assertions.assertEquals(paciente, a.getPacienteAlvo());
+        Atestado a = new Atestado(medico, paciente, dataPadrao, duracaoPadrao);
+        Assertions.assertEquals(duracaoPadrao, a.getDiasAfastamento());
+        Assertions.assertEquals(medico, a.getMedico());
+        Assertions.assertEquals(paciente, a.getPaciente());
     }
     
     @Test
     public void testDuracaoInvalida() {
         try {
-            new Atestado(medico, paciente, msgPadrao, dataPadrao, 0);
+            new Atestado(medico, paciente, dataPadrao, 0);
             Assertions.fail("Deveria falhar pois a duração é 0");
         } catch (DadosInvalidosException e) {
             Assertions.assertTrue(e.getMessage().contains("no minimo 1 dia"));
         } catch (Exception e) {
             Assertions.fail("Erro inesperado: " + e.getMessage());
         }
-    }
-
-    @Test
-    public void testAlterarMensagemEmitida() {
-        Atestado a = new Atestado(medico, paciente, msgPadrao, dataPadrao, duracaoPadrao);
-        a.emitir();
-        
-        try {
-            a.alterarMensagem("nova msg");
-            Assertions.fail("Não deveria permitir alterar após emissão");
-        } catch (IllegalStateException e) {
-            Assertions.assertEquals("Atestado já emitido e não pode ser alterado.", e.getMessage());
-        }
-    }
-
-    @Test
-    public void testAlterarMensagemNaoEmitida() throws DadosInvalidosException {
-        Atestado a = new Atestado(medico, paciente, msgPadrao, dataPadrao, duracaoPadrao);
-        String nova = "Nova mensagem";
-        a.alterarMensagem(nova);
-        Assertions.assertEquals(nova, a.getMensagem());
     }
 }

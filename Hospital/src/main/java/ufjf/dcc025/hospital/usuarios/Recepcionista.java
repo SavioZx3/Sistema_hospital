@@ -2,6 +2,7 @@ package ufjf.dcc025.hospital.usuarios;
 
 import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
+import ufjf.dcc025.hospital.usuarios.medico.Especialidade;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 import ufjf.dcc025.hospital.usuarios.paciente.StatusInternacao;
@@ -24,7 +25,7 @@ public class Recepcionista extends Usuario {
 
     // GERENCIAR CORPO CLÍNICO (CADASTRO) ---
     public void cadastrarNovoMedico(Hospital hospital, String nome, String cpf, String email, String senha, 
-                                   String especialidade) throws DadosInvalidosException {
+                                   Especialidade especialidade) throws DadosInvalidosException {
         
         Medico novoMedico = new Medico(nome, cpf, email, senha, especialidade);
         
