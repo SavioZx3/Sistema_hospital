@@ -10,61 +10,80 @@ public class CadastroMedicoInterface extends JFrame {
     private final Hospital hospital;
     private JTextField txtNome, txtCpf, txtEmail, txtEspecialidade;
     private JPasswordField txtSenha;
+    private Runnable callbackAtualizacao; // Funcionalidade para atualizar a lista na secretaria
 
-    public CadastroMedicoInterface(Hospital hospital) {
+    // Construtor aceita o Hospital e uma ação de atualização
+    public CadastroMedicoInterface(Hospital hospital, Runnable callbackAtualizacao) {
         this.hospital = hospital;
+        this.callbackAtualizacao = callbackAtualizacao;
         
-        setTitle("Cadastrar Novo Médico");
-        setSize(400, 450);
+        configurarJanela();
+        criarFormulario();
+        
+        setVisible(true);
+    }
+
+    private void configurarJanela() {
+        setTitle("🏥 Cadastrar Novo Médico");
+        setSize(400, 480);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Apenas fecha esta janela
-        setLayout(new BorderLayout(10, 10));
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout(15, 15));
+    }
 
-        // Painel de Formulário
-        JPanel pnlCampos = new JPanel(new GridLayout(6, 2, 10, 10));
-        pnlCampos.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+    private void criarFormulario() {
+        // Cabeçalho Bonito
+        JPanel pnlTitulo = new JPanel();
+        pnlTitulo.setBackground(new Color(41, 128, 185));
+        JLabel lblTitulo = new JLabel("NOVO PROFISSIONAL");
+        lblTitulo.setForeground(Color.WHITE);
+        lblTitulo.setFont(new Font("SansSerif", Font.BOLD, 18));
+        pnlTitulo.add(lblTitulo);
+        add(pnlTitulo, BorderLayout.NORTH);
 
-        pnlCampos.add(new JLabel("Nome Completo:"));
-        txtNome = new JTextField();
-        pnlCampos.add(txtNome);
+        // Painel de Campos
+        JPanel pnlCampos = new JPanel(new GridLayout(5, 1, 5, 5));
+        pnlCampos.setBorder(BorderFactory.createEmptyBorder(20, 30, 10, 30));
 
-        pnlCampos.add(new JLabel("CPF (somente números):"));
-        txtCpf = new JTextField();
-        pnlCampos.add(txtCpf);
-
-        pnlCampos.add(new JLabel("E-mail:"));
-        txtEmail = new JTextField();
-        pnlCampos.add(txtEmail);
-
-        pnlCampos.add(new JLabel("Especialidade:"));
-        txtEspecialidade = new JTextField();
-        pnlCampos.add(txtEspecialidade);
-
-        pnlCampos.add(new JLabel("Senha:"));
+        txtNome = criarCampo("Nome Completo:", pnlCampos);
+        txtCpf = criarCampo("CPF (Somente números):", pnlCampos);
+        txtEmail = criarCampo("E-mail:", pnlCampos);
+        txtEspecialidade = criarCampo("Especialidade:", pnlCampos);
+        
+        // Campo de Senha Manual (GridLayout não suporta labels flutuantes bem)
+        pnlCampos.add(new JLabel("Senha de Acesso:"));
         txtSenha = new JPasswordField();
         pnlCampos.add(txtSenha);
 
-        // Botão Salvar
-        JButton btnSalvar = new JButton("Salvar Cadastro");
+        // Botão Salvar (Visual Estilizado)
+        JButton btnSalvar = new JButton("💾 SALVAR MÉDICO");
         btnSalvar.setBackground(new Color(46, 204, 113));
         btnSalvar.setForeground(Color.WHITE);
         btnSalvar.setFont(new Font("SansSerif", Font.BOLD, 14));
-        
+        btnSalvar.setFocusPainted(false);
+        btnSalvar.setPreferredSize(new Dimension(0, 50));
         btnSalvar.addActionListener(e -> salvar());
 
         add(pnlCampos, BorderLayout.CENTER);
         add(btnSalvar, BorderLayout.SOUTH);
     }
 
+    private JTextField criarCampo(String label, JPanel painel) {
+        painel.add(new JLabel(label));
+        JTextField campo = new JTextField();
+        painel.add(campo);
+        return campo;
+    }
+
     private void salvar() {
         String nome = txtNome.getText().trim();
-        String cpf = txtCpf.getText().replaceAll("[^0-9]", ""); // Limpa o CPF
+        String cpf = txtCpf.getText().replaceAll("[^0-9]", "");
         String email = txtEmail.getText().trim();
         String especialidade = txtEspecialidade.getText().trim();
         String senha = new String(txtSenha.getPassword());
 
         if (nome.isEmpty() || cpf.isEmpty() || email.isEmpty() || senha.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Preencha todos os campos obrigatórios.");
+            JOptionPane.showMessageDialog(this, "Todos os campos são obrigatórios!", "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -72,10 +91,16 @@ public class CadastroMedicoInterface extends JFrame {
             Medico novoMedico = new Medico(nome, cpf, email, senha, especialidade);
             hospital.cadastrarMedico(novoMedico);
             
-            JOptionPane.showMessageDialog(this, "Médico " + nome + " cadastrado com sucesso!");
-            this.dispose(); // Fecha o formulário
+            JOptionPane.showMessageDialog(this, "Médico cadastrado com sucesso!");
+            
+            // Se houver uma tela de secretaria aberta, ela atualiza agora!
+            if (callbackAtualizacao != null) {
+                callbackAtualizacao.run();
+            }
+            
+            this.dispose(); 
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Erro ao cadastrar: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage(), "Erro de Cadastro", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

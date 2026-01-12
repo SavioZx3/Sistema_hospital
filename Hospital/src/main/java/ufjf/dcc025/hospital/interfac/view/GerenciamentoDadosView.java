@@ -3,10 +3,10 @@ package ufjf.dcc025.hospital.interfac.view;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.List;
 import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
+import ufjf.dcc025.hospital.usuarios.paciente.StatusInternacao;
 
 public class GerenciamentoDadosView extends JPanel {
 
@@ -17,76 +17,85 @@ public class GerenciamentoDadosView extends JPanel {
 
     public GerenciamentoDadosView(Hospital hospital) {
         this.hospital = hospital;
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(10, 10));
+        
+        // Painel de Ações
+        JPanel pnlAcoes = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
+        pnlAcoes.setBorder(BorderFactory.createTitledBorder("Controle de Dados"));
 
-        criarPainelSuperior();
-        criarTabela();
+        comboTipo = new JComboBox<>(new String[]{"Pacientes", "Médicos"});
+        JButton btnAtualizar = new JButton(" Atualizar");
+        JButton btnNovoPac = new JButton(" Novo Paciente");
+        JButton btnNovoMed = new JButton("⚕️ Novo Médico");
+        JButton btnInternarAlta = new JButton(" Internar/Alta");
+
+        // Estilização básica
+        btnNovoPac.setBackground(new Color(41, 128, 185));
+        btnNovoPac.setForeground(Color.WHITE);
+        btnInternarAlta.setBackground(new Color(39, 174, 96));
+        btnInternarAlta.setForeground(Color.WHITE);
+
+        btnAtualizar.addActionListener(e -> popularTabela((String) comboTipo.getSelectedItem()));
+        
+        btnNovoPac.addActionListener(e -> {
+            new CadastroPacienteView(hospital, () -> popularTabela("Pacientes")).setVisible(true);
+        });
+
+        btnNovoMed.addActionListener(e -> {
+            new CadastroMedicoInterface(hospital, () -> popularTabela("Médicos")).setVisible(true);
+        });
+
+        btnInternarAlta.addActionListener(e -> gerenciarInternacao());
+
+        pnlAcoes.add(new JLabel("Exibir:"));
+        pnlAcoes.add(comboTipo);
+        pnlAcoes.add(btnAtualizar);
+        pnlAcoes.add(new JSeparator(SwingConstants.VERTICAL));
+        pnlAcoes.add(btnNovoPac);
+        pnlAcoes.add(btnNovoMed);
+        pnlAcoes.add(btnInternarAlta);
+
+        // Tabela
+        model = new DefaultTableModel(new String[]{"Tipo", "Nome", "CPF", "Status/Espec."}, 0);
+        tabela = new JTable(model);
+        
+        add(pnlAcoes, BorderLayout.NORTH);
+        add(new JScrollPane(tabela), BorderLayout.CENTER);
+        
         popularTabela("Pacientes");
     }
 
-    private void criarPainelSuperior() {
-        JPanel painelBusca = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        painelBusca.setBorder(BorderFactory.createTitledBorder("Operações de Cadastro e Filtro"));
+    private void gerenciarInternacao() {
+        String cpf = JOptionPane.showInputDialog(this, "Digite o CPF do paciente para Gerenciar Status:");
+        if (cpf == null || cpf.isEmpty()) return;
 
-        painelBusca.add(new JLabel("Exibir:"));
-        comboTipo = new JComboBox<>(new String[]{"Pacientes", "Médicos"});
-        
-        JButton btnCarregar = new JButton("Atualizar Lista");
-        JButton btnNovoPaciente = new JButton("Novo Paciente");
-        
-        btnNovoPaciente.setBackground(new Color(46, 204, 113));
-        btnNovoPaciente.setForeground(Color.WHITE);
+        try {
+            Paciente p = hospital.buscarPacientePorCpf(cpf);
+            Object[] options = {"Internar", "Dar Alta", "Cancelar"};
+            int res = JOptionPane.showOptionDialog(this, 
+                "Paciente: " + p.getNome() + "\nStatus Atual: " + p.getStatusInternacao(),
+                "Gerenciar Internação", JOptionPane.DEFAULT_OPTION, 
+                JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
-        btnCarregar.addActionListener(e -> popularTabela((String) comboTipo.getSelectedItem()));
-        
-        btnNovoPaciente.addActionListener(e -> {
-            // Abre o formulário de cadastro de paciente
-            new CadastroPacienteView((Frame) SwingUtilities.getWindowAncestor(this), hospital);
-            popularTabela("Pacientes"); // Atualiza após fechar
+            if (res == 0) p.setStatusInternacao(StatusInternacao.INTERNADO);
+            else if (res == 1) p.setStatusInternacao(StatusInternacao.ALTA);
+
+            popularTabela("Pacientes");
             comboTipo.setSelectedItem("Pacientes");
-        });
-
-        painelBusca.add(comboTipo);
-        painelBusca.add(btnCarregar);
-        painelBusca.add(new JSeparator(SwingConstants.VERTICAL));
-        painelBusca.add(btnNovoPaciente);
-        
-        add(painelBusca, BorderLayout.NORTH);
-    }
-
-    private void criarTabela() {
-        String[] colunas = {"Nome", "CPF", "Email", "Informação Adicional"};
-        model = new DefaultTableModel(colunas, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) { return false; }
-        };
-
-        tabela = new JTable(model);
-        add(new JScrollPane(tabela), BorderLayout.CENTER);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage());
+        }
     }
 
     public void popularTabela(String tipo) {
         model.setRowCount(0);
-
         if (tipo.equals("Pacientes")) {
-            List<Paciente> pacientes = hospital.listarPacientes();
-            for (Paciente p : pacientes) {
-                model.addRow(new Object[]{
-                    p.getNome(), 
-                    p.getCpf(), 
-                    p.getEmail(), 
-                    "Status: " + p.getStatusInternacao()
-                });
+            for (Paciente p : hospital.listarPacientes()) {
+                model.addRow(new Object[]{"PACIENTE", p.getNome(), p.getCpf(), p.getStatusInternacao()});
             }
         } else {
-            List<Medico> medicos = hospital.listarMedicos();
-            for (Medico m : medicos) {
-                model.addRow(new Object[]{
-                    m.getNome(), 
-                    m.getCpf(), 
-                    m.getEmail(), 
-                    "Espec: " + m.getEspecialidade()
-                });
+            for (Medico m : hospital.listarMedicos()) {
+                model.addRow(new Object[]{"MÉDICO", m.getNome(), m.getCpf(), m.getEspecialidade()});
             }
         }
     }

@@ -1,51 +1,44 @@
 package ufjf.dcc025.hospital.interfac.controller;
 
-//import java.util.List;
-//import java.util.ArrayList;
+import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
+import ufjf.dcc025.hospital.servicos_hospital.documento_medico.Exame;
+import ufjf.dcc025.hospital.servicos_hospital.documento_medico.Receita;
+import java.util.List;
+import java.time.format.DateTimeFormatter;
 
-/**
- * Controller responsável pelas operações do paciente.
- *
- * Retorna dados simulados para exibição na interface gráfica.
- */
 public class PacienteController {
 
+    private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
     /**
-     * Lista as consultas do paciente.
+     * Lista os exames reais do paciente para a JTable.
      */
-    public String[][] listarConsultas() {
-        return new String[][]{
-                {"09:00", "Dr. Carlos"},
-                {"14:30", "Dra. Ana"}
-        };
+    public Object[][] listarExames(Paciente p) {
+        List<Exame> lista = p.getExames();
+        Object[][] dados = new Object[lista.size()][3];
+
+        for (int i = 0; i < lista.size(); i++) {
+            Exame e = lista.get(i);
+            dados[i][0] = e.getTipoExame();
+            dados[i][1] = e.getDataEmissao().format(dtf);
+            dados[i][2] = e.getResultado();
+        }
+        return dados;
     }
 
     /**
-     * Lista os exames do paciente.
+     * Lista as receitas reais do paciente para a JTable.
      */
-    public String[][] listarExames() {
-        return new String[][]{
-                {"Exame de sangue", "10/01/2026"},
-                {"Raio-X", "15/01/2026"}
-        };
-    }
+    public Object[][] listarReceitas(Paciente p) {
+        List<Receita> lista = p.getReceitas();
+        Object[][] dados = new Object[lista.size()][3];
 
-    /**
-     * Lista as receitas do paciente.
-     */
-    public String[][] listarReceitas() {
-        return new String[][]{
-                {"Dipirona", "3x ao dia"},
-                {"Amoxicilina", "7 dias"}
-        };
-    }
-
-    /**
-     * Lista os atestados do paciente.
-     */
-    public String[][] listarAtestados() {
-        return new String[][]{
-                {"Atestado médico", "2 dias"}
-        };
+        for (int i = 0; i < lista.size(); i++) {
+            Receita r = lista.get(i);
+            dados[i][0] = r.getMedicamento();
+            dados[i][1] = r.getDataEmissao().format(dtf);
+            dados[i][2] = r.getValidade().format(dtf);
+        }
+        return dados;
     }
 }

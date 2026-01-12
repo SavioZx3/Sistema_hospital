@@ -1,26 +1,22 @@
 package ufjf.dcc025.hospital.interfac.controller;
 
-import java.time.LocalDate;
-import java.util.List;
+import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
+import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
 public class ConsultaController {
+    private final Hospital hospital;
 
-    public String[][] listarAgendaMedico(Medico medico) {
-        
-        List<Consulta> consultas = medico.getAgenda().listarConsultasDoDia(LocalDate.now());
-        
-        String[][] matriz = new String[consultas.size()][2];
-
-        for (int i = 0; i < consultas.size(); i++) {
-            Consulta c = consultas.get(i);
-            // Se o paciente for nulo, aparece "Disponível"
-            matriz[i][0] = (c.getPaciente() != null) ? c.getPaciente().getNome() : "DISPONÍVEL";
-            matriz[i][1] = c.getDataHoraInicio().toLocalTime().toString();
-        }
-        return matriz;
+    public ConsultaController(Hospital hospital) {
+        this.hospital = hospital;
     }
 
-    // Os métodos agendar e cancelar agora chamam o hospital.agendarConsultaNaAgenda()
+    public void agendar(Paciente p, Medico m, Consulta c) {
+        hospital.agendarConsultaNaAgenda(p, m, c);
+    }
+
+    public void cancelar(Consulta c) {
+        hospital.cancelarAgendamento(c);
+    }
 }

@@ -34,6 +34,7 @@ public class Hospital {
      * à lista global do hospital.
      */
     private void sincronizarDadosIniciais() {
+        this.consultasGerais.clear(); // Garante que a lista comece limpa
         for (Usuario u : usuarios) {
             if (u instanceof Medico) {
                 atualizarConsultasHospital((Medico) u);
