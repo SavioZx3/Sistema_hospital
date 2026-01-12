@@ -105,7 +105,7 @@ public class ConsultasMedicoView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String dias = JOptionPane.showInputDialog("Quantidade de dias:");
                 if(dias != null && !dias.isEmpty()) {
-                    consultaFinal.emitirAtestado(Integer.parseInt(dias));
+                    consultaFinal.getAtestado(Integer.parseInt(dias));
                     JOptionPane.showMessageDialog(dialog, "Atestado gerado!");
                 }
             }
@@ -117,7 +117,7 @@ public class ConsultasMedicoView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String remedio = JOptionPane.showInputDialog("Medicamento:");
                 if(remedio != null) {
-                    consultaFinal.emitirReceita(remedio, "1x ao dia", LocalDate.now().plusDays(30));
+                    consultaFinal.getReceita(remedio, "1x ao dia", LocalDate.now().plusDays(30));
                     JOptionPane.showMessageDialog(dialog, "Receita adicionada à consulta!");
                 }
             }

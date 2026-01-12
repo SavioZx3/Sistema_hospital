@@ -11,7 +11,7 @@ public class EmitirAtestadoView extends JFrame {
         if (dias != null) {
             try {
                 int d = Integer.parseInt(dias);
-                consulta.emitirAtestado(d);
+                consulta.getAtestado(d);
                 // IMPORTANTE: Adicionar ao histórico!
                 consulta.getPaciente().adicionarAtestado(consulta.getAtestado());
                 

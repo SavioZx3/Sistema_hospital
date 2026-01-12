@@ -4,9 +4,7 @@ import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.usuarios.Usuario;
 
 public class LoginController {
-
-    // Agora o Hospital é passado para o Controller
-    private Hospital hospital;
+    private final Hospital hospital;
 
     public LoginController(Hospital hospital) {
         this.hospital = hospital;

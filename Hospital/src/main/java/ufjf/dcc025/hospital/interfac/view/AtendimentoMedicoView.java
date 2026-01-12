@@ -4,87 +4,147 @@ import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
+import ufjf.dcc025.hospital.servicos_hospital.consulta.StatusConsulta;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
+import ufjf.dcc025.hospital.usuarios.paciente.StatusInternacao;
 
 public class AtendimentoMedicoView extends JDialog {
 
-    private Medico medico;
-    private Consulta consulta;
+    private final Medico medico;
+    private final Consulta consulta;
     private JTextField txtDiasAtestado, txtRemedio, txtDose;
+    private JButton btnInternacao;
     private boolean finalizado = false;
 
-    public AtendimentoMedicoView(Frame parent, Medico medico, Consulta consulta) {
-        super(parent, "Atendimento: " + consulta.getPaciente().getNome(), true);
+    public AtendimentoMedicoView(Window parent, Medico medico, Consulta consulta) {
+        super(parent, "Prontuário: " + consulta.getPaciente().getNome(), ModalityType.APPLICATION_MODAL);
         this.medico = medico;
         this.consulta = consulta;
 
-        setSize(400, 450);
-        setLocationRelativeTo(parent);
-        setLayout(new BorderLayout());
-
-        // Tenta iniciar a consulta no modelo de dados ao abrir a tela
+        // Tenta iniciar a consulta automaticamente ao abrir a tela
         try {
-            consulta.marcarInicioConsulta();
-        } catch (IllegalStateException e) {
-            // Se já estiver em andamento, apenas ignora
+            if (consulta.getStatus() != StatusConsulta.EM_ANDAMENTO) {
+                consulta.marcarInicioConsulta(); 
+            }
+        } catch (Exception e) {
+            // Se falhar (ex: horário expirado), mostramos o erro mas permitimos visualizar
+            System.err.println("Erro ao iniciar atendimento: " + e.getMessage());
         }
 
+        setSize(500, 550);
+        setLocationRelativeTo(parent);
+        setLayout(new BorderLayout());
         criarFormulario();
     }
 
     private void criarFormulario() {
-        JPanel painel = new JPanel(new GridLayout(6, 1, 10, 10));
-        painel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel container = new JPanel(new BorderLayout(15, 15));
+        container.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        painel.add(new JLabel("Medicamento:"));
+        JPanel painelCorpo = new JPanel();
+        painelCorpo.setLayout(new BoxLayout(painelCorpo, BoxLayout.Y_AXIS));
+
+        painelCorpo.add(new JLabel("💊 Medicamento:"));
         txtRemedio = new JTextField();
-        painel.add(txtRemedio);
-
-        painel.add(new JLabel("Dosagem/Instruções:"));
+        txtRemedio.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        painelCorpo.add(txtRemedio);
+        
+        painelCorpo.add(Box.createVerticalStrut(10));
+        painelCorpo.add(new JLabel("📝 Dosagem:"));
         txtDose = new JTextField();
-        painel.add(txtDose);
+        txtDose.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        painelCorpo.add(txtDose);
 
-        painel.add(new JLabel("Dias de Atestado (0 se não houver):"));
+        painelCorpo.add(Box.createVerticalStrut(10));
+        painelCorpo.add(new JLabel("📅 Dias de Atestado (use 0 para nenhum):"));
         txtDiasAtestado = new JTextField("0");
-        painel.add(txtDiasAtestado);
+        txtDiasAtestado.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        painelCorpo.add(txtDiasAtestado);
 
-        JButton btnFinalizar = new JButton("Finalizar Atendimento e Emitir Documentos");
-        btnFinalizar.setFont(new Font("Arial", Font.BOLD, 12));
+        painelCorpo.add(Box.createVerticalStrut(20));
+        btnInternacao = new JButton();
+        atualizarTextoInternacao();
+        btnInternacao.addActionListener(e -> alternarInternacao());
+        painelCorpo.add(btnInternacao);
+
+        container.add(painelCorpo, BorderLayout.CENTER);
+
+        JButton btnFinalizar = new JButton("FINALIZAR E SALVAR NO HISTÓRICO");
+        btnFinalizar.setFont(new Font("Arial", Font.BOLD, 13));
         btnFinalizar.setBackground(new Color(34, 139, 34));
         btnFinalizar.setForeground(Color.WHITE);
-
+        btnFimDesign(btnFinalizar);
         btnFinalizar.addActionListener(e -> concluir());
 
-        add(painel, BorderLayout.CENTER);
+        add(container, BorderLayout.CENTER);
         add(btnFinalizar, BorderLayout.SOUTH);
+    }
+
+    private void btnFimDesign(JButton btn) {
+        btn.setPreferredSize(new Dimension(0, 60));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    private void alternarInternacao() {
+        if (consulta.getPaciente().getStatusInternacao() == StatusInternacao.INTERNADO) {
+            consulta.getPaciente().setStatusInternacao(StatusInternacao.ALTA);
+        } else {
+            consulta.getPaciente().setStatusInternacao(StatusInternacao.INTERNADO);
+        }
+        atualizarTextoInternacao();
+    }
+
+    private void atualizarTextoInternacao() {
+        if (consulta.getPaciente().getStatusInternacao() == StatusInternacao.INTERNADO) {
+            btnInternacao.setText("PACIENTE INTERNADO (Dar Alta)");
+            btnInternacao.setBackground(new Color(255, 107, 107));
+            btnInternacao.setForeground(Color.WHITE);
+        } else {
+            btnInternacao.setText("PACIENTE EM ALTA (Internar)");
+            btnInternacao.setBackground(new Color(200, 200, 200));
+            btnInternacao.setForeground(Color.BLACK);
+        }
     }
 
     private void concluir() {
         try {
-            // Validação simples
-            if (txtRemedio.getText().trim().isEmpty() || txtDose.getText().trim().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Por favor, preencha o medicamento e a dose.");
-                return;
-            }
-
-            int dias = Integer.parseInt(txtDiasAtestado.getText().trim());
             String remedio = txtRemedio.getText().trim();
             String dose = txtDose.getText().trim();
+            int dias = Integer.parseInt(txtDiasAtestado.getText().trim());
 
-            // Executa a lógica de negócio do Médico
-            // Isso internamente chama emitirAtestado, emitirReceita e marcarConcluida
-            medico.realizarAtendimento(consulta, dias, remedio, dose, LocalDate.now().plusMonths(1));
+            // 1. Garantir que a consulta está em andamento para poder emitir documentos
+            if (consulta.getStatus() != StatusConsulta.EM_ANDAMENTO && consulta.getStatus() != StatusConsulta.REALIZADA) {
+                consulta.marcarInicioConsulta();
+            }
 
-            JOptionPane.showMessageDialog(this, "Atendimento finalizado e documentos gerados!");
+            // 2. Emissão condicional baseada na lógica da classe Consulta
+            // Note: Use os nomes que você definiu na classe Consulta (ex: emitirAtestado)
+            if (dias > 0) {
+                consulta.getAtestado(dias); 
+            }
+
+            if (!remedio.isEmpty()) {
+                consulta.getReceita(remedio, dose, LocalDate.now().plusMonths(1));
+            }
+
+            // 3. Mudar status para REALIZADA
+            consulta.marcarConcluida();
+
+            // 4. Persistir no Histórico do Paciente
+            if (consulta.getPaciente() != null) {
+                consulta.getPaciente().getHistorico().adicionaConsulta(consulta);
+            }
+
+            JOptionPane.showMessageDialog(this, "Atendimento Finalizado com Sucesso!");
             finalizado = true;
             dispose();
-            
+
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Dias de atestado deve ser um número inteiro.");
+            JOptionPane.showMessageDialog(this, "O campo Dias de Atestado deve conter apenas números.");
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Erro ao finalizar atendimento: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Erro ao finalizar: " + ex.getMessage());
         }
     }
-    
+
     public boolean isFinalizado() { return finalizado; }
 }

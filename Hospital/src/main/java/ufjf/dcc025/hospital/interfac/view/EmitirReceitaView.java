@@ -15,7 +15,7 @@ public class EmitirReceitaView extends JFrame {
         String qtd = JOptionPane.showInputDialog("Quantidade:");
 
         try {
-            consulta.emitirReceita(med, qtd, LocalDate.now().plusDays(30));
+            consulta.getReceita(med, qtd, LocalDate.now().plusDays(30));
             JOptionPane.showMessageDialog(this,
                 consulta.getReceita().toString());
         } catch (Exception e) {
