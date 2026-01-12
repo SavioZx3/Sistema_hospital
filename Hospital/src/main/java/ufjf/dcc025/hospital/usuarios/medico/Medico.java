@@ -18,12 +18,12 @@ import ufjf.dcc025.hospital.usuarios.paciente.StatusInternacao;
 import ufjf.dcc025.hospital.usuarios.paciente.StatusVisita;
 
 public class Medico extends Usuario {
-    private especialidade especialidade;
+    private Especialidade especialidade;
     private boolean ativo;
     private final Agenda agenda;
     private List<DisponibilidadeDiaSemana> disponibilidadeSemanal;
 
-    public Medico(String nome, String cpf, String email, String senha, especialidade especialidade) throws DadosInvalidosException {
+    public Medico(String nome, String cpf, String email, String senha, Especialidade especialidade) throws DadosInvalidosException {
         super(nome, cpf, email, senha);
         if (especialidade == null) {
             throw new DadosInvalidosException("A especialidade do medico não pode ser vazia");
@@ -38,7 +38,7 @@ public class Medico extends Usuario {
     @Override
     public String getTipo() { return "Médico"; }
     public Agenda getAgenda() { return this.agenda; }
-    public especialidade getEspecialidade() { return especialidade; }
+    public Especialidade getEspecialidade() { return especialidade; }
     public boolean isAtivo() { return ativo; }
     public void desativar() { this.ativo = false; }
     public void ativar() { this.ativo = true; }

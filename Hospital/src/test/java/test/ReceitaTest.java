@@ -9,6 +9,7 @@ import ufjf.dcc025.hospital.exception.DataInvalidaException;
 import ufjf.dcc025.hospital.outros.Cpf;
 import ufjf.dcc025.hospital.outros.Email;
 import ufjf.dcc025.hospital.servicos_hospital.documento_medico.Receita;
+import ufjf.dcc025.hospital.usuarios.medico.Especialidade;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
@@ -33,7 +34,7 @@ public class ReceitaTest {
     }
 
     private Medico criarMedicoPadrao() throws DadosInvalidosException {
-        return new Medico("Dr. House", "999.999.999-99", "house@hospital.com", "senha123", "Diagnóstico");
+        return new Medico("Dr. House", "999.999.999-99", "house@hospital.com", "senha123", Especialidade.CARDIOLOGIA);
     }
 
     private Paciente criarPacientePadrao() throws DadosInvalidosException {
