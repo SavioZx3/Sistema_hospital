@@ -36,7 +36,7 @@ public class Paciente extends Usuario {
      * @param numero
      * @throws DadosInvalidosException
      */
-    public Paciente(String nome, String cpf, String email,String senha, String telefone, String cidade, String bairro, String rua, String numero) throws DadosInvalidosException {
+    public Paciente(String nome, String cpf, String email, String senha, String telefone, String cidade, String bairro, String rua, String numero) throws DadosInvalidosException {
         super(nome, cpf, email, senha);
 
         if (telefone == null || telefone.trim().isEmpty()) {
@@ -64,9 +64,13 @@ public class Paciente extends Usuario {
         this.telefone = telefone;
     }
 
-    public String getEndereco() { 
+    public String getLogradouro() { 
         return endereco.getLogradouro(); 
     }
+    
+     public Endereco getEndereco() { 
+        return endereco; 
+    } 
 
     public void setEndereco(String cidade, String bairro, String rua, String numero) throws DadosInvalidosException {
         this.endereco = new Endereco(cidade,bairro,rua,numero);

@@ -47,11 +47,11 @@ public class PacienteInterface extends JFrame {
 
         // Abas
         JTabbedPane abas = new JTabbedPane();
-        abas.addTab("🗓 Minhas Consultas", criarPainelMinhaAgenda());
-        abas.addTab("➕ Agendar Nova", criarPainelNovoAgendamento());
-        abas.addTab("📜 Meu Histórico", criarPainelHistorico());
-        abas.addTab("👤 Meus Dados", criarPainelMeusDados()); // ABA ADICIONADA AQUI
-        abas.addTab("👥 Visitas", criarPainelVisitas());
+        abas.addTab(" Minhas Consultas", criarPainelMinhaAgenda());
+        abas.addTab(" Agendar Nova", criarPainelNovoAgendamento());
+        abas.addTab(" Meu Histórico", criarPainelHistorico());
+        abas.addTab(" Meus Dados", criarPainelMeusDados()); 
+        abas.addTab(" Visitas", criarPainelVisitas());
 
         add(abas, BorderLayout.CENTER);
         setVisible(true);
@@ -78,13 +78,13 @@ public class PacienteInterface extends JFrame {
         // Campos de texto com dados atuais
         JTextField txtNome = new JTextField(pacienteLogado.getNome(), 20);
         JTextField txtEmail = new JTextField(pacienteLogado.getEmail(), 20);
-        JPasswordField txtSenha = new JPasswordField(20);
+        JPasswordField txtSenha = new JPasswordField(" ****** ",20);
         
         // Campos de Endereço (Separados para evitar o erro de compilação)
-        JTextField txtRua = new JTextField(20);
-        JTextField txtNum = new JTextField(5);
-        JTextField txtBairro = new JTextField(15);
-        JTextField txtCidade = new JTextField(15);
+        JTextField txtRua = new JTextField(pacienteLogado.getEndereco().getRua(),20);
+        JTextField txtNum = new JTextField(pacienteLogado.getEndereco().getNumero(),5);
+        JTextField txtBairro = new JTextField(pacienteLogado.getEndereco().getBairro(),15);
+        JTextField txtCidade = new JTextField( pacienteLogado.getEndereco().getCidade(),15);
 
         JTextField txtCpf = new JTextField(pacienteLogado.getCpf());
         txtCpf.setEditable(false);
@@ -109,22 +109,24 @@ public class PacienteInterface extends JFrame {
         gbc.gridx = 0; gbc.gridy = 5; p.add(new JLabel("Cidade:"), gbc);
         gbc.gridx = 1; p.add(txtCidade, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 6; p.add(new JLabel("Senha:"), gbc);
+        gbc.gridx = 0; gbc.gridy = 6; p.add(new JLabel("Senha:" ), gbc);
         gbc.gridx = 1; p.add(txtSenha, gbc);
 
         gbc.gridx = 0; gbc.gridy = 7; p.add(new JLabel("CPF (Fixo):"), gbc);
         gbc.gridx = 1; p.add(txtCpf, gbc);
 
-        JButton btnSalvar = new JButton("💾 Salvar Alterações");
+        JButton btnSalvar = new JButton(" Salvar Alterações");
         btnSalvar.setBackground(new Color(41, 128, 185));
         btnSalvar.setForeground(Color.WHITE);
+        
+
+        
         btnSalvar.addActionListener(e -> {
             try {
                 pacienteLogado.setNome(txtNome.getText());
                 pacienteLogado.setEmail(txtEmail.getText());
                 pacienteLogado.setSenha(new String(txtSenha.getPassword()));
                 
-                // Chamada CORRIGIDA com 4 argumentos String conforme sua classe exige
                 pacienteLogado.setEndereco(
                     txtRua.getText(), 
                     txtNum.getText(), 

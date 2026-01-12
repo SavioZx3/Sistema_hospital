@@ -26,7 +26,7 @@ public class GerenciamentoDadosView extends JPanel {
         comboTipo = new JComboBox<>(new String[]{"Pacientes", "Médicos"});
         JButton btnAtualizar = new JButton(" Atualizar");
         JButton btnNovoPac = new JButton(" Novo Paciente");
-        JButton btnNovoMed = new JButton("⚕️ Novo Médico");
+        JButton btnNovoMed = new JButton("️ Novo Médico");
         JButton btnInternarAlta = new JButton(" Internar/Alta");
 
         // Estilização básica
