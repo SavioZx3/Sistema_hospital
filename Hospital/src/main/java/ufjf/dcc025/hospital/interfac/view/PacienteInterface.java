@@ -76,7 +76,6 @@ public class PacienteInterface extends JFrame {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         // Campos de texto com dados atuais
-        JTextField txtNome = new JTextField(pacienteLogado.getNome(), 20);
         JTextField txtEmail = new JTextField(pacienteLogado.getEmail(), 20);
         JPasswordField txtSenha = new JPasswordField(" ****** ",20);
         
@@ -89,6 +88,11 @@ public class PacienteInterface extends JFrame {
         JTextField txtCpf = new JTextField(pacienteLogado.getCpf());
         txtCpf.setEditable(false);
         txtCpf.setBackground(new Color(230, 230, 230));
+        
+        JTextField txtNome = new JTextField(pacienteLogado.getNome());
+        txtNome.setEditable(false);
+        txtNome.setBackground(new Color(230, 230, 230));
+        
 
         // Montagem do Layout
         gbc.gridx = 0; gbc.gridy = 0; p.add(new JLabel("Nome:"), gbc);
