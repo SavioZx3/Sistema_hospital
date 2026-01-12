@@ -53,7 +53,7 @@ public class AgendaConsultasView extends JFrame {
         JPanel pnlCpf = new JPanel(new FlowLayout(FlowLayout.LEFT));
         pnlCpf.add(new JLabel("Ou busque por CPF:"));
         txtCpf = new JTextField(12);
-        JButton btnBuscar = new JButton("🔍 Buscar");
+        JButton btnBuscar = new JButton(" Buscar");
         lblStatusSelecao = new JLabel("Nenhum paciente selecionado");
         lblStatusSelecao.setForeground(Color.RED);
         lblStatusSelecao.setFont(new Font("SansSerif", Font.BOLD, 12));

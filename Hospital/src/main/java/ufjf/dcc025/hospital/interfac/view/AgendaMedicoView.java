@@ -10,35 +10,51 @@ import ufjf.dcc025.hospital.servicos_hospital.consulta.StatusConsulta;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 
 public class AgendaMedicoView extends JFrame {
-    private Medico medico;
-    private Hospital hospital;
-    private DefaultTableModel model;
+    private final Medico medico;
+    private final Hospital hospital;
+    private final DefaultTableModel model;
+    private final JTable tabela;
 
     public AgendaMedicoView(Medico medico, Hospital hospital) {
         this.medico = medico;
         this.hospital = hospital;
         
         setTitle("Agenda - Dr. " + medico.getNome());
-        setSize(700, 400);
+        setSize(800, 500);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Apenas fecha esta janela
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        model = new DefaultTableModel(new String[]{"Hora", "Paciente", "Status"}, 0);
-        JTable tabela = new JTable(model);
+        model = new DefaultTableModel(new String[]{"ID", "Hora", "Paciente", "Status"}, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
         
-        JButton btnAtender = new JButton("Iniciar Atendimento");
+        tabela = new JTable(model);
+        tabela.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        
+        JButton btnAtender = new JButton(" INICIAR ATENDIMENTO SELECIONADO");
+        btnAtender.setFont(new Font("SansSerif", Font.BOLD, 14));
+        btnAtender.setBackground(new Color(41, 128, 185));
+        btnAtender.setForeground(Color.WHITE);
+
         btnAtender.addActionListener(e -> {
             int fila = tabela.getSelectedRow();
             if (fila != -1) {
-                // Pega a consulta da lista do médico baseada na linha selecionada
                 Consulta c = medico.getAgenda().getConsultas().get(fila);
+                
                 if (c.getStatus() == StatusConsulta.AGENDADA || c.getStatus() == StatusConsulta.EM_ANDAMENTO) {
-                    new AtendimentoMedicoView(this, medico, c).setVisible(true);
-                    hospital.atualizarConsultasHospital(medico);
-                    atualizar();
+                    AtendimentoMedicoView atendimento = new AtendimentoMedicoView(this, medico, c);
+                    atendimento.setVisible(true);
+                    
+                    if (atendimento.isFinalizado()) {
+                        atualizar();
+                    }
+                } else if (c.getStatus() == StatusConsulta.REALIZADA) {
+                    JOptionPane.showMessageDialog(this, "Este atendimento já foi concluído.");
                 } else {
-                    JOptionPane.showMessageDialog(this, "Esta consulta está " + c.getStatus());
+                    JOptionPane.showMessageDialog(this, "Não há paciente agendado para este horário.");
                 }
+            } else {
+                JOptionPane.showMessageDialog(this, "Selecione uma linha na tabela.");
             }
         });
 
@@ -46,19 +62,20 @@ public class AgendaMedicoView extends JFrame {
         add(btnAtender, BorderLayout.SOUTH);
         
         atualizar();
-        setVisible(true); // ESSENCIAL: Faz a janela aparecer!
+        setVisible(true);
     }
 
     private void atualizar() {
         model.setRowCount(0);
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
         
-        // Agora mostra TODAS as consultas para o médico saber o que tem livre também
+        int id = 0;
         for (Consulta c : medico.getAgenda().getConsultas()) {
-            String nomePaciente = (c.getPaciente() != null) ? c.getPaciente().getNome() : "--- LIVRE ---";
+            String nomePac = (c.getPaciente() != null) ? c.getPaciente().getNome() : "---";
             model.addRow(new Object[]{
+                id++,
                 c.getDataHoraInicio().format(dtf), 
-                nomePaciente, 
+                nomePac, 
                 c.getStatus()
             });
         }
