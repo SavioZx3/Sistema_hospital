@@ -1,17 +1,18 @@
 package ufjf.dcc025.hospital.interfac.controller;
 
-import ufjf.dcc025.hospital.data.BancoDados;
+import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.usuarios.Usuario;
 
 public class LoginController {
 
+    // Agora o Hospital é passado para o Controller
+    private Hospital hospital;
+
+    public LoginController(Hospital hospital) {
+        this.hospital = hospital;
+    }
+
     public Usuario autenticar(String email, String senha) {
-        for (Usuario u : BancoDados.usuarios) {
-            if (u.getEmail().equalsIgnoreCase(email)
-                && u.validarSenha(senha)) {
-                return u;
-            }
-        }
-        throw new IllegalArgumentException("Email ou senha inválidos");
+        return hospital.autenticar(email, senha);
     }
 }

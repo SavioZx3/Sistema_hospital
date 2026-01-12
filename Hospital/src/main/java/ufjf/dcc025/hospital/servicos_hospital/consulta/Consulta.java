@@ -48,6 +48,9 @@ public class Consulta {
         if (!horarioFim.isAfter(horarioInicio))
             throw new DadosInvalidosException("O horário de fim deve ser posterior ao horário de início.");
 
+        if(!medico.getAgenda().isDataDisponivel(data, horarioInicio, horarioFim))
+            throw new DadosInvalidosException("O médico não está disponível neste dia e horário.");
+
         this.data = data;
         this.horarioInicio = horarioInicio;
         this.horarioFim = horarioFim;

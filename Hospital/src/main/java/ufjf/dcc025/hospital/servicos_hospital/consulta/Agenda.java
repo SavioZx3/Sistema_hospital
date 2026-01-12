@@ -6,9 +6,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import ufjf.dcc025.hospital.usuarios.medico.DisponibilidadeDiaSemana;
@@ -16,107 +17,110 @@ import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
 public class Agenda {
-
-    private final Medico medico; // Médico dono da agenda
+    private final Medico medico;
     private final List<Consulta> consultas;
-
+    
+    // Flags de Notificação
     private boolean houveAgendamento;
     private boolean houveCancelamento;
     private boolean houveFalta;
 
     public Agenda(Medico medico) {
-        if (medico == null)
-            throw new DadosInvalidosException("Médico inválido.");
-
+        if (medico == null) {
+            throw new IllegalArgumentException("Médico não pode ser nulo.");
+        }
         this.medico = medico;
         this.consultas = new ArrayList<>();
     }
 
-    //=========================== Getters =========================//
+    // ============================ Getters ========================== //
 
-     public List<Consulta> getConsultas() {
+    public List<Consulta> getConsultas() {
         return new ArrayList<>(consultas);
     }
 
     public List<Consulta> getConsultasMarcadas() {
-        return consultas.stream()
-            .filter(c -> c.getStatus() == StatusConsulta.AGENDADA)
-            .sorted(Comparator.comparing(Consulta::getDataHoraInicio))
-            .collect(Collectors.toList());
-    }
-
-    public List<Consulta> getProximasConsultas() {
-        LocalDateTime agora = LocalDateTime.now();
-
-        return consultas.stream()
-            .filter(c -> c.getStatus() == StatusConsulta.AGENDADA)
-            .filter(c -> c.getDataHoraInicio().isAfter(agora))
-            .sorted(Comparator.comparing(Consulta::getDataHoraInicio))
-            .collect(Collectors.toList());
-    }
-
-    public List<Consulta> getConsultasDeHojeAteDomingo() {
-        LocalDate hoje = LocalDate.now();
-
-        LocalDate fimSemana = hoje.with(
-            TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY)
-        );
-
-        return consultas.stream()
-            .filter(c -> c.getStatus() == StatusConsulta.AGENDADA)
-            .filter(c -> {
-                LocalDate data = c.getDataHoraInicio().toLocalDate();
-                return !data.isBefore(hoje) && !data.isAfter(fimSemana);
-            })
-            .sorted(Comparator.comparing(Consulta::getDataHoraInicio))
-            .collect(Collectors.toList());
-    }
-
-    //=========================== Controle de Consulta =========================//
-
-    public void marcarConsulta(Consulta consulta, Paciente paciente) throws DadosInvalidosException {
-        if (consulta == null) 
-            throw new DadosInvalidosException("Consulta inválida");
+        List<Consulta> marcadas = new ArrayList<>();
+        for (Consulta c : consultas) {
+            if (c.getStatus() == StatusConsulta.AGENDADA) {
+                marcadas.add(c);
+            }
+        }
         
-        if(consulta.getPaciente() != null || consulta.getStatus() != StatusConsulta.DISPONIVEL)
-            throw new DadosInvalidosException("Consulta já está agendada");
+        // Ordenação manual por data e hora
+        Collections.sort(marcadas, new Comparator<Consulta>() {
+            @Override
+            public int compare(Consulta c1, Consulta c2) {
+                return c1.getDataHoraInicio().compareTo(c2.getDataHoraInicio());
+            }
+        });
+        return marcadas;
+    }
 
-        LocalDateTime agora = LocalDateTime.now();
+    // ======================== Lógica de Negócio ===================== //
 
-        if (consulta.getDataHoraInicio().isBefore(agora)) 
-            throw new DadosInvalidosException("Não é possível marcar uma consulta em data passada");
+    public void adicionarConsultaManual(Consulta c) {
+        if (c != null) {
+            this.consultas.add(c);
+        }
+    }
+    
+    public List<Consulta> listarConsultasDoDia(LocalDate data) {
+    List<Consulta> consultasDoDia = new ArrayList<>();
+        for (Consulta c : consultas) {
+            if (c.getData().equals(data)) {
+                consultasDoDia.add(c);
+            }
+        }
 
-        if (!consultas.contains(consulta)) 
-            throw new DadosInvalidosException("Consulta não pertence a esta agenda");
+        // Opcional: Ordenar para que a tabela não fique bagunçada
+        Collections.sort(consultasDoDia, new Comparator<Consulta>() {
+            @Override
+            public int compare(Consulta c1, Consulta c2) {
+                return c1.getDataHoraInicio().compareTo(c2.getDataHoraInicio());
+            }
+        });
+
+        return consultasDoDia;
+    }
+    
+    public void marcarConsulta(Consulta consulta, Paciente paciente) throws DadosInvalidosException {
+        if (consulta == null || consulta.getStatus() != StatusConsulta.DISPONIVEL) {
+            throw new DadosInvalidosException("Consulta indisponível para agendamento.");
+        }
         
         consulta.agendar(paciente);
+        notificarAgendamento();
     }
 
-    public void gerarConsultasDaquiDuasSemanas() {
-        List<DisponibilidadeDiaSemana> disponibilidades = medico.getDisponibilidadesDaquiDuasSemanas();
-
-        if (disponibilidades.isEmpty())
-            return;
-
-        LocalDate segundaDaquiDuasSemanas = calcularSegundaMaisDuasSemanas();
-
-        // Remove consultas futuras da próxima semana (se houver)
-        consultas.removeIf(c ->
-            c.getStatus() == StatusConsulta.DISPONIVEL &&
-            !c.getData().isBefore(segundaDaquiDuasSemanas) &&
-            !c.getData().isAfter(segundaDaquiDuasSemanas.plusDays(6))
-        );
-
-
-        for (DisponibilidadeDiaSemana d : disponibilidades) {
-            gerarConsultasDoDia(d, segundaDaquiDuasSemanas);
+    public void cancelarConsultaNaAgenda(Consulta consulta) {
+        if (consulta != null) {
+            consulta.cancelarConsulta();
+            notificarCancelamento();
         }
     }
 
-    private LocalDate calcularSegundaMaisDuasSemanas() {
-        return LocalDate.now()
-            .with(TemporalAdjusters.next(DayOfWeek.MONDAY))
-            .plusWeeks(1);
+    public void gerarConsultasProximaSemana() {
+        List<DisponibilidadeDiaSemana> disponibilidades = medico.getDisponibilidadesProximaSemana();
+        if (disponibilidades.isEmpty()) return;
+
+        LocalDate proximaSegunda = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+        LocalDate proximoDomingo = proximaSegunda.plusDays(6);
+
+        // Limpeza de horários antigos disponíveis usando Iterator
+        Iterator<Consulta> it = consultas.iterator();
+        while (it.hasNext()) {
+            Consulta c = it.next();
+            LocalDate d = c.getData();
+            // Remove apenas se for da próxima semana e ainda estiver livre
+            if (!d.isBefore(proximaSegunda) && !d.isAfter(proximoDomingo) && c.getStatus() == StatusConsulta.DISPONIVEL) {
+                it.remove();
+            }
+        }
+
+        for (DisponibilidadeDiaSemana d : disponibilidades) {
+            gerarConsultasDoDia(d, proximaSegunda);
+        }
     }
 
     private void gerarConsultasDoDia(DisponibilidadeDiaSemana d, LocalDate proximaSegunda) {
@@ -125,47 +129,57 @@ public class Agenda {
         LocalTime fim = d.getHorarioFim();
 
         while (!inicio.plus(d.getDuracaoConsulta()).isAfter(fim)) {
-
-            Consulta consulta = new Consulta(dataConsulta, inicio, inicio.plus(d.getDuracaoConsulta()), medico);
-
-            consultas.add(consulta);
-            inicio = inicio.plus(d.getDuracaoConsulta());
+            LocalTime termino = inicio.plus(d.getDuracaoConsulta());
+            if (isDataDisponivel(dataConsulta, inicio, termino)) {
+                consultas.add(new Consulta(dataConsulta, inicio, termino, medico));
+            }
+            inicio = termino;
         }
     }
 
-    //=========================== Métodos de notificação =========================//
-
-    public void notificarAgendamento() {
-        houveAgendamento = true;
+    public boolean isDataDisponivel(LocalDate data, LocalTime inicio, LocalTime fim) {
+        for (Consulta c : consultas) {
+            if (c.getData().equals(data)) {
+                // Checa sobreposição de horários
+                if (inicio.isBefore(c.getDataHoraFim().toLocalTime()) && fim.isAfter(c.getDataHoraInicio().toLocalTime())) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
-    public void notificarCancelamento() {
-        houveCancelamento = true;
+    // ========================== Notificações ======================== //
+
+    public void notificarAgendamento() { 
+        this.houveAgendamento = true; 
     }
 
-    public void notificarFalta() {
-        houveFalta = true;
+    public void notificarCancelamento() { 
+        this.houveCancelamento = true; 
+    }
+
+    public void notificarFalta() { 
+        this.houveFalta = true; 
     }
 
     public List<String> consumirNotificacoes() {
         List<String> avisos = new ArrayList<>();
+        
+        if (houveAgendamento) 
+            avisos.add("Há novos agendamentos na sua agenda.");
+        
+        if (houveCancelamento) 
+            avisos.add("Atenção: Algumas consultas foram canceladas.");
+            
+        if (houveFalta) 
+            avisos.add("Aviso: Houve registro de falta de paciente.");
 
-        if (houveAgendamento)
-            avisos.add("Há novos agendamentos.");
-
-        if (houveCancelamento)
-            avisos.add("Algumas consultas foram canceladas.");
-
-        if (houveFalta)
-            avisos.add("Pacientes não compareceram a consultas.");
-
-        limpar();
+        // Reset das flags após leitura
+        this.houveAgendamento = false; 
+        this.houveCancelamento = false;
+        this.houveFalta = false;
+        
         return avisos;
-    }
-
-    private void limpar() {
-        houveAgendamento = false;
-        houveCancelamento = false;
-        houveFalta = false;
     }
 }
