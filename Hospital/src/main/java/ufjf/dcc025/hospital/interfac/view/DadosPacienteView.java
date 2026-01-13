@@ -54,7 +54,7 @@ public class DadosPacienteView extends JFrame {
         painel.add(new JTextField(paciente.getTelefone()));
 
         painel.add(new JLabel("E-mail:"));
-        painel.add(new JTextField(paciente.getEmail()));
+        painel.add(new JTextField(paciente.getEmail().toString()));
 
         painel.add(new JLabel("Endereço:"));
         JTextField txtEnd = new JTextField(paciente.getLogradouro());

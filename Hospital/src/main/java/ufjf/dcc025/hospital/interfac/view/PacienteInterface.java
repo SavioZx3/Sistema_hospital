@@ -5,7 +5,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
@@ -18,47 +17,48 @@ public class PacienteInterface extends JFrame {
 
     private final Paciente pacienteLogado;
     private final Hospital hospital;
-    private DefaultTableModel modelAgenda;
-    private DefaultTableModel modelNovoAgendamento;
-    private DefaultTableModel modelHistorico;
+    private DefaultTableModel modelAgenda, modelNovoAgendamento, modelHistorico;
 
     public PacienteInterface(Paciente paciente, Hospital hospital) {
         this.pacienteLogado = paciente;
         this.hospital = hospital;
 
         configurarJanela();
-        configurarMenu();
 
-        // Painel Superior com Botão Logout Explícito
+        // --- PAINEL SUPERIOR ---
         JPanel painelSuperior = new JPanel(new BorderLayout());
-        painelSuperior.setBackground(new Color(236, 240, 241));
-        JLabel lblBemVindo = new JLabel("  Bem-vindo(a), " + pacienteLogado.getNome());
-        lblBemVindo.setFont(new Font("SansSerif", Font.BOLD, 14));
+        painelSuperior.setBackground(new Color(44, 62, 80));
+        painelSuperior.setPreferredSize(new Dimension(1000, 60));
+        
+        JLabel lblBemVindo = new JLabel("   Portal do Paciente: " + pacienteLogado.getNome());
+        lblBemVindo.setForeground(Color.WHITE);
+        lblBemVindo.setFont(new Font("SansSerif", Font.BOLD, 16));
         
         JButton btnLogout = new JButton("Sair / Logout ⤶ ");
-        btnLogout.setBackground(new Color(192, 57, 43));
+        btnLogout.setBackground(new Color(192, 57, 43)); // Vermelho
         btnLogout.setForeground(Color.WHITE);
         btnLogout.setFocusPainted(false);
+        btnLogout.setFont(new Font("SansSerif", Font.BOLD, 12));
         btnLogout.addActionListener(e -> executarSair());
         
         painelSuperior.add(lblBemVindo, BorderLayout.WEST);
         painelSuperior.add(btnLogout, BorderLayout.EAST);
         add(painelSuperior, BorderLayout.NORTH);
 
-        // Abas
+        // --- ABAS ---
         JTabbedPane abas = new JTabbedPane();
         abas.addTab("🗓 Minhas Consultas", criarPainelMinhaAgenda());
         abas.addTab("➕ Agendar Nova", criarPainelNovoAgendamento());
         abas.addTab("📜 Meu Histórico", criarPainelHistorico());
-        abas.addTab("👤 Meus Dados", criarPainelMeusDados()); // ABA ADICIONADA AQUI
-        abas.addTab("👥 Visitas", criarPainelVisitas());
+        abas.addTab("👤 Meus Dados", criarPainelMeusDados());
+        abas.addTab("👥 Buscar Internados", criarPainelVisitas());
 
         add(abas, BorderLayout.CENTER);
         setVisible(true);
     }
 
     private void configurarJanela() {
-        setTitle("Portal do Paciente");
+        setTitle("Hospital - Área do Paciente");
         setSize(1000, 750);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -70,124 +70,98 @@ public class PacienteInterface extends JFrame {
 
     private JPanel criarPainelMeusDados() {
         JPanel p = new JPanel(new GridBagLayout());
-        p.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        p.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
+        GridBagConstraints g = new GridBagConstraints();
+        g.insets = new Insets(8, 8, 8, 8);
+        g.fill = GridBagConstraints.HORIZONTAL;
 
-        // Campos de texto com dados atuais
-        JTextField txtEmail = new JTextField(pacienteLogado.getEmail(), 20);
-        JPasswordField txtSenha = new JPasswordField(20);
+        // Campos Editáveis
+        JTextField txtEmail = new JTextField(pacienteLogado.getEmail().toString(), 25);
+        JTextField txtRua = new JTextField(pacienteLogado.getEndereco().getRua(), 20);
+        JTextField txtNum = new JTextField(pacienteLogado.getEndereco().getNumero(), 5);
+        JTextField txtBairro = new JTextField(pacienteLogado.getEndereco().getBairro(), 15);
+        JTextField txtCidade = new JTextField(pacienteLogado.getEndereco().getCidade(), 15);
         
-        // Campos de Endereço (Separados para evitar o erro de compilação)
-        JTextField txtRua = new JTextField(20);
-        JTextField txtNum = new JTextField(5);
-        JTextField txtBairro = new JTextField(15);
-        JTextField txtCidade = new JTextField(15);
+        // Senhas
+        JPasswordField txtSenhaAtual = new JPasswordField(20);
+        JPasswordField txtNovaSenha = new JPasswordField(20);
 
-        JTextField txtCpf = new JTextField(pacienteLogado.getCpf());
-        txtCpf.setEditable(false);
-        txtCpf.setBackground(new Color(230, 230, 230));
-        
-        JTextField txtNome = new JTextField(pacienteLogado.getNome());
-        txtNome.setEditable(false);
-        txtNome.setBackground(new Color(230, 230, 230));
-        
+        // Layout
+        adicionarCampo(p, "E-mail:", txtEmail, g, 0);
+        adicionarCampo(p, "Rua:", txtRua, g, 1);
+        adicionarCampo(p, "Número:", txtNum, g, 2);
+        adicionarCampo(p, "Bairro:", txtBairro, g, 3);
+        adicionarCampo(p, "Cidade:", txtCidade, g, 4);
+        adicionarCampo(p, "Senha Atual:", txtSenhaAtual, g, 5);
+        adicionarCampo(p, "Nova Senha :", txtNovaSenha, g, 6);
 
-        // Montagem do Layout
-        gbc.gridx = 0; gbc.gridy = 0; p.add(new JLabel("Nome:"), gbc);
-        gbc.gridx = 1; p.add(txtNome, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 1; p.add(new JLabel("E-mail:"), gbc);
-        gbc.gridx = 1; p.add(txtEmail, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 2; p.add(new JLabel("Rua:"), gbc);
-        gbc.gridx = 1; p.add(txtRua, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 3; p.add(new JLabel("Número:"), gbc);
-        gbc.gridx = 1; p.add(txtNum, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 4; p.add(new JLabel("Bairro:"), gbc);
-        gbc.gridx = 1; p.add(txtBairro, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 5; p.add(new JLabel("Cidade:"), gbc);
-        gbc.gridx = 1; p.add(txtCidade, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 6; p.add(new JLabel("Senha:"), gbc);
-        gbc.gridx = 1; p.add(txtSenha, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 7; p.add(new JLabel("CPF (Fixo):"), gbc);
-        gbc.gridx = 1; p.add(txtCpf, gbc);
-
-        JButton btnSalvar = new JButton("💾 Salvar Alterações");
+        JButton btnSalvar = new JButton("💾 SALVAR ALTERAÇÕES");
+        btnSalvar.setFont(new Font("SansSerif", Font.BOLD, 14));
         btnSalvar.setBackground(new Color(41, 128, 185));
         btnSalvar.setForeground(Color.WHITE);
+        btnSalvar.setPreferredSize(new Dimension(0, 45));
+
         btnSalvar.addActionListener(e -> {
-            Paciente pacienteBackup = new Paciente(
-                pacienteLogado.getNome(),
-                pacienteLogado.getCpf(),
-                pacienteLogado.getEmail(),
-                "1111",
-                pacienteLogado.getTelefone(),
-                pacienteLogado.getEndereco().getCidade(),
-                pacienteLogado.getEndereco().getBairro(),
-                pacienteLogado.getEndereco().getRua(),
-                pacienteLogado.getEndereco().getNumero()
-            );
+            String senhaDigitada = new String(txtSenhaAtual.getPassword());
+            String novaSenha = new String(txtNovaSenha.getPassword());
+
             try {
-                pacienteLogado.setNome(txtNome.getText());
+                // 1. Validação de Segurança
+                if (!pacienteLogado.validarSenha(senhaDigitada)) {
+                    throw new Exception("Senha atual incorreta!");
+                }
+
+                // 2. Atualização de Endereço
+                pacienteLogado.setEndereco(txtRua.getText(), txtNum.getText(), txtBairro.getText(), txtCidade.getText());
+
+                // 3. Atualização de E-mail
                 pacienteLogado.setEmail(txtEmail.getText());
-                pacienteLogado.setSenha(new String(txtSenha.getPassword()));
-                
-                // Chamada CORRIGIDA com 4 argumentos String conforme sua classe exige
-                pacienteLogado.setEndereco(
-                    txtRua.getText(), 
-                    txtNum.getText(), 
-                    txtBairro.getText(), 
-                    txtCidade.getText()
-                );
+
+                // 4. Atualização de Senha
+                if (!novaSenha.isEmpty()) {
+                    pacienteLogado.setSenha(novaSenha);
+                }
 
                 JOptionPane.showMessageDialog(this, "Dados atualizados com sucesso!");
-                setTitle("Portal do Paciente - " + pacienteLogado.getNome());
+                txtSenhaAtual.setText("");
+                txtNovaSenha.setText("");
+                
             } catch (Exception ex) {
-
-                JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage());
+                JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage(), "Falha ao Salvar", JOptionPane.ERROR_MESSAGE);
             }
         });
 
-        gbc.gridx = 0; gbc.gridy = 8; gbc.gridwidth = 2;
-        gbc.insets = new Insets(20, 5, 5, 5);
-        p.add(btnSalvar, gbc);
+        g.gridx = 0; g.gridy = 7; g.gridwidth = 2; g.insets = new Insets(20, 0, 0, 0);
+        p.add(btnSalvar, g);
 
         return p;
     }
 
-    private void configurarMenu() {
-        JMenuBar mb = new JMenuBar();
-        JMenu m = new JMenu("Arquivo");
-        JMenuItem miSair = new JMenuItem("Sair");
-        miSair.addActionListener(e -> executarSair());
-        m.add(miSair);
-        mb.add(m);
-        setJMenuBar(mb);
+    private void adicionarCampo(JPanel p, String rotulo, JComponent campo, GridBagConstraints g, int linha) {
+        g.gridwidth = 1;
+        g.gridx = 0; g.gridy = linha;
+        p.add(new JLabel(rotulo), g);
+        g.gridx = 1;
+        p.add(campo, g);
     }
 
     private void executarSair() {
-        int confirm = JOptionPane.showConfirmDialog(this, "Deseja realmente sair?", "Logout", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
+        if (JOptionPane.showConfirmDialog(this, "Deseja realmente sair?", "Logout", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
             dispose();
             new LoginInterface(hospital);
         }
     }
 
+    // --- PAINÉIS DE TABELAS ---
+
     private JPanel criarPainelMinhaAgenda() {
         JPanel p = new JPanel(new BorderLayout(10, 10));
-        p.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        p.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         modelAgenda = new DefaultTableModel(new String[]{"Data", "Hora", "Médico", "Status", "OBJ"}, 0);
         JTable t = new JTable(modelAgenda);
         t.removeColumn(t.getColumnModel().getColumn(4));
         
-        JButton btnCanc = new JButton("Cancelar Consulta Selecionada");
+        JButton btnCanc = new JButton("❌ Cancelar Consulta Selecionada");
         btnCanc.addActionListener(e -> {
             int row = t.getSelectedRow();
             if(row != -1) {
@@ -204,12 +178,14 @@ public class PacienteInterface extends JFrame {
 
     private JPanel criarPainelNovoAgendamento() {
         JPanel p = new JPanel(new BorderLayout(10, 10));
-        p.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        p.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         modelNovoAgendamento = new DefaultTableModel(new String[]{"Médico", "Especialidade", "Data", "Hora", "OBJ"}, 0);
         JTable t = new JTable(modelNovoAgendamento);
         t.removeColumn(t.getColumnModel().getColumn(4));
 
-        JButton btnAg = new JButton("Confirmar Agendamento");
+        JButton btnAg = new JButton("✅ Confirmar Agendamento");
+        btnAg.setBackground(new Color(39, 174, 96));
+        btnAg.setForeground(Color.WHITE);
         btnAg.addActionListener(e -> {
             int row = t.getSelectedRow();
             if(row != -1) {
@@ -228,26 +204,24 @@ public class PacienteInterface extends JFrame {
 
     private JPanel criarPainelHistorico() {
         JPanel p = new JPanel(new BorderLayout(10, 10));
-        p.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        p.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         modelHistorico = new DefaultTableModel(new String[]{"Data", "Médico", "Status Final"}, 0);
-        JTable t = new JTable(modelHistorico);
-        
-        p.add(new JLabel("Seu histórico completo de consultas:"), BorderLayout.NORTH);
-        p.add(new JScrollPane(t), BorderLayout.CENTER);
+        p.add(new JLabel("Seu histórico completo de consultas concluídas:"), BorderLayout.NORTH);
+        p.add(new JScrollPane(new JTable(modelHistorico)), BorderLayout.CENTER);
         atualizarHistorico();
         return p;
     }
 
     private JPanel criarPainelVisitas() {
-        JPanel p = new JPanel(new BorderLayout(10, 10));
-        p.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+        JPanel p = new JPanel(new BorderLayout(15, 15));
+        p.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
         
         JTextField txtBusca = new JTextField();
         JTextArea res = new JTextArea();
         res.setEditable(false);
         res.setFont(new Font("Monospaced", Font.PLAIN, 13));
         
-        JButton btnBusca = new JButton("Buscar por Nome ou CPF");
+        JButton btnBusca = new JButton("🔍 Buscar Status de Visita");
         btnBusca.addActionListener(e -> {
             String busca = txtBusca.getText().toLowerCase();
             StringBuilder sb = new StringBuilder();
@@ -257,22 +231,17 @@ public class PacienteInterface extends JFrame {
                 if (pac.getStatusInternacao() == StatusInternacao.INTERNADO) {
                     if (pac.getNome().toLowerCase().contains(busca) || pac.getCpf().contains(busca)) {
                         sb.append("PACIENTE: ").append(pac.getNome()).append("\n");
-                        sb.append("STATUS: ").append(pac.getStatusVisita().getDescricao()).append("\n");
+                        sb.append("STATUS:   ").append(pac.getStatusVisita().getDescricao()).append("\n");
                         sb.append("------------------------------------------\n");
                         encontrou = true;
                     }
                 }
             }
-
-            if (!encontrou) {
-                res.setText("\n\n   Nenhum paciente internado encontrado ou sem visitas permitidas.");
-            } else {
-                res.setText(sb.toString());
-            }
+            res.setText(encontrou ? sb.toString() : "\nNenhum paciente internado encontrado com este critério.");
         });
 
         JPanel norte = new JPanel(new GridLayout(2, 1, 5, 5));
-        norte.add(new JLabel("Digite o Nome ou CPF do paciente internado:"));
+        norte.add(new JLabel("Nome ou CPF do Internado:"));
         norte.add(txtBusca);
 
         p.add(norte, BorderLayout.NORTH);
@@ -280,6 +249,8 @@ public class PacienteInterface extends JFrame {
         p.add(btnBusca, BorderLayout.SOUTH);
         return p;
     }
+
+    // --- MÉTODOS DE ATUALIZAÇÃO ---
 
     private void atualizarTodasTabelas() {
         atualizarMinhaAgenda();
@@ -311,8 +282,7 @@ public class PacienteInterface extends JFrame {
 
     private void atualizarHistorico() {
         modelHistorico.setRowCount(0);
-        List<Consulta> lista = pacienteLogado.getHistorico().getConsultas();
-        for (Consulta c : lista) {
+        for (Consulta c : pacienteLogado.getHistorico().getConsultas()) {
             modelHistorico.addRow(new Object[]{c.getData(), c.getMedico().getNome(), c.getStatus()});
         }
     }

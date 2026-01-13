@@ -19,7 +19,7 @@ public class Email {
         emailsCadastrados.add(this.endereco);
     }
 
-    private void validarFormato(String email) throws DadosInvalidosException {
+    public void validarFormato(String email) throws DadosInvalidosException {
     
         EmailValidator validator = EmailValidator.getInstance();
         
@@ -28,7 +28,7 @@ public class Email {
         }
     }
 
-    private void validarUnicidade(String email) throws DadosInvalidosException {
+    public void validarUnicidade(String email) throws DadosInvalidosException {
         String emailFormatado = email.toLowerCase().trim();
         if (emailsCadastrados.contains(emailFormatado)) {
             throw new DadosInvalidosException("Este e-mail já está cadastrado no sistema.");

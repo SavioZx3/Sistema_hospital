@@ -48,8 +48,8 @@ public abstract class Usuario {
         this.senha = new Senha(novaSenha);
     }
     
-    public String getEmail() { 
-        return email.getEmail(); 
+    public Email getEmail() { 
+        return email; 
     }
     
     public void setEmail(String novoEmail) throws DadosInvalidosException {

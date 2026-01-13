@@ -110,7 +110,7 @@ public class Hospital {
 
     public Usuario autenticar(String email, String senha) {
         for (Usuario u : usuarios) {
-            if (u.getEmail().equalsIgnoreCase(email.trim())) {
+            if (u.getEmail().toString().equalsIgnoreCase(email.trim())) {
                 if (u.validarSenha(senha)) return u;
                 throw new DadosInvalidosException("Senha incorreta.");
             }
