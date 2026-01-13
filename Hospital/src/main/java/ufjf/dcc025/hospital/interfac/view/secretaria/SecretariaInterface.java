@@ -1,132 +1,199 @@
-package ufjf.dcc025.hospital.interfac.view;
+package ufjf.dcc025.hospital.interfac.view.secretaria;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import ufjf.dcc025.hospital.Hospital;
+import ufjf.dcc025.hospital.interfac.view.BaseView;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
-import ufjf.dcc025.hospital.servicos_hospital.consulta.StatusConsulta;
 import ufjf.dcc025.hospital.usuarios.Recepcionista;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
-import ufjf.dcc025.hospital.usuarios.paciente.StatusInternacao;
+import ufjf.dcc025.hospital.interfac.view.CadastroMedicoInterface;
+import ufjf.dcc025.hospital.interfac.view.CadastroPacienteView;
 
-public class SecretariaInterface extends JFrame {
 
-    private final Hospital hospital;
-    private DefaultTableModel modelConsultas, modelPacientes;
+public class SecretariaInterface extends BaseView {
 
-    public SecretariaInterface(Recepcionista secretaria, Hospital hospital) {
-        this.hospital = hospital;
-        configurarJanela();
+    private DefaultTableModel modelConsultas;
+    private DefaultTableModel modelPacientes;
+    private DefaultTableModel modelMedicos;
 
-        JPanel painelSuperior = new JPanel(new BorderLayout());
-        painelSuperior.setBackground(new Color(44, 62, 80));
-        painelSuperior.setPreferredSize(new Dimension(1100, 50));
-        
-        JLabel lbl = new JLabel("  RECEPCIONISTA: " + secretaria.getNome().toUpperCase());
-        lbl.setForeground(Color.WHITE);
-        
-        JButton btnLogout = new JButton("Sair");
-        btnLogout.setBackground(new Color(192, 57, 43));
-        btnLogout.setForeground(Color.WHITE);
-        btnLogout.addActionListener(e -> executarSair());
-        
-        painelSuperior.add(lbl, BorderLayout.WEST);
-        painelSuperior.add(btnLogout, BorderLayout.EAST);
-        add(painelSuperior, BorderLayout.NORTH);
+    public SecretariaInterface(Hospital hospital, Recepcionista r) {
+        super(hospital, "Recepção - " + r.getNome());
+
+        add(criarTopo("Recepcionista: " + r.getNome()), BorderLayout.NORTH);
 
         JTabbedPane abas = new JTabbedPane();
-        abas.addTab("Agenda Geral", criarPainelAgenda());
+        abas.addTab("Consultas", criarPainelConsultas());
         abas.addTab("Pacientes", criarPainelPacientes());
-        abas.addTab("Gestão de Médicos", criarPainelMedicos());
+        abas.addTab("Médicos", criarPainelMedicos());
 
         add(abas, BorderLayout.CENTER);
         setVisible(true);
     }
 
-    private void configurarJanela() {
-        setTitle("Administração Hospitalar");
-        setSize(1100, 700);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-    }
-
-    private JPanel criarPainelAgenda() {
+    // ================= CONSULTAS =================
+    private JPanel criarPainelConsultas() {
         JPanel p = new JPanel(new BorderLayout(10, 10));
-        modelConsultas = new DefaultTableModel(new String[]{"Médico", "Paciente", "Data", "Status", "OBJ"}, 0);
-        JTable t = new JTable(modelConsultas);
-        t.removeColumn(t.getColumnModel().getColumn(4));
 
-        JButton btnDesmarcar = new JButton(" DESMARCAR CONSULTA SELECIONADA");
-        btnDesmarcar.setBackground(new Color(231, 76, 60));
-        btnDesmarcar.setForeground(Color.WHITE);
-        btnDesmarcar.addActionListener(e -> {
-            int row = t.getSelectedRow();
-            if (row != -1) {
-                Consulta c = (Consulta) modelConsultas.getValueAt(row, 4);
-                if (c.getStatus() == StatusConsulta.AGENDADA) {
-                    c.cancelarConsulta(); // Libera médico e paciente
-                    atualizarTabelaConsultas();
-                    JOptionPane.showMessageDialog(this, "Consulta cancelada.");
-                }
+        modelConsultas = new DefaultTableModel(
+                new String[]{"Médico", "Paciente", "Data", "Status", "OBJ"}, 0);
+        JTable tabela = new JTable(modelConsultas);
+        tabela.removeColumn(tabela.getColumnModel().getColumn(4));
+
+        JPanel botoes = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+
+        JButton btnMarcar = new JButton("Marcar Consulta");
+        JButton btnCancelar = new JButton("Desmarcar Consulta");
+
+        // ===== MARCAR CONSULTA =====
+        btnMarcar.addActionListener(e -> abrirMarcacaoConsulta());
+
+        // ===== DESMARCAR CONSULTA =====
+        btnCancelar.addActionListener(e -> {
+            int row = tabela.getSelectedRow();
+            if (row == -1) {
+                mostrarAviso("Selecione uma consulta.");
+                return;
+            }
+
+            Consulta c = (Consulta) modelConsultas.getValueAt(row, 4);
+
+            if (c.getPaciente() == null) {
+                mostrarAviso("Esta consulta não está marcada.");
+                return;
+            }
+
+            try {
+                hospital.cancelarAgendamento(c);
+                mostrarInfo("Consulta desmarcada com sucesso.");
+                atualizarConsultas();
+            } catch (Exception ex) {
+                mostrarErro(ex.getMessage());
             }
         });
 
-        p.add(new JScrollPane(t), BorderLayout.CENTER);
-        p.add(btnDesmarcar, BorderLayout.SOUTH);
-        atualizarTabelaConsultas();
+        botoes.add(btnMarcar);
+        botoes.add(btnCancelar);
+
+        p.add(new JScrollPane(tabela), BorderLayout.CENTER);
+        p.add(botoes, BorderLayout.SOUTH);
+
+        atualizarConsultas();
         return p;
     }
 
-    private JPanel criarPainelMedicos() {
-        JPanel p = new JPanel(new BorderLayout());
-        DefaultTableModel modelM = new DefaultTableModel(new String[]{"Médico", "Especialidade", "Status", "OBJ"}, 0);
-        JTable t = new JTable(modelM);
-        t.removeColumn(t.getColumnModel().getColumn(3));
-
-        JButton btnStatus = new JButton("Ativar/Desativar Médico");
-        btnStatus.addActionListener(e -> {
-            int row = t.getSelectedRow();
-            if (row != -1) {
-                Medico m = (Medico) modelM.getValueAt(row, 3);
-                if (m.isAtivo()) m.desativar(); else m.ativar();
-                // Lógica de refresh da tabela de médicos aqui
-            }
-        });
-
-        p.add(new JScrollPane(t), BorderLayout.CENTER);
-        p.add(btnStatus, BorderLayout.SOUTH);
-        return p;
+    private void abrirMarcacaoConsulta() {
+        new MarcacaoConsultaView(
+                SwingUtilities.getWindowAncestor(this),
+                hospital,
+                this::atualizarConsultas
+        );
     }
 
-    private JPanel criarPainelPacientes() {
-        JPanel p = new JPanel(new BorderLayout());
-        modelPacientes = new DefaultTableModel(new String[]{"Nome", "CPF", "Internação"}, 0);
-        p.add(new JScrollPane(new JTable(modelPacientes)), BorderLayout.CENTER);
-        atualizarListaPacientes();
-        return p;
-    }
-
-    public void atualizarTabelaConsultas() {
+    private void atualizarConsultas() {
         modelConsultas.setRowCount(0);
         for (Consulta c : hospital.getConsultasGerais()) {
             modelConsultas.addRow(new Object[]{
-                c.getMedico().getNome(), 
-                (c.getPaciente() != null ? c.getPaciente().getNome() : "LIVRE"), 
-                c.getData(), c.getStatus(), c
+                c.getMedico().getNome(),
+                c.getPaciente() != null ? c.getPaciente().getNome() : "Livre",
+                c.getData(),
+                c.getStatus(),
+                c
             });
         }
     }
 
-    private void atualizarListaPacientes() {
+    // ================= PACIENTES =================
+    private JPanel criarPainelPacientes() {
+        JPanel p = new JPanel(new BorderLayout(10, 10));
+
+        modelPacientes = new DefaultTableModel(
+                new String[]{"Nome", "CPF", "Internação"}, 0);
+
+        JTable t = new JTable(modelPacientes);
+
+        JButton btnNovoPaciente = new JButton("Cadastrar Paciente");
+        btnNovoPaciente.addActionListener(e -> {
+            new CadastroPacienteView(hospital, this::atualizarPacientes)
+                    .setVisible(true);
+        });
+
+        JPanel botoes = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        botoes.add(btnNovoPaciente);
+
+        p.add(new JScrollPane(t), BorderLayout.CENTER);
+        p.add(botoes, BorderLayout.SOUTH);
+
+        atualizarPacientes();
+        return p;
+    }
+
+    private void atualizarPacientes() {
         modelPacientes.setRowCount(0);
         for (Paciente p : hospital.listarPacientes()) {
-            modelPacientes.addRow(new Object[]{p.getNome(), p.getCpf(), p.getStatusInternacao()});
+            modelPacientes.addRow(new Object[]{
+                p.getNome(),
+                p.getCpf(),
+                p.getStatusInternacao()
+            });
         }
     }
 
-    private void executarSair() { dispose(); new LoginInterface(hospital); }
+    // ================= MÉDICOS =================
+    private JPanel criarPainelMedicos() {
+        JPanel p = new JPanel(new BorderLayout(10, 10));
+
+        modelMedicos = new DefaultTableModel(
+                new String[]{"Nome", "Especialidade", "Ativo", "OBJ"}, 0);
+        JTable t = new JTable(modelMedicos);
+        t.removeColumn(t.getColumnModel().getColumn(3));
+
+        JButton btnToggle = new JButton("Ativar / Desativar");
+        btnToggle.addActionListener(e -> {
+            int row = t.getSelectedRow();
+            if (row == -1) {
+                mostrarAviso("Selecione um médico.");
+                return;
+            }
+
+            Medico m = (Medico) modelMedicos.getValueAt(row, 3);
+            if (m.isAtivo()) {
+                m.desativar();
+            } else {
+                m.ativar();
+            }
+
+            atualizarMedicos();
+        });
+
+        JButton btnNovoMedico = new JButton("Cadastrar Médico");
+        btnNovoMedico.addActionListener(e -> {
+            new CadastroMedicoInterface(hospital, this::atualizarMedicos)
+                    .setVisible(true);
+        });
+
+        JPanel botoes = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        botoes.add(btnNovoMedico);
+        botoes.add(btnToggle);
+
+        p.add(new JScrollPane(t), BorderLayout.CENTER);
+        p.add(botoes, BorderLayout.SOUTH);
+
+        atualizarMedicos();
+        return p;
+    }
+
+    private void atualizarMedicos() {
+        modelMedicos.setRowCount(0);
+        for (Medico m : hospital.listarMedicos()) {
+            modelMedicos.addRow(new Object[]{
+                m.getNome(),
+                m.getEspecialidade(),
+                m.isAtivo() ? "Ativo" : "Inativo",
+                m
+            });
+        }
+    }
 }
