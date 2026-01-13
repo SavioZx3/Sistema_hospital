@@ -45,7 +45,7 @@ public class MedicoInterface extends BaseView {
         });
 
         JButton btnLogout = new JButton("Logout");
-        btnLogout.addActionListener(e -> confirmarLogout());
+        btnLogout.addActionListener(e -> executarLogout());
 
         JPanel direita = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         direita.setOpaque(false);
@@ -84,17 +84,4 @@ public class MedicoInterface extends BaseView {
     }
 
     // ======================= LOGOUT =======================
-
-    private void confirmarLogout() {
-        int op = JOptionPane.showConfirmDialog(
-                this,
-                "Deseja encerrar a sessão?",
-                "Confirmar Logout",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (op == JOptionPane.YES_OPTION) {
-            executarLogout(); // método herdado do BaseView
-        }
-    }
 }

@@ -19,9 +19,7 @@ public class PacienteController {
 
         for (int i = 0; i < lista.size(); i++) {
             Exame e = lista.get(i);
-            dados[i][0] = e.getTipoExame();
-            dados[i][1] = e.getDataEmissao().format(dtf);
-            dados[i][2] = e.getResultado();
+            dados[i][0] = e.getDataEmissao().format(dtf);
         }
         return dados;
     }

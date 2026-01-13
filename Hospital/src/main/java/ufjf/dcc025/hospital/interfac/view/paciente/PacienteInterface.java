@@ -33,23 +33,10 @@ public class PacienteInterface extends BaseView {
         JPanel topo = criarTopo("Paciente: " + paciente.getNome());
 
         JButton btnLogout = new JButton("Logout");
-        btnLogout.addActionListener(e -> confirmarLogout());
+        btnLogout.addActionListener(e -> executarLogout());
 
         topo.add(btnLogout, BorderLayout.EAST);
         return topo;
-    }
-
-    private void confirmarLogout() {
-        int op = JOptionPane.showConfirmDialog(
-                this,
-                "Deseja encerrar a sessão?",
-                "Logout",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (op == JOptionPane.YES_OPTION) {
-            executarLogout();
-        }
     }
 
     // ======================= ABAS =======================
