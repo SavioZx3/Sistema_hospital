@@ -1,4 +1,4 @@
-package ufjf.dcc025.hospital.interfac.view;
+package ufjf.dcc025.hospital.interfac.view.medico;
 
 import javax.swing.*;
 import java.awt.*;
@@ -7,6 +7,7 @@ import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.StatusConsulta;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.StatusInternacao;
+
 
 public class AtendimentoMedicoView extends JDialog {
 

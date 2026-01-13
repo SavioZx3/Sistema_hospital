@@ -1,4 +1,4 @@
-package ufjf.dcc025.hospital.interfac.view;
+package ufjf.dcc025.hospital.interfac.view.medico;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;

@@ -1,4 +1,4 @@
-package ufjf.dcc025.hospital.interfac.view;
+package ufjf.dcc025.hospital.interfac.view.paciente;
 
 import javax.swing.*;
 import java.awt.*;

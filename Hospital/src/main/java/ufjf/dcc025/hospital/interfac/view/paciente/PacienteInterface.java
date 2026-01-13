@@ -1,9 +1,10 @@
-package ufjf.dcc025.hospital.interfac.view;
+package ufjf.dcc025.hospital.interfac.view.paciente;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import ufjf.dcc025.hospital.Hospital;
+import ufjf.dcc025.hospital.interfac.view.BaseView;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.*;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.*;

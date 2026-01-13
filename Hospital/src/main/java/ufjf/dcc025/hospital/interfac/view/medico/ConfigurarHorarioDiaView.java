@@ -1,4 +1,4 @@
-package ufjf.dcc025.hospital.interfac.view;
+package ufjf.dcc025.hospital.interfac.view.medico;
 
 import javax.swing.*;
 import java.awt.*;
@@ -6,6 +6,7 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalTime;
 import ufjf.dcc025.hospital.usuarios.medico.DisponibilidadeDiaSemana;
+
 
 public class ConfigurarHorarioDiaView extends JDialog {
 

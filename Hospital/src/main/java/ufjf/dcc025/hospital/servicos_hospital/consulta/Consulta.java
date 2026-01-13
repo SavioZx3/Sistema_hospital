@@ -190,7 +190,9 @@ public class Consulta {
 
     @Override
     public String toString() {
-        return medico.getNome() + " - " + data + " " + horarioInicio;
+        return medico.getNome()   + 
+                "\nData: " + data + 
+                "\n horário:  " + horarioInicio;
     }
 
 }

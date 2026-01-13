@@ -1,4 +1,4 @@
-package ufjf.dcc025.hospital.interfac.view;
+package ufjf.dcc025.hospital.interfac.view.medico;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -6,9 +6,12 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.util.List;
 import ufjf.dcc025.hospital.Hospital;
+import ufjf.dcc025.hospital.interfac.view.BasePanel;
+import ufjf.dcc025.hospital.interfac.view.paciente.HistoricoPacienteView;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 import ufjf.dcc025.hospital.usuarios.paciente.StatusInternacao;
+
 
 public class VisitasMedicoView extends BasePanel  {
 

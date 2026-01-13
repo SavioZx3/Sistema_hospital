@@ -1,11 +1,8 @@
-
-package ufjf.dcc025.hospital.interfac.view;
+package ufjf.dcc025.hospital.interfac.view.paciente;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.time.format.DateTimeFormatter;
 import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;

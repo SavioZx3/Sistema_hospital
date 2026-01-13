@@ -1,4 +1,4 @@
-package ufjf.dcc025.hospital.interfac.view;
+package ufjf.dcc025.hospital.interfac.view.secretaria;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;

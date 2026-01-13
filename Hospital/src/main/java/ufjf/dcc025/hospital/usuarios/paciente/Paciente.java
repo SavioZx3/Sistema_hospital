@@ -139,6 +139,6 @@ public class Paciente extends Usuario {
 
     @Override
     public String toString() {
-        return getTipo() + ": " + nome + " | CPF: " + getCpf();
+        return getTipo() + ": " + nome + "\n CPF: " + getCpf();
     }
 }

@@ -1,4 +1,4 @@
-package ufjf.dcc025.hospital.interfac.view;
+package ufjf.dcc025.hospital.interfac.view.medico;
 
 import javax.swing.*;
 import java.awt.*;
@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.medico.DisponibilidadeDiaSemana;
+
 
 public class ConfigurarAgendaView extends JDialog {
 

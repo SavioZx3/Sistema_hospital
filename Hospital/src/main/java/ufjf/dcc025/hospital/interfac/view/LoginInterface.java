@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.interfac.controller.LoginController;
+import ufjf.dcc025.hospital.interfac.view.medico.MedicoInterface;
+import ufjf.dcc025.hospital.interfac.view.paciente.PacienteInterface;
 import ufjf.dcc025.hospital.interfac.view.secretaria.SecretariaInterface;
 import ufjf.dcc025.hospital.usuarios.Usuario;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;

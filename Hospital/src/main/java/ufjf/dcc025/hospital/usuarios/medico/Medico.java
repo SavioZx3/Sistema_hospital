@@ -118,6 +118,6 @@ public class Medico extends Usuario {
 
     @Override
     public String toString() {
-        return "Dr(a). " + nome + " (" + especialidade + ")";
+        return " Dr(a). " + nome + " (" + especialidade + ")";
     }
 }

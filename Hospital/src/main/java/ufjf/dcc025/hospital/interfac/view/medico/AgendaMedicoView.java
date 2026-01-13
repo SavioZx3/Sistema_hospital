@@ -1,9 +1,10 @@
-package ufjf.dcc025.hospital.interfac.view;
+package ufjf.dcc025.hospital.interfac.view.medico;
 
 import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.time.format.DateTimeFormatter;
+import ufjf.dcc025.hospital.interfac.view.BasePanel;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.*;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 

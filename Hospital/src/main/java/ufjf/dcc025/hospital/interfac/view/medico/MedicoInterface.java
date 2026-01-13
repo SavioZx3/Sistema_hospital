@@ -1,8 +1,9 @@
-package ufjf.dcc025.hospital.interfac.view;
+package ufjf.dcc025.hospital.interfac.view.medico;
 
 import javax.swing.*;
 import java.awt.*;
 import ufjf.dcc025.hospital.Hospital;
+import ufjf.dcc025.hospital.interfac.view.BaseView;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 
 public class MedicoInterface extends BaseView {

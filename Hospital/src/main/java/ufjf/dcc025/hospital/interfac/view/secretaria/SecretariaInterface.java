@@ -9,9 +9,6 @@ import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
 import ufjf.dcc025.hospital.usuarios.Recepcionista;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
-import ufjf.dcc025.hospital.interfac.view.CadastroMedicoInterface;
-import ufjf.dcc025.hospital.interfac.view.CadastroPacienteView;
-
 
 public class SecretariaInterface extends BaseView {
 

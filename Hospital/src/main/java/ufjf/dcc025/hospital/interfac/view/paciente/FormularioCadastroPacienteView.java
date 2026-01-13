@@ -1,10 +1,9 @@
-package ufjf.dcc025.hospital.interfac.view;
+package ufjf.dcc025.hospital.interfac.view.paciente;
 
 import javax.swing.*;
 import java.awt.*;
 import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
-import ufjf.dcc025.hospital.usuarios.paciente.StatusInternacao;
 
 public class FormularioCadastroPacienteView extends JFrame {
 

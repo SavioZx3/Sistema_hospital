@@ -22,6 +22,8 @@ public abstract class BaseView extends JFrame {
         configurarLogoutPadrao();
     }
 
+    // ================= CONFIGURAÇÕES PADRÃO =================
+
     private void configurarLogoutPadrao() {
         addWindowListener(new WindowAdapter() {
             @Override
@@ -63,31 +65,38 @@ public abstract class BaseView extends JFrame {
         }
     }
 
+    // ================= MENSAGENS PADRÃO =================
+
     protected void mostrarErro(String mensagem) {
-        JOptionPane.showMessageDialog(
-                this,
-                mensagem,
-                "Erro",
-                JOptionPane.ERROR_MESSAGE
-        );
+        mostrarMensagem(mensagem, "Erro", JOptionPane.ERROR_MESSAGE);
     }
 
     protected void mostrarAviso(String mensagem) {
-        JOptionPane.showMessageDialog(
-                this,
-                mensagem,
-                "Aviso",
-                JOptionPane.WARNING_MESSAGE
-        );
+        mostrarMensagem(mensagem, "Aviso", JOptionPane.WARNING_MESSAGE);
     }
 
     protected void mostrarInfo(String mensagem) {
+        mostrarMensagem(mensagem, "Informação", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // ================= SOBRECARGA PARA EXCEÇÕES =================
+
+    protected void mostrarErro(Exception e) {
+        mostrarErro(e.getMessage());
+    }
+
+    protected void mostrarAviso(Exception e) {
+        mostrarAviso(e.getMessage());
+    }
+
+    // ================= MÉTODO CENTRAL =================
+
+    private void mostrarMensagem(String mensagem, String titulo, int tipo) {
         JOptionPane.showMessageDialog(
                 this,
                 mensagem,
-                "Informação",
-                JOptionPane.INFORMATION_MESSAGE
+                titulo,
+                tipo
         );
     }
-
 }
