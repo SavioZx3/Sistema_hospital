@@ -47,9 +47,9 @@ public class UsuarioTest {
         Assertions.assertEquals("PACIENTE", p.getTipo());
         
         // Verifica se o endereço contém a cidade esperada
-        Assertions.assertTrue(p.getEndereco().contains(cidadePadrao));
+        Assertions.assertTrue(p.getEndereco().getCidade().contains(cidadePadrao));
     }
-    
+   
     @Test
     public void testCpfLimpo() throws DadosInvalidosException {
         Paciente p = criarPacientePadrao();
