@@ -1,11 +1,14 @@
 package ufjf.dcc025.hospital.outros;
 
+import java.util.ArrayList;
 import org.apache.commons.validator.routines.EmailValidator;
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Email {
+
     private String endereco;
     // Set estático para garantir que nenhum e-mail se repita no sistema 
     private static Set<String> emailsCadastrados = new HashSet<>();
@@ -13,16 +16,16 @@ public class Email {
     public Email(String endereco) throws DadosInvalidosException {
         validarFormato(endereco);
         validarUnicidade(endereco);
-        
+
         // Armazenamos sempre em minúsculo para evitar erros
         this.endereco = endereco.toLowerCase().trim();
         emailsCadastrados.add(this.endereco);
     }
 
     public void validarFormato(String email) throws DadosInvalidosException {
-    
+
         EmailValidator validator = EmailValidator.getInstance();
-        
+
         if (email == null || !validator.isValid(email)) {
             throw new DadosInvalidosException("Formato inválido de E-mail: " + email);
         }
@@ -48,6 +51,16 @@ public class Email {
 
     public String getEmail() {
         return endereco;
+    }
+
+    public static void adicionarEmailStatic(String email) {
+        if (email != null) {
+            emailsCadastrados.add(email.toLowerCase().trim());
+        }
+    }
+
+    public static List<String> getTodosEmails() {
+        return new ArrayList<>(emailsCadastrados);
     }
 
     @Override

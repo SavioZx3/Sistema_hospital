@@ -3,6 +3,7 @@ package ufjf.dcc025.hospital.servicos_hospital.consulta;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import ufjf.dcc025.hospital.exception.DataInvalidaException;
@@ -17,12 +18,15 @@ public class Consulta {
     private final LocalDate data;
     private final LocalTime horarioInicio;
     private final LocalTime horarioFim;
-    private final Medico medico;
-    private Paciente paciente;
+    private transient Medico medico;
+    private transient Paciente paciente;
 
     private Atestado atestado;
     private Receita receita;
     private Exame exame;
+
+    private String medicoCpf;   // salvar CPF do médico
+    private String pacienteCpf; // salvar CPF do paciente
 
     private StatusConsulta status;
 
@@ -49,6 +53,21 @@ public class Consulta {
         this.medico = medico;
         this.paciente = null;
         this.status = StatusConsulta.DISPONIVEL;
+        this.medicoCpf = medico.getCpf();
+        this.pacienteCpf = null;
+    }
+
+    public void reconstruirReferencias(List<Medico> medicos, List<Paciente> pacientes) {
+        if (medicoCpf != null) {
+            this.medico = medicos.stream()
+                    .filter(m -> m.getCpf().equals(medicoCpf))
+                    .findFirst().orElse(null);
+        }
+        if (pacienteCpf != null) {
+            this.paciente = pacientes.stream()
+                    .filter(p -> p.getCpf().equals(pacienteCpf))
+                    .findFirst().orElse(null);
+        }
     }
 
     // ================= Getters (Restaurados para compatibilidade) ================= //
@@ -114,6 +133,7 @@ public class Consulta {
         }
 
         this.paciente = paciente;
+        this.pacienteCpf = paciente.getCpf(); 
         this.status = StatusConsulta.AGENDADA;
         this.medico.getAgenda().notificarAgendamento();
     }
@@ -190,9 +210,9 @@ public class Consulta {
 
     @Override
     public String toString() {
-        return medico.getNome()   + 
-                "\nData: " + data + 
-                "\n horário:  " + horarioInicio;
+        return medico.getNome()
+                + "\nData: " + data
+                + "\n horário:  " + horarioInicio;
     }
 
 }
