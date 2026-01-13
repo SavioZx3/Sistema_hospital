@@ -126,4 +126,11 @@ public class Consulta {
         // O primeiro parâmetro é o tipo/descrição, o segundo é o resultado (vazio no início)
         this.emitirExame(descricao, "AGUARDANDO RESULTADO");
     }
+
+    @Override
+    public String toString() {
+        return medico.getNome()   + 
+                "\nData: " + data + 
+                "\n horário:  " + horarioInicio;
+    }
 }
