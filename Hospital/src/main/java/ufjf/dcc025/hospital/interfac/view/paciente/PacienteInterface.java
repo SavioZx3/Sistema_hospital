@@ -208,22 +208,33 @@ public class PacienteInterface extends BaseView {
         }
     }
 
-    private void atualizarNovoAgendamento() {
-        modelNovoAgendamento.setRowCount(0);
-        for (Medico m : hospital.listarMedicos()) {
-            for (Consulta c : m.getAgenda().getConsultas()) {
-                if (c.getStatus() == StatusConsulta.DISPONIVEL) {
-                    modelNovoAgendamento.addRow(new Object[]{
-                            m.getNome(),
-                            m.getEspecialidade(),
-                            c.getData(),
-                            c.getDataHoraInicio().toLocalTime(),
-                            c
-                    });
-                }
+private void atualizarNovoAgendamento() {
+    modelNovoAgendamento.setRowCount(0);
+
+    for (Medico m : hospital.listarMedicos()) {
+
+        // 1. Ignora médicos inativos
+        if (!m.isAtivo()) {
+            continue;
+        }
+
+        for (Consulta c : m.getAgenda().getConsultas()) {
+
+            // 2. Apenas consultas disponíveis
+            if (c.getStatus() != StatusConsulta.DISPONIVEL) {
+                continue;
             }
+
+            modelNovoAgendamento.addRow(new Object[]{
+                m.getNome(),
+                m.getEspecialidade(),
+                c.getData(),
+                c.getDataHoraInicio().toLocalTime(),
+                c
+            });
         }
     }
+}
 
     private void atualizarHistorico() {
         modelHistorico.setRowCount(0);

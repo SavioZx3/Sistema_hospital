@@ -6,6 +6,7 @@ import java.awt.*;
 import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.interfac.view.BaseView;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
+import ufjf.dcc025.hospital.servicos_hospital.consulta.StatusConsulta;
 import ufjf.dcc025.hospital.usuarios.Recepcionista;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
@@ -89,18 +90,31 @@ public class SecretariaInterface extends BaseView {
         );
     }
 
-    private void atualizarConsultas() {
-        modelConsultas.setRowCount(0);
-        for (Consulta c : hospital.getConsultasGerais()) {
-            modelConsultas.addRow(new Object[]{
-                c.getMedico().getNome(),
-                c.getPaciente() != null ? c.getPaciente().getNome() : "Livre",
-                c.getData(),
-                c.getStatus(),
-                c
-            });
+private void atualizarConsultas() {
+    modelConsultas.setRowCount(0);
+
+    for (Consulta c : hospital.getConsultasGerais()) {
+
+        // 1. Médico ativo
+        if (!c.getMedico().isAtivo()) {
+            continue;
         }
+
+        // 2. Status permitido
+        if (c.getStatus() != StatusConsulta.AGENDADA &&
+            c.getStatus() != StatusConsulta.DISPONIVEL) {
+            continue;
+        }
+
+        modelConsultas.addRow(new Object[]{
+            c.getMedico().getNome(),
+            c.getPaciente() != null ? c.getPaciente().getNome() : "Livre",
+            c.getData(),
+            c.getStatus(),
+            c
+        });
     }
+}
 
     // ================= PACIENTES =================
     private JPanel criarPainelPacientes() {
@@ -157,11 +171,14 @@ public class SecretariaInterface extends BaseView {
 
             Medico m = (Medico) modelMedicos.getValueAt(row, 3);
             if (m.isAtivo()) {
-                m.desativar();
+                if(m.getAgenda().getConsultasMarcadas() == null || !m.getAgenda().getConsultasMarcadas().isEmpty()) 
+                    mostrarAviso("Não é possível desativar um médico com consultas futuras agendadas.");
+                else
+                    m.desativar();
             } else {
                 m.ativar();
             }
-
+            atualizarConsultas();
             atualizarMedicos();
         });
 
