@@ -1,61 +1,51 @@
 package ufjf.dcc025.hospital.interfac.view;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
+import javax.swing.table.*;
 import java.awt.*;
 import java.time.format.DateTimeFormatter;
-import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
-import ufjf.dcc025.hospital.servicos_hospital.consulta.StatusConsulta;
+import ufjf.dcc025.hospital.servicos_hospital.consulta.*;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 
 public class AgendaMedicoView extends JPanel {
 
     private final Medico medico;
+    private final VisitasMedicoView visitasView;
 
     private JTable tabela;
     private DefaultTableModel model;
 
-    private static final DateTimeFormatter FORMATO_HORA =
+    private static final DateTimeFormatter HORA =
             DateTimeFormatter.ofPattern("HH:mm");
 
-    public AgendaMedicoView(Medico medico) {
+    public AgendaMedicoView(Medico medico, VisitasMedicoView visitasView) {
         this.medico = medico;
+        this.visitasView = visitasView;
+
         setLayout(new BorderLayout(10, 10));
         criarTabela();
         atualizar();
     }
 
-    // ======================= ATUALIZAÇÃO =======================
-
     public void atualizar() {
-        popularTabela();
-    }
-
-    private void popularTabela() {
         model.setRowCount(0);
 
-        for (Consulta consulta : medico.getAgenda().getConsultas()) {
+        for (Consulta c : medico.getAgenda().getConsultas()) {
             model.addRow(new Object[]{
-                    consulta.getDataHoraInicio().format(FORMATO_HORA),
-                    consulta.getPaciente() != null
-                            ? consulta.getPaciente().getNome()
-                            : "---",
-                    consulta.getStatus(),
+                    c.getDataHoraInicio().format(HORA),
+                    c.getPaciente() != null ? c.getPaciente().getNome() : "---",
+                    c.getStatus(),
                     "Abrir"
             });
         }
     }
 
-    // ======================= TABELA =======================
-
     private void criarTabela() {
         model = new DefaultTableModel(
                 new String[]{"Hora", "Paciente", "Status", "Ação"}, 0
         ) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return column == 3;
+            @Override public boolean isCellEditable(int r, int c) {
+                return c == 3;
             }
         };
 
@@ -68,72 +58,57 @@ public class AgendaMedicoView extends JPanel {
         add(new JScrollPane(tabela), BorderLayout.CENTER);
     }
 
-    // ======================= AÇÃO =======================
-
     private void abrirConsulta(int linha) {
         Consulta consulta = medico.getAgenda().getConsultas().get(linha);
 
         if (consulta.getStatus() == StatusConsulta.REALIZADA) {
             JOptionPane.showMessageDialog(this,
-                    "Esta consulta já foi finalizada.");
+                    "Consulta já finalizada.");
             return;
         }
 
-        AtendimentoMedicoView view = new AtendimentoMedicoView(
+        new AtendimentoMedicoView(
                 SwingUtilities.getWindowAncestor(this),
                 medico,
-                consulta
-        );
-
-        view.setVisible(true);
-        atualizar();
+                consulta,
+                () -> {
+                    atualizar();
+                    visitasView.atualizar();
+                }
+        ).setVisible(true);
     }
 
-    // ======================= BOTÃO =======================
-
-    private class BotaoRenderer extends JButton
-            implements TableCellRenderer {
-
-        public BotaoRenderer() {
-            setText("Abrir");
-        }
+    private class BotaoRenderer extends JButton implements TableCellRenderer {
+        public BotaoRenderer() { setText("Abrir"); }
 
         @Override
         public Component getTableCellRendererComponent(
-                JTable table, Object value,
-                boolean isSelected, boolean hasFocus,
-                int row, int column) {
-
-            Consulta c = medico.getAgenda().getConsultas().get(row);
-            setEnabled(c.getStatus() != StatusConsulta.REALIZADA);
+                JTable t, Object v, boolean s, boolean f, int r, int c) {
+            setEnabled(medico.getAgenda().getConsultas()
+                    .get(r).getStatus() != StatusConsulta.REALIZADA);
             return this;
         }
     }
 
     private class BotaoEditor extends DefaultCellEditor {
 
-        private final JButton botao;
-        private int linhaAtual;
+        private int linha;
 
         public BotaoEditor(JCheckBox checkBox) {
             super(checkBox);
-            botao = new JButton("Abrir");
-
-            botao.addActionListener(e -> {
+            JButton btn = new JButton("Abrir");
+            btn.addActionListener(e -> {
                 fireEditingStopped();
-                abrirConsulta(linhaAtual);
+                abrirConsulta(linha);
             });
+            editorComponent = btn;
         }
 
         @Override
         public Component getTableCellEditorComponent(
-                JTable table, Object value,
-                boolean isSelected, int row, int column) {
-
-            linhaAtual = row;
-            Consulta c = medico.getAgenda().getConsultas().get(row);
-            botao.setEnabled(c.getStatus() != StatusConsulta.REALIZADA);
-            return botao;
+                JTable t, Object v, boolean s, int r, int c) {
+            linha = r;
+            return editorComponent;
         }
     }
 }

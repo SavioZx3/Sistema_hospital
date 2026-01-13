@@ -61,13 +61,17 @@ public class MedicoInterface extends BaseView {
     private void criarAbas() {
         JTabbedPane abas = new JTabbedPane();
 
-        agendaView = new AgendaMedicoView(medico);
+        VisitasMedicoView visitasView =
+                new VisitasMedicoView(hospital, medico);
+
+        agendaView = new AgendaMedicoView(medico, visitasView);
+
         abas.addTab("Consultas", agendaView);
-        abas.addTab("Visitas / Internação",
-                new VisitasMedicoView(hospital, medico));
+        abas.addTab("Visitas / Internação", visitasView);
 
         add(abas, BorderLayout.CENTER);
     }
+
 
     // ======================= RODAPÉ =======================
 

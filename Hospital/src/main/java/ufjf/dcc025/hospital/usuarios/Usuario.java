@@ -52,6 +52,10 @@ public abstract class Usuario {
         return email; 
     }
     
+    public String getEnderecoEmail() { 
+        return email.getEmail(); 
+    }
+    
     public void setEmail(String novoEmail) throws DadosInvalidosException {
         String antigo = this.email.getEmail();
         Email novoObj = new Email(novoEmail); // Valida formato e unicidade

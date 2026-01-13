@@ -89,16 +89,16 @@ public class LoginInterface extends JFrame {
             dispose();
 
             // ROTEAMENTO CORRIGIDO
-            if (u instanceof Paciente) {
-                new PacienteInterface((Paciente) u, this.hospital).setVisible(true);
-            } 
+           if (u instanceof Paciente) {
+                new PacienteInterface(this.hospital, (Paciente) u).setVisible(true);
+           } 
             else if (u instanceof Medico) {
-                
                 new MedicoInterface(this.hospital, (Medico) u).setVisible(true);
-            } 
+           } 
             else if (u instanceof Recepcionista) {
                 new SecretariaInterface((Recepcionista) u, this.hospital).setVisible(true);
-            }
+           }
+
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, 
