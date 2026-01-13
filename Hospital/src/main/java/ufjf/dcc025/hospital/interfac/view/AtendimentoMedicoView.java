@@ -14,7 +14,7 @@ public class AtendimentoMedicoView extends JDialog {
     private final Consulta consulta;
     private JTextField txtDiasAtestado, txtRemedio, txtDose;
     private JButton btnInternacao;
-    private boolean finalizado = false; // VARIAVEL DE CONTROLE
+    private boolean finalizado = false; // ESTA VARIÁVEL É USADA PELO MÉTODO ABAIXO
     private JTextArea txtExamesPedididos;
 
     public AtendimentoMedicoView(Window parent, Medico medico, Consulta consulta) {
@@ -36,6 +36,7 @@ public class AtendimentoMedicoView extends JDialog {
         criarFormulario();
     }
 
+    // MÉTODO QUE ESTAVA FALTANDO/DANDO ERRO:
     public boolean isFinalizado() {
         return this.finalizado;
     }
@@ -106,26 +107,24 @@ public class AtendimentoMedicoView extends JDialog {
         }
     }
 
-   private void concluir() {
+    private void concluir() {
         try {
-            int dias = Integer.parseInt(txtDiasAtestado.getText().trim());
+            int dias = 0;
+            if(!txtDiasAtestado.getText().isEmpty()) {
+                dias = Integer.parseInt(txtDiasAtestado.getText().trim());
+            }
+            
             String remedio = txtRemedio.getText().trim();
             String dose = txtDose.getText().trim();
-            String examesPeticionados = txtExamesPedididos.getText().trim(); 
+            String exames = txtExamesPedididos.getText().trim(); 
 
-            // Emite documentos se os campos não estiverem vazios
-            if (dias > 0) {
-                consulta.getAtestado(dias);
-            }
-            if (!remedio.isEmpty()) {
-                consulta.getReceita(remedio, dose, LocalDate.now().plusMonths(1));
-            }
-            if (!examesPeticionados.isEmpty()) {
-                consulta.setExame(examesPeticionados); 
-            }
+            if (dias > 0) consulta.getAtestado(dias);
+            if (!remedio.isEmpty()) consulta.getReceita(remedio, dose, LocalDate.now().plusMonths(1));
+            if (!exames.isEmpty()) consulta.setExame(exames); 
 
             consulta.marcarConcluida();
 
+            // SALVANDO NO HISTÓRICO PARA O "VER HISTÓRICO" FUNCIONAR
             if (consulta.getPaciente() != null) {
                 consulta.getPaciente().getHistorico().adicionaConsulta(consulta);
             }
@@ -133,6 +132,8 @@ public class AtendimentoMedicoView extends JDialog {
             this.finalizado = true; 
             JOptionPane.showMessageDialog(this, "Atendimento Concluído com Sucesso!");
             dispose();
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Erro: Dias de atestado deve ser um número.");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Erro ao salvar: " + ex.getMessage());
         }

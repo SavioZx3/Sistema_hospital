@@ -37,7 +37,6 @@ public class LoginInterface extends JFrame {
     }
 
     private void criarComponentes() {
-        // --- CABEÇALHO ---
         JPanel painelTopo = new JPanel();
         painelTopo.setBackground(new Color(41, 128, 185));
         JLabel lblLogin = new JLabel("LOGIN");
@@ -46,7 +45,6 @@ public class LoginInterface extends JFrame {
         painelTopo.add(lblLogin);
         add(painelTopo, BorderLayout.NORTH);
 
-        // --- CAMPOS ---
         JPanel painelCampos = new JPanel(new GridLayout(2, 2, 10, 25));
         painelCampos.setBorder(BorderFactory.createEmptyBorder(40, 40, 20, 40));
 
@@ -57,7 +55,6 @@ public class LoginInterface extends JFrame {
         painelCampos.add(new JLabel("Senha:"));
         senha = new JPasswordField();
         
-        // Atalho: Logar ao apertar ENTER
         senha.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -67,7 +64,6 @@ public class LoginInterface extends JFrame {
         
         painelCampos.add(senha);
 
-        // --- BOTÃO ---
         JButton entrar = new JButton("Entrar no Sistema");
         entrar.setFont(new Font("Arial", Font.BOLD, 14));
         entrar.setBackground(new Color(41, 128, 185));
@@ -90,15 +86,15 @@ public class LoginInterface extends JFrame {
                 new String(senha.getPassword())
             );
 
-            // Fecha o Login
             dispose();
 
-            // ROTEAMENTO DINÂMICO (Garante que passamos o 'hospital' atual)
+            // ROTEAMENTO CORRIGIDO
             if (u instanceof Paciente) {
                 new PacienteInterface((Paciente) u, this.hospital).setVisible(true);
             } 
             else if (u instanceof Medico) {
-                new MedicoInterface((Medico) u, this.hospital).setVisible(true);
+                
+                new MedicoInterface(this.hospital, (Medico) u).setVisible(true);
             } 
             else if (u instanceof Recepcionista) {
                 new SecretariaInterface((Recepcionista) u, this.hospital).setVisible(true);

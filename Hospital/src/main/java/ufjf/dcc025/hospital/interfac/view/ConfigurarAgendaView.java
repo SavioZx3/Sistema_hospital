@@ -25,18 +25,22 @@ public class ConfigurarAgendaView extends JDialog {
 
         pnlBotoesDias = new JPanel(new GridLayout(7, 1, 5, 5));
         for (DayOfWeek dia : DayOfWeek.values()) {
-            JButton btnDia = new JButton(dia.name());
-            btnDia.addActionListener(e -> {
-                ConfigurarHorarioDiaView config = new ConfigurarHorarioDiaView(owner, dia);
-                config.setVisible(true);
-                if (config.getResultado() != null) {
-                    disponibilidades.add(config.getResultado());
-                    btnDia.setBackground(new Color(46, 204, 113));
-                    btnDia.setText(dia.name() + " - CONFIGURADO");
-                }
-            });
-            pnlBotoesDias.add(btnDia);
-        }
+        // Traduzindo o nome do dia para Português
+        String nomePt = dia.getDisplayName(java.time.format.TextStyle.FULL, new java.util.Locale("pt", "BR")).toUpperCase();
+
+        JButton btnDia = new JButton(nomePt);
+        btnDia.addActionListener(e -> {
+            ConfigurarHorarioDiaView config = new ConfigurarHorarioDiaView((Frame)this.getOwner(), dia);
+            config.setVisible(true);
+            if (config.getResultado() != null) {
+                disponibilidades.add(config.getResultado());
+                btnDia.setBackground(new Color(46, 204, 113));
+                btnDia.setText(nomePt + " - CONFIGURADO");
+            }
+        });
+        
+        pnlBotoesDias.add(btnDia);
+}
         
         add(new JScrollPane(pnlBotoesDias), BorderLayout.CENTER);
 
