@@ -155,5 +155,8 @@ public class Hospital {
             consulta.getPaciente().getHistorico().getConsultas().remove(consulta);
         }
     }
-    
+    public List<Consulta> getConsultas() {
+        return getConsultasGerais();
+    }
+
 }

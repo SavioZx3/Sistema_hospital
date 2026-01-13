@@ -2,75 +2,138 @@ package ufjf.dcc025.hospital.interfac.view;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.time.format.DateTimeFormatter;
-import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.StatusConsulta;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 
-public class AgendaMedicoView extends JFrame {
+public class AgendaMedicoView extends JPanel {
+
     private final Medico medico;
-    private final Hospital hospital;
-    private final DefaultTableModel model;
-    private final JTable tabela;
 
-    public AgendaMedicoView(Medico medico, Hospital hospital) {
+    private JTable tabela;
+    private DefaultTableModel model;
+
+    private static final DateTimeFormatter FORMATO_HORA =
+            DateTimeFormatter.ofPattern("HH:mm");
+
+    public AgendaMedicoView(Medico medico) {
         this.medico = medico;
-        this.hospital = hospital;
-        
-        setTitle("Agenda - Dr. " + medico.getNome());
-        setSize(800, 500);
-        setLocationRelativeTo(null);
-
-        model = new DefaultTableModel(new String[]{"ID", "Hora", "Paciente", "Status", "OBJ"}, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
-        };
-        
-        tabela = new JTable(model);
-        tabela.removeColumn(tabela.getColumnModel().getColumn(4)); // Esconde a coluna OBJ
-        
-        JButton btnAtender = new JButton(" INICIAR ATENDIMENTO SELECIONADO");
-        btnAtender.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btnAtender.setBackground(new Color(41, 128, 185));
-        btnAtender.setForeground(Color.WHITE);
-        btnAtender.setPreferredSize(new Dimension(0, 50));
-
-        btnAtender.addActionListener(e -> {
-            int fila = tabela.getSelectedRow();
-            if (fila != -1) {
-                Consulta c = (Consulta) model.getValueAt(fila, 4);
-                
-                if (c.getStatus() == StatusConsulta.AGENDADA || c.getStatus() == StatusConsulta.EM_ANDAMENTO) {
-                    AtendimentoMedicoView atendimento = new AtendimentoMedicoView(this, medico, c);
-                    atendimento.setVisible(true);
-                    
-                    if (atendimento.isFinalizado()) {
-                        atualizar();
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(this, "Consulta indisponível para atendimento.");
-                }
-            }
-        });
-
-        add(new JScrollPane(tabela), BorderLayout.CENTER);
-        add(btnAtender, BorderLayout.SOUTH);
+        setLayout(new BorderLayout(10, 10));
+        criarTabela();
         atualizar();
     }
 
-    private void atualizar() {
+    // ======================= ATUALIZAÇÃO =======================
+
+    public void atualizar() {
+        popularTabela();
+    }
+
+    private void popularTabela() {
         model.setRowCount(0);
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
-        int id = 0;
-        for (Consulta c : medico.getAgenda().getConsultas()) {
+
+        for (Consulta consulta : medico.getAgenda().getConsultas()) {
             model.addRow(new Object[]{
-                id++,
-                c.getDataHoraInicio().format(dtf), 
-                (c.getPaciente() != null ? c.getPaciente().getNome() : "---"), 
-                c.getStatus(),
-                c
+                    consulta.getDataHoraInicio().format(FORMATO_HORA),
+                    consulta.getPaciente() != null
+                            ? consulta.getPaciente().getNome()
+                            : "---",
+                    consulta.getStatus(),
+                    "Abrir"
             });
+        }
+    }
+
+    // ======================= TABELA =======================
+
+    private void criarTabela() {
+        model = new DefaultTableModel(
+                new String[]{"Hora", "Paciente", "Status", "Ação"}, 0
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 3;
+            }
+        };
+
+        tabela = new JTable(model);
+        tabela.setRowHeight(28);
+
+        tabela.getColumn("Ação").setCellRenderer(new BotaoRenderer());
+        tabela.getColumn("Ação").setCellEditor(new BotaoEditor(new JCheckBox()));
+
+        add(new JScrollPane(tabela), BorderLayout.CENTER);
+    }
+
+    // ======================= AÇÃO =======================
+
+    private void abrirConsulta(int linha) {
+        Consulta consulta = medico.getAgenda().getConsultas().get(linha);
+
+        if (consulta.getStatus() == StatusConsulta.REALIZADA) {
+            JOptionPane.showMessageDialog(this,
+                    "Esta consulta já foi finalizada.");
+            return;
+        }
+
+        AtendimentoMedicoView view = new AtendimentoMedicoView(
+                SwingUtilities.getWindowAncestor(this),
+                medico,
+                consulta
+        );
+
+        view.setVisible(true);
+        atualizar();
+    }
+
+    // ======================= BOTÃO =======================
+
+    private class BotaoRenderer extends JButton
+            implements TableCellRenderer {
+
+        public BotaoRenderer() {
+            setText("Abrir");
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(
+                JTable table, Object value,
+                boolean isSelected, boolean hasFocus,
+                int row, int column) {
+
+            Consulta c = medico.getAgenda().getConsultas().get(row);
+            setEnabled(c.getStatus() != StatusConsulta.REALIZADA);
+            return this;
+        }
+    }
+
+    private class BotaoEditor extends DefaultCellEditor {
+
+        private final JButton botao;
+        private int linhaAtual;
+
+        public BotaoEditor(JCheckBox checkBox) {
+            super(checkBox);
+            botao = new JButton("Abrir");
+
+            botao.addActionListener(e -> {
+                fireEditingStopped();
+                abrirConsulta(linhaAtual);
+            });
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(
+                JTable table, Object value,
+                boolean isSelected, int row, int column) {
+
+            linhaAtual = row;
+            Consulta c = medico.getAgenda().getConsultas().get(row);
+            botao.setEnabled(c.getStatus() != StatusConsulta.REALIZADA);
+            return botao;
         }
     }
 }

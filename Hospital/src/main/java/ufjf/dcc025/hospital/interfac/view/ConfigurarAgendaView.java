@@ -9,71 +9,90 @@ import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.medico.DisponibilidadeDiaSemana;
 
 public class ConfigurarAgendaView extends JDialog {
+
     private final Medico medico;
-    private final List<DisponibilidadeDiaSemana> disponibilidades = new ArrayList<>();
-    private JPanel pnlBotoesDias;
+    private final List<DisponibilidadeDiaSemana> disponibilidades =
+            new ArrayList<>();
 
     public ConfigurarAgendaView(Frame owner, Medico medico) {
         super(owner, "Configurar Agenda Semanal", true);
         this.medico = medico;
-        
+
         setLayout(new BorderLayout(15, 15));
-        
-        JLabel lblInfo = new JLabel("<html><div style='text-align: center; padding: 10px;'>"
-                + "Clique nos dias em que você realizará atendimentos para configurar os horários.</div></html>");
+
+        JLabel lblInfo = new JLabel(
+                "<html><div style='text-align:center;padding:10px;'>"
+                        + "Clique nos dias para configurar os horários."
+                        + "</div></html>"
+        );
+
         add(lblInfo, BorderLayout.NORTH);
+        criarBotoesDias();
+        criarBotaoFinalizar();
 
-        pnlBotoesDias = new JPanel(new GridLayout(7, 1, 5, 5));
-        for (DayOfWeek dia : DayOfWeek.values()) {
-        // Traduzindo o nome do dia para Português
-        String nomePt = dia.getDisplayName(java.time.format.TextStyle.FULL, new java.util.Locale("pt", "BR")).toUpperCase();
-
-        JButton btnDia = new JButton(nomePt);
-        btnDia.addActionListener(e -> {
-            ConfigurarHorarioDiaView config = new ConfigurarHorarioDiaView((Frame)this.getOwner(), dia);
-            config.setVisible(true);
-            if (config.getResultado() != null) {
-                disponibilidades.add(config.getResultado());
-                btnDia.setBackground(new Color(46, 204, 113));
-                btnDia.setText(nomePt + " - CONFIGURADO");
-            }
-        });
-        
-        pnlBotoesDias.add(btnDia);
-}
-        
-        add(new JScrollPane(pnlBotoesDias), BorderLayout.CENTER);
-
-        JButton btnFinalizar = new JButton(" GERAR AGENDA NO SISTEMA");
-        btnFinalizar.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btnFinalizar.setBackground(new Color(41, 128, 185));
-        btnFinalizar.setForeground(Color.WHITE);
-        
-        btnFinalizar.addActionListener(e -> {
-            if (disponibilidades.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Configure ao menos um dia!");
-                return;
-            }
-
-            try {
-                // 1. Usa o método que JÁ EXISTE da classe Medico
-                medico.atualizarDisponibilidadeSemanal(disponibilidades); 
-
-                // 2. Gera os horários na agenda
-                medico.getAgenda().carregarNovaGrade(disponibilidades);
-
-                JOptionPane.showMessageDialog(this, "Agenda configurada e gerada com sucesso!");
-                dispose();
-            } catch (IllegalArgumentException ex) {
-                // Isso vai capturar as validações (como a de carga horária mínima de 8h)
-                JOptionPane.showMessageDialog(this, "Erro de Validação: " + ex.getMessage());
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, "Erro inesperado: " + ex.getMessage());
-            }
-        });
-
-        add(btnFinalizar, BorderLayout.SOUTH);
         setSize(400, 600);
         setLocationRelativeTo(owner);
+    }
+
+    private void criarBotoesDias() {
+        JPanel painel = new JPanel(new GridLayout(7, 1, 5, 5));
+
+        for (DayOfWeek dia : DayOfWeek.values()) {
+            String nome = dia.getDisplayName(
+                    java.time.format.TextStyle.FULL,
+                    new java.util.Locale("pt", "BR")
+            ).toUpperCase();
+
+            JButton btn = new JButton(nome);
+            btn.addActionListener(e -> configurarDia(dia, btn, nome));
+            painel.add(btn);
+        }
+
+        add(new JScrollPane(painel), BorderLayout.CENTER);
+    }
+
+    private void configurarDia(
+            DayOfWeek dia, JButton btn, String nome) {
+
+        ConfigurarHorarioDiaView view =
+                new ConfigurarHorarioDiaView(
+                        (Frame) getOwner(), dia);
+
+        view.setVisible(true);
+
+        if (view.getResultado() != null) {
+            disponibilidades.removeIf(d ->
+                    d.getDiaSemana().equals(dia));
+
+            disponibilidades.add(view.getResultado());
+
+            btn.setText(nome + " ✔");
+            btn.setEnabled(false);
+            btn.setBackground(new Color(46, 204, 113));
+            btn.setForeground(Color.WHITE);
+        }
+    }
+
+    private void criarBotaoFinalizar() {
+        JButton btn = new JButton("GERAR AGENDA");
+        btn.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+        btn.addActionListener(e -> finalizar());
+        add(btn, BorderLayout.SOUTH);
+    }
+
+    private void finalizar() {
+        if (disponibilidades.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "Configure ao menos um dia.");
+            return;
+        }
+
+        medico.atualizarDisponibilidadeSemanal(disponibilidades);
+        medico.getAgenda().carregarNovaGrade(disponibilidades);
+
+        JOptionPane.showMessageDialog(this,
+                "Agenda gerada com sucesso!");
+        dispose();
     }
 }

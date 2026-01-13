@@ -5,63 +5,91 @@ import java.awt.*;
 import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 
-public class MedicoInterface extends JFrame {
-    private final Hospital hospital;
-    private final Medico medicoLogado;
-    private JTabbedPane abas;
-    
-    // Paineis das abas
-    private VisitasMedicoView painelVisitas;
-    private JPanel painelAgenda; // Painel que conterá a lista de consultas do dia
+public class MedicoInterface extends BaseView {
+
+    private final Medico medico;
+    private AgendaMedicoView agendaView;
 
     public MedicoInterface(Hospital hospital, Medico medico) {
-        this.hospital = hospital;
-        this.medicoLogado = medico;
-        
-        setTitle("Sistema Hospitalar - Módulo Médico: " + medico.getNome());
-        setSize(1000, 700);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
-        
+        super(hospital, "Módulo Médico");
+        this.medico = medico;
+
         setLayout(new BorderLayout());
-        
-        initComponents();
-        setupAutoUpdate(); 
+
+        add(criarTopoMedico(), BorderLayout.NORTH);
+        criarAbas();
+        criarRodape();
+
+        setVisible(true);
     }
 
-    private void initComponents() {
-        abas = new JTabbedPane();
+    // ======================= TOPO =======================
 
-        
-        painelAgenda = new JPanel(new BorderLayout());
-        JButton btnConfigAgenda = new JButton("Configurar Disponibilidade Semanal");
+    private JPanel criarTopoMedico() {
+        JPanel topo = criarTopo("Dr(a). " + medico.getNome());
+
+        JLabel especialidade = new JLabel(
+                "Especialidade: " + medico.getEspecialidade()
+        );
+        especialidade.setForeground(Color.WHITE);
+
+        JButton btnConfigAgenda = new JButton("Configurar Agenda");
         btnConfigAgenda.addActionListener(e -> {
-            new ConfigurarAgendaView(this, medicoLogado).setVisible(true);
+            ConfigurarAgendaView view =
+                    new ConfigurarAgendaView(this, medico);
+            view.setVisible(true);
+
+            // 🔄 sincroniza agenda após fechar
+            agendaView.atualizar();
         });
-        painelAgenda.add(btnConfigAgenda, BorderLayout.NORTH);
-        // painelAgenda.add(new JScrollPane(tabelaConsultas), BorderLayout.CENTER);
 
-        // Aba 2: Visitas e Internação (A classe que corrigimos)
-        painelVisitas = new VisitasMedicoView(hospital, medicoLogado);
+        JButton btnLogout = new JButton("Logout");
+        btnLogout.addActionListener(e -> confirmarLogout());
 
-        abas.addTab("Consultas do Dia", new ImageIcon(), painelAgenda, "Ver agenda e atender pacientes");
-        abas.addTab("Visitas (Internados)", new ImageIcon(), painelVisitas, "Gerenciar pacientes internados");
+        JPanel direita = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        direita.setOpaque(false);
+        direita.add(especialidade);
+        direita.add(btnConfigAgenda);
+        direita.add(btnLogout);
+
+        topo.add(direita, BorderLayout.EAST);
+        return topo;
+    }
+
+    // ======================= ABAS =======================
+
+    private void criarAbas() {
+        JTabbedPane abas = new JTabbedPane();
+
+        agendaView = new AgendaMedicoView(medico);
+        abas.addTab("Consultas", agendaView);
+        abas.addTab("Visitas / Internação",
+                new VisitasMedicoView(hospital, medico));
 
         add(abas, BorderLayout.CENTER);
-
-        // Barra inferior com status
-        JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        statusPanel.setBorder(BorderFactory.createEtchedBorder());
-        statusPanel.add(new JLabel("Médico: " + medicoLogado.getNome() + " | Especialidade: " + medicoLogado.getEspecialidade()));
-        add(statusPanel, BorderLayout.SOUTH);
     }
 
-    private void setupAutoUpdate() {
-        // Atualiza a tabela de visitas a cada 30 segundos
-        Timer timer = new Timer(5000, e -> {
-            painelVisitas.popularTabela();
-            // atualizarTabelaConsultas();
-        });
-        timer.start();
+    // ======================= RODAPÉ =======================
+
+    private void criarRodape() {
+        JPanel footer = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        footer.setBorder(BorderFactory.createEtchedBorder());
+        footer.add(new JLabel("Status: Médico ativo"));
+        add(footer, BorderLayout.SOUTH);
+    }
+
+    // ======================= LOGOUT =======================
+
+    private void confirmarLogout() {
+        int op = JOptionPane.showConfirmDialog(
+                this,
+                "Deseja encerrar a sessão?",
+                "Confirmar Logout",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (op == JOptionPane.YES_OPTION) {
+            executarLogout(); // método herdado do BaseView
+        }
     }
 }

@@ -8,51 +8,69 @@ import java.time.LocalTime;
 import ufjf.dcc025.hospital.usuarios.medico.DisponibilidadeDiaSemana;
 
 public class ConfigurarHorarioDiaView extends JDialog {
-    private JSpinner spinInicio, spinFim, spinDuracao;
+
     private DisponibilidadeDiaSemana resultado;
     private final DayOfWeek dia;
 
-    public ConfigurarHorarioDiaView(Frame owner, DayOfWeek dia) {
-        super(owner, "Configurar: " + dia.name(), true);
-        this.dia = dia;
-        setLayout(new GridLayout(4, 2, 10, 10));
-        
-        add(new JLabel("Hora Início:"));
-        spinInicio = new JSpinner(new SpinnerDateModel());
-        JSpinner.DateEditor edInicio = new JSpinner.DateEditor(spinInicio, "HH:mm");
-        spinInicio.setEditor(edInicio);
-        add(spinInicio);
+    private JSpinner spInicio;
+    private JSpinner spFim;
+    private JSpinner spDuracao;
 
-        add(new JLabel("Hora Fim:"));
-        spinFim = new JSpinner(new SpinnerDateModel());
-        JSpinner.DateEditor edFim = new JSpinner.DateEditor(spinFim, "HH:mm");
-        spinFim.setEditor(edFim);
-        add(spinFim);
+    public ConfigurarHorarioDiaView(Frame owner, DayOfWeek dia) {
+        super(owner, "Configurar " + dia.name(), true);
+        this.dia = dia;
+
+        setLayout(new GridLayout(4, 2, 10, 10));
+        setSize(300, 220);
+        setLocationRelativeTo(owner);
+
+        add(new JLabel("Hora início:"));
+        spInicio = criarSpinnerHora();
+        add(spInicio);
+
+        add(new JLabel("Hora fim:"));
+        spFim = criarSpinnerHora();
+        add(spFim);
 
         add(new JLabel("Duração (min):"));
-        spinDuracao = new JSpinner(new SpinnerNumberModel(30, 10, 120, 5));
-        add(spinDuracao);
+        spDuracao = new JSpinner(new SpinnerNumberModel(30, 10, 120, 5));
+        add(spDuracao);
 
-        JButton btnSalvar = new JButton("Confirmar");
+        JButton btnSalvar = new JButton("Salvar");
         btnSalvar.addActionListener(e -> salvar());
         add(btnSalvar);
+    }
 
-        setSize(300, 250);
-        setLocationRelativeTo(owner);
+    private JSpinner criarSpinnerHora() {
+        JSpinner spinner = new JSpinner(new SpinnerDateModel());
+        spinner.setEditor(new JSpinner.DateEditor(spinner, "HH:mm"));
+        return spinner;
     }
 
     private void salvar() {
         try {
-            LocalTime inicio = LocalTime.parse(new JSpinner.DateEditor(spinInicio, "HH:mm").getFormat().format(spinInicio.getValue()));
-            LocalTime fim = LocalTime.parse(new JSpinner.DateEditor(spinFim, "HH:mm").getFormat().format(spinFim.getValue()));
-            int min = (int) spinDuracao.getValue();
-            
-            this.resultado = new DisponibilidadeDiaSemana(dia, inicio, fim, Duration.ofMinutes(min));
+            LocalTime inicio = LocalTime.parse(
+                    new JSpinner.DateEditor(spInicio, "HH:mm")
+                            .getFormat().format(spInicio.getValue()));
+
+            LocalTime fim = LocalTime.parse(
+                    new JSpinner.DateEditor(spFim, "HH:mm")
+                            .getFormat().format(spFim.getValue()));
+
+            int duracao = (int) spDuracao.getValue();
+
+            resultado = new DisponibilidadeDiaSemana(
+                    dia, inicio, fim, Duration.ofMinutes(duracao));
+
             dispose();
+
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this,
+                    "Erro ao configurar horário: " + ex.getMessage());
         }
     }
 
-    public DisponibilidadeDiaSemana getResultado() { return resultado; }
+    public DisponibilidadeDiaSemana getResultado() {
+        return resultado;
+    }
 }
