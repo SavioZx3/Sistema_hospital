@@ -9,6 +9,7 @@ import ufjf.dcc025.hospital.usuarios.Recepcionista;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
+import ufjf.dcc025.hospital.usuarios.medico.Especialidade;
 
 public class BancoDados {
     public static final List<Usuario> usuarios = new ArrayList<>();
@@ -16,8 +17,8 @@ public class BancoDados {
     static {
         try {
             // 1. Médicos
-            Medico joao = new Medico("Dr. João Silva", "11111111111", "joao@hospital.com", "1234", "Cardiologia");
-            Medico ana = new Medico("Dra. Ana Costa", "22222222222", "ana@hospital.com", "1234", "Pediatria");
+            Medico joao = new Medico("Dr. João Silva", "11111111111", "joao@hospital.com", "1234", Especialidade.CARDIOLOGIA);
+            Medico ana = new Medico("Dra. Ana Costa", "22222222222", "ana@hospital.com", "1234", Especialidade.NEUROLOGIA);
 
             // 2. Gerar Consultas para AMBOS os médicos (Ajuste solicitado)
             LocalDate amanha = LocalDate.now().plusDays(1);

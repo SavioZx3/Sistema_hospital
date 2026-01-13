@@ -15,6 +15,7 @@ public class AtendimentoMedicoView extends JDialog {
     private JTextField txtDiasAtestado, txtRemedio, txtDose;
     private JButton btnInternacao;
     private boolean finalizado = false; // VARIAVEL DE CONTROLE
+    private JTextArea txtExamesPedididos;
 
     public AtendimentoMedicoView(Window parent, Medico medico, Consulta consulta) {
         super(parent, "Prontuário: " + consulta.getPaciente().getNome(), ModalityType.APPLICATION_MODAL);
@@ -60,6 +61,11 @@ public class AtendimentoMedicoView extends JDialog {
         txtDiasAtestado = new JTextField("0");
         txtDiasAtestado.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
         container.add(txtDiasAtestado);
+        
+        container.add(new JLabel(" Solicitar Exames:"));
+        txtExamesPedididos = new JTextArea(3, 20);
+        txtExamesPedididos.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        container.add(new JScrollPane(txtExamesPedididos));
 
         container.add(Box.createVerticalStrut(20));
         btnInternacao = new JButton();
@@ -100,24 +106,35 @@ public class AtendimentoMedicoView extends JDialog {
         }
     }
 
-    private void concluir() {
+   private void concluir() {
         try {
             int dias = Integer.parseInt(txtDiasAtestado.getText().trim());
             String remedio = txtRemedio.getText().trim();
             String dose = txtDose.getText().trim();
+            String examesPeticionados = txtExamesPedididos.getText().trim(); 
 
-            if (dias > 0) consulta.getAtestado(dias);
-            if (!remedio.isEmpty()) consulta.getReceita(remedio, dose, LocalDate.now().plusMonths(1));
+            // Emite documentos se os campos não estiverem vazios
+            if (dias > 0) {
+                consulta.getAtestado(dias);
+            }
+            if (!remedio.isEmpty()) {
+                consulta.getReceita(remedio, dose, LocalDate.now().plusMonths(1));
+            }
+            if (!examesPeticionados.isEmpty()) {
+                consulta.setExame(examesPeticionados); 
+            }
 
             consulta.marcarConcluida();
+
             if (consulta.getPaciente() != null) {
                 consulta.getPaciente().getHistorico().adicionaConsulta(consulta);
             }
 
             this.finalizado = true; 
+            JOptionPane.showMessageDialog(this, "Atendimento Concluído com Sucesso!");
             dispose();
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage());
+            JOptionPane.showMessageDialog(this, "Erro ao salvar: " + ex.getMessage());
         }
     }
 }

@@ -182,4 +182,35 @@ public class Agenda {
         
         return avisos;
     }
+    
+    /**
+     * Gera consultas baseadas em uma lista de disponibilidades configuradas na View.
+     * @param novasDisponibilidades Lista vinda da interface ConfigurarAgendaView
+     */
+    public void carregarNovaGrade(List<DisponibilidadeDiaSemana> novasDisponibilidades) {
+        if (novasDisponibilidades == null || novasDisponibilidades.isEmpty()) return;
+
+        // Define o horizonte de tempo (ex: a partir de amanhã por 4 semanas)
+        LocalDate dataInicio = LocalDate.now().plusDays(1);
+        
+        for (DisponibilidadeDiaSemana d : novasDisponibilidades) {
+            // Gera para as próximas 4 semanas aquele dia específico
+            for (int i = 0; i < 4; i++) {
+                LocalDate dataAlvo = dataInicio.with(TemporalAdjusters.nextOrSame(d.getDiaSemana())).plusWeeks(i);
+                
+                // Reaproveita sua lógica interna de geração de slots
+                LocalTime inicio = d.getHorarioInicio();
+                LocalTime fim = d.getHorarioFim();
+
+                while (!inicio.plus(d.getDuracaoConsulta()).isAfter(fim)) {
+                    LocalTime termino = inicio.plus(d.getDuracaoConsulta());
+                    if (isDataDisponivel(dataAlvo, inicio, termino)) {
+                        consultas.add(new Consulta(dataAlvo, inicio, termino, medico));
+                    }
+                    inicio = termino;
+                }
+            }
+        }
+    }
+    
 }

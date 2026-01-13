@@ -116,4 +116,13 @@ public class Consulta {
             throw new IllegalStateException("Status inválido para solicitar exame.");
         this.exame = new Exame(tipoExame, LocalDate.now(), medico, paciente, resultado);
     }
+   
+    public void setExame(String descricao) throws IllegalStateException {
+        if(!isRealizada() && !isEmAndamento())
+            throw new IllegalStateException("Status inválido para solicitar exame.");
+
+        // Usamos o seu método existente emitirExame
+        // O primeiro parâmetro é o tipo/descrição, o segundo é o resultado (vazio no início)
+        this.emitirExame(descricao, "AGUARDANDO RESULTADO");
+    }
 }
