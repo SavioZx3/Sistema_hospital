@@ -10,7 +10,7 @@ import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 import ufjf.dcc025.hospital.usuarios.paciente.StatusInternacao;
 
-public class VisitasMedicoView extends JPanel {
+public class VisitasMedicoView extends BasePanel  {
 
     private final Hospital hospital;
     private final Medico medico;
@@ -111,7 +111,8 @@ public class VisitasMedicoView extends JPanel {
 
         if (escolha == 1) {
             paciente.setStatusInternacao(StatusInternacao.ALTA);
-            JOptionPane.showMessageDialog(this, "Alta registrada com sucesso.");
+            mostrarInfo("Alta registrada.");
+
         }
     }
 

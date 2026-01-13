@@ -62,4 +62,32 @@ public abstract class BaseView extends JFrame {
             new LoginInterface(hospital);
         }
     }
+
+    protected void mostrarErro(String mensagem) {
+        JOptionPane.showMessageDialog(
+                this,
+                mensagem,
+                "Erro",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
+
+    protected void mostrarAviso(String mensagem) {
+        JOptionPane.showMessageDialog(
+                this,
+                mensagem,
+                "Aviso",
+                JOptionPane.WARNING_MESSAGE
+        );
+    }
+
+    protected void mostrarInfo(String mensagem) {
+        JOptionPane.showMessageDialog(
+                this,
+                mensagem,
+                "Informação",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
 }
