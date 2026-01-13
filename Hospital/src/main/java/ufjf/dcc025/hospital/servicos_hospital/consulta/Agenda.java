@@ -2,7 +2,6 @@ package ufjf.dcc025.hospital.servicos_hospital.consulta;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
 public class Agenda {
-    private final Medico medico;
+    private final transient Medico medico;
     private final List<Consulta> consultas;
     
     // Flags de Notificação

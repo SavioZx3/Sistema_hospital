@@ -2,6 +2,7 @@ package ufjf.dcc025.hospital.servicos_hospital.documento_medico;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import ufjf.dcc025.hospital.exception.DataInvalidaException;
@@ -22,10 +23,11 @@ public class Atestado implements DocumentoMedico {
     private final int diasAfastamento;
 
  
-    private final Paciente pacienteAlvo;
-
-
-    private final Medico medicoResponsavel;
+    private  transient Paciente pacienteAlvo;
+    private  transient Medico medicoResponsavel;
+    
+    private String pacienteCpf;
+    private String medicoCpf;
         
     public Atestado(Medico medico, Paciente paciente ,LocalDate dataEmissao ,int diasAfastamento) throws DadosInvalidosException, DataInvalidaException{
         
@@ -45,6 +47,8 @@ public class Atestado implements DocumentoMedico {
         this.pacienteAlvo = paciente;
         this.dataEmissao = dataEmissao;
         this.diasAfastamento = diasAfastamento;
+        this.medicoCpf = medico.getCpf(); // Salva o CPF
+        this.pacienteCpf = paciente.getCpf(); // Salva o CPF
     }
 
     @Override
@@ -56,6 +60,11 @@ public class Atestado implements DocumentoMedico {
     public LocalDate getDataEmissao() { return dataEmissao; }
 
     public int getDiasAfastamento(){ return diasAfastamento; }
+    
+    public void reconstruir(List<Medico> medicos, List<Paciente> pacientes) {
+        this.medicoResponsavel = medicos.stream().filter(m -> m.getCpf().equals(medicoCpf)).findFirst().orElse(null);
+        this.pacienteAlvo = pacientes.stream().filter(p -> p.getCpf().equals(pacienteCpf)).findFirst().orElse(null);
+    }
 
 
     @Override

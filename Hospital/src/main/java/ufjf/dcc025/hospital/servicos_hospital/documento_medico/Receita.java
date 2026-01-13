@@ -1,6 +1,7 @@
 package ufjf.dcc025.hospital.servicos_hospital.documento_medico;
 
 import java.time.LocalDate;
+import java.util.List;
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import ufjf.dcc025.hospital.exception.DataInvalidaException;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
@@ -10,60 +11,42 @@ public class Receita implements DocumentoMedico {
 
     private final LocalDate validade;
     private final LocalDate dataEmissao;
-
     private final String medicamento;
     private final String quantidade;
-    private final Paciente paciente;
-    private final Medico medico;
     
-    public Receita(String medicamento , String quantidade , Paciente paciente , Medico medico , LocalDate dataEmissao , LocalDate validade) throws  DadosInvalidosException, DataInvalidaException {
+    private transient Paciente paciente;
+    private transient Medico medico;
+    private String pacienteCpf;
+    private String medicoCpf;
+    
+    public Receita(String medicamento, String quantidade, Paciente paciente, Medico medico, LocalDate dataEmissao, LocalDate validade) throws DadosInvalidosException, DataInvalidaException {
         
-        if(medicamento == null || medicamento.trim().isEmpty()){
-            throw new DadosInvalidosException("É obrigatório o informar o nome do medicamento ");
-        }
-        
-        if(quantidade == null || quantidade.trim().isEmpty()){
-            throw new DadosInvalidosException("A quantidade deve ser informada! ");
-        }
-        
-        if(paciente == null ){
-            throw new DadosInvalidosException("O paciente da receita deve ser informado! ");
-        }
-        
-        if(medico == null){
-            throw new DadosInvalidosException("O medico responsavél deve ser informado! ");
-        }
-        
-        if(dataEmissao == null || validade == null){
-            throw new DataInvalidaException("As datas de emissão e validade são obrigatórias.");
-        }
-        
-        if(validade.isBefore(dataEmissao)){
-            throw new DataInvalidaException("A data de validade ( " + validade.toString() +
-            " ) não pode ser anterior à data de emissão ( " + dataEmissao.toString() + " )" );
-        }
+        if(medicamento == null || medicamento.trim().isEmpty()) throw new DadosInvalidosException("Medicamento obrigatório");
+        if(quantidade == null || quantidade.trim().isEmpty()) throw new DadosInvalidosException("Quantidade obrigatória");
+        if(paciente == null || medico == null) throw new DadosInvalidosException("Paciente e Médico obrigatórios");
+        if(dataEmissao == null || validade == null) throw new DataInvalidaException("Datas obrigatórias");
+        if(validade.isBefore(dataEmissao)) throw new DataInvalidaException("Validade anterior à emissão");
         
         this.medicamento = medicamento;
         this.quantidade = quantidade;
         this.paciente = paciente;
         this.medico = medico;
+        this.pacienteCpf = paciente.getCpf();
+        this.medicoCpf = medico.getCpf();
         this.dataEmissao = dataEmissao;
         this.validade = validade;
-        
     }
     
-    @Override
-    public Medico getMedico() { return medico; }
+    public void reconstruir(List<Medico> medicos, List<Paciente> pacientes) {
+        this.medico = medicos.stream().filter(m -> m.getCpf().equals(medicoCpf)).findFirst().orElse(null);
+        this.paciente = pacientes.stream().filter(p -> p.getCpf().equals(pacienteCpf)).findFirst().orElse(null);
+    }
 
-    @Override
-    public Paciente getPaciente() { return paciente; }
- 
-    @Override
-    public LocalDate getDataEmissao() { return dataEmissao; }
-
+    @Override public Medico getMedico() { return medico; }
+    @Override public Paciente getPaciente() { return paciente; }
+    @Override public LocalDate getDataEmissao() { return dataEmissao; }
     public String getMedicamento() { return medicamento; }
     public LocalDate getValidade() { return validade; }  
-    
     
     @Override
     public String toString() {
