@@ -8,6 +8,7 @@ import com.google.gson.JsonSerializer;
 
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
+import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
 import com.google.gson.JsonParseException;
 
@@ -78,28 +79,26 @@ public class Persistencia {
 
             HospitalData dadosCarregados = gson.fromJson(reader, HospitalData.class);
 
-            //  RECONSTRUIR RELAÇÕES DA AGENDA
+            //Reconstruir consultas globais
+            for (Consulta c : dadosCarregados.getConsultas()) {
+                c.reconstruirReferencias(dadosCarregados.getMedicos(), dadosCarregados.getPacientes());
+            }
+
+            //Reconstruir consultas da agenda do médico
             for (Medico m : dadosCarregados.getMedicos()) {
                 if (m.getAgenda() != null) {
                     m.getAgenda().setMedico(m);
+                    for (Consulta c : m.getAgenda().getConsultas()) {
+                        c.reconstruirReferencias(dadosCarregados.getMedicos(), dadosCarregados.getPacientes());
+                    }
                 }
             }
 
-            //  RECONSTRUIR REFERÊNCIAS NAS CONSULTAS
-            for (Consulta c : dadosCarregados.getConsultas()) {
-                c.reconstruirReferencias(
-                    dadosCarregados.getMedicos(),
-                    dadosCarregados.getPacientes()
-                );
-            }
-
-            for (Medico m : dadosCarregados.getMedicos()) {
-                if (m.getAgenda() != null) {
-                    for (Consulta c : m.getAgenda().getConsultas()) {
-                        c.reconstruirReferencias(
-                            dadosCarregados.getMedicos(),
-                            dadosCarregados.getPacientes()
-                        );
+            //RECONSTRUIR CONSULTAS DO HISTÓRICO DO PACIENTE
+            for (Paciente p : dadosCarregados.getPacientes()) {
+                if (p.getHistorico() != null) {
+                    for (Consulta c : p.getHistorico().getConsultas()) {
+                        c.reconstruirReferencias(dadosCarregados.getMedicos(), dadosCarregados.getPacientes());
                     }
                 }
             }
