@@ -5,20 +5,21 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.format.DateTimeFormatter;
 import ufjf.dcc025.hospital.Hospital;
+import ufjf.dcc025.hospital.interfac.view.BaseView;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
-public class ConsultasPacienteView extends JFrame {
+public class ConsultasPacienteView extends BaseView {
 
-    private Hospital hospital;
     private Paciente pacienteLogado;
     private JTable tabela;
     private DefaultTableModel model;
     private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     public ConsultasPacienteView(Paciente paciente, Hospital hospital) {
+        
+        super(hospital, "Meu Histórico de Consultas - " + paciente.getNome());
         this.pacienteLogado = paciente;
-        this.hospital = hospital;
 
         setTitle("Meu Histórico de Consultas - " + pacienteLogado.getNome());
         setSize(800, 450);
@@ -30,7 +31,7 @@ public class ConsultasPacienteView extends JFrame {
 
         // Painel inferior com botão de ação
         JPanel painelAcoes = new JPanel();
-        JButton btnVerDetalhes = new JButton("🔍 Ver Detalhes da Consulta");
+        JButton btnVerDetalhes = new JButton(" Ver Detalhes da Consulta");
         btnVerDetalhes.addActionListener(e -> mostrarDetalhesConsulta());
         painelAcoes.add(btnVerDetalhes);
         add(painelAcoes, BorderLayout.SOUTH);
@@ -64,7 +65,8 @@ public class ConsultasPacienteView extends JFrame {
                     c.getDataHoraInicio().format(dtf),
                     "Dr(a). " + c.getMedico().getNome(),
                     c.getStatus(),
-                    docs.length() == 0 ? "---" : docs.toString()
+                    docs.length() == 0 ? "---" : docs.toString(),
+                    c
                 };
                 model.addRow(linha);
             }
@@ -74,7 +76,7 @@ public class ConsultasPacienteView extends JFrame {
     private void mostrarDetalhesConsulta() {
         int linhaSelecionada = tabela.getSelectedRow();
         if (linhaSelecionada == -1) {
-            JOptionPane.showMessageDialog(this, "Selecione uma consulta na tabela.");
+            mostrarAviso("Selecione uma consulta na tabela.");
             return;
         }
 

@@ -1,19 +1,20 @@
-package ufjf.dcc025.hospital.interfac.view.paciente;
+package ufjf.dcc025.hospital.interfac.view.secretaria;
 
 import javax.swing.*;
 import java.awt.*;
 import ufjf.dcc025.hospital.Hospital;
+import ufjf.dcc025.hospital.interfac.view.BaseView;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
-public class FormularioCadastroPacienteView extends JFrame {
+public class FormularioCadastroPacienteView extends BaseView {
 
-    private Hospital hospital;
     private JTextField txtNome, txtCpf, txtEmail, txtTelefone;
     private JTextField txtCidade, txtBairro, txtRua, txtNumero;
     private JPasswordField txtSenha;
 
     public FormularioCadastroPacienteView(Hospital hospital) {
-        this.hospital = hospital;
+        
+        super(hospital, "Cadastro de Novo Paciente");
 
         setTitle("Cadastro de Paciente - Dados Completos");
         setSize(500, 600);
@@ -66,7 +67,7 @@ public class FormularioCadastroPacienteView extends JFrame {
         txtNumero = new JTextField();
         painelCentral.add(txtNumero);
 
-        JButton btnSalvar = new JButton("💾 Finalizar Cadastro");
+        JButton btnSalvar = new JButton(" Finalizar Cadastro");
         btnSalvar.setBackground(new Color(41, 128, 185));
         btnSalvar.setForeground(Color.WHITE);
         btnSalvar.addActionListener(e -> salvar());
@@ -76,26 +77,35 @@ public class FormularioCadastroPacienteView extends JFrame {
     }
 
     private void salvar() {
+
+        if (txtNome.getText().trim().isEmpty() || txtCpf.getText().trim().isEmpty()
+                || txtSenha.getPassword().length == 0) {
+            JOptionPane.showMessageDialog(this, "Nome, CPF e Senha são obrigatórios!");
+            return;
+        }
         try {
             // Criando o paciente exatamente como o seu construtor pede
             Paciente novo = new Paciente(
-                txtNome.getText(),
-                txtCpf.getText(),
-                txtEmail.getText(),
-                new String(txtSenha.getPassword()),
-                txtTelefone.getText(),
-                txtCidade.getText(),
-                txtBairro.getText(),
-                txtRua.getText(),
-                txtNumero.getText()
+                    txtNome.getText(),
+                    txtCpf.getText(),
+                    txtEmail.getText(),
+                    new String(txtSenha.getPassword()),
+                    txtTelefone.getText(),
+                    txtCidade.getText(),
+                    txtBairro.getText(),
+                    txtRua.getText(),
+                    txtNumero.getText()
             );
 
             hospital.cadastrarPaciente(novo);
+
+            hospital.salvarAlteracoes(); // Salva no JSON
+
             JOptionPane.showMessageDialog(this, "Paciente cadastrado com sucesso!");
             dispose();
 
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage(), "Falha no Cadastro", JOptionPane.ERROR_MESSAGE);
+            mostrarErro(ex); // Usando método da BaseView        }
         }
     }
 }

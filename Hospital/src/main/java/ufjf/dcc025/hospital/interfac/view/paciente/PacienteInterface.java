@@ -115,6 +115,7 @@ public class PacienteInterface extends BaseView {
                     paciente.setSenha(new String(txtNovaSenha.getPassword()));
                 }
 
+                hospital.salvarAlteracoes();
                 JOptionPane.showMessageDialog(this, "Dados atualizados com sucesso!");
                 txtSenhaAtual.setText("");
                 txtNovaSenha.setText("");
@@ -150,6 +151,7 @@ public class PacienteInterface extends BaseView {
             int row = t.getSelectedRow();
             if (row != -1) {
                 hospital.cancelarAgendamento((Consulta) modelAgenda.getValueAt(row, 4));
+                hospital.salvarAlteracoes();
                 atualizarTabelas();
             }
         });
@@ -173,6 +175,7 @@ public class PacienteInterface extends BaseView {
             if (row != -1) {
                 Consulta c = (Consulta) modelNovoAgendamento.getValueAt(row, 4);
                 hospital.agendarConsultaNaAgenda(paciente, c.getMedico(), c);
+                hospital.salvarAlteracoes();
                 atualizarTabelas();
             }
         });

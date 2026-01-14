@@ -18,7 +18,7 @@ public class VisitasPacienteView extends JPanel {
 
     public VisitasPacienteView(Hospital hospital) {
         this.hospital = hospital;
-        
+
         setLayout(new GridBagLayout());
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         GridBagConstraints gbc = new GridBagConstraints();
@@ -28,11 +28,14 @@ public class VisitasPacienteView extends JPanel {
         // --- TÍTULO ---
         JLabel titulo = new JLabel("Consulta de Visitas", SwingConstants.CENTER);
         titulo.setFont(new Font("Arial", Font.BOLD, 22));
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
         add(titulo, gbc);
 
         // --- CAMPO DE BUSCA ---
-        gbc.gridy = 1; gbc.gridwidth = 1;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
         add(new JLabel("Digite o CPF do Paciente:"), gbc);
 
         campoBusca = new JTextField(15);
@@ -44,7 +47,9 @@ public class VisitasPacienteView extends JPanel {
         btnBuscar.setFont(new Font("Arial", Font.BOLD, 12));
         btnBuscar.setBackground(new Color(70, 130, 180));
         btnBuscar.setForeground(Color.WHITE);
-        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
         add(btnBuscar, gbc);
 
         // --- RESULTADOS ---
@@ -64,7 +69,7 @@ public class VisitasPacienteView extends JPanel {
 
     private void realizarBusca() {
         String cpf = campoBusca.getText().trim();
-        
+
         if (cpf.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor, digite um CPF.");
             return;
@@ -73,16 +78,19 @@ public class VisitasPacienteView extends JPanel {
         try {
             // Busca o paciente no hospital
             Paciente p = hospital.buscarPacientePorCpf(cpf);
-            
-            lblNomePaciente.setText("Paciente: " + p.getNome());
 
-            // Verifica o Enum StatusVisita que o médico gerencia
-            if (p.getStatusVisita() == StatusVisita.APTO) {
-                lblStatusResultado.setText("VISITA AUTORIZADA");
-                lblStatusResultado.setForeground(new Color(0, 128, 0)); // Verde
-            } else {
-                lblStatusResultado.setText("VISITA NÃO AUTORIZADA");
-                lblStatusResultado.setForeground(Color.RED);
+            if (p != null) {
+
+                lblNomePaciente.setText("Paciente: " + p.getNome());
+
+                // Verifica o Enum StatusVisita que o médico gerencia
+                if (p.getStatusVisita() == StatusVisita.APTO) {
+                    lblStatusResultado.setText("VISITA AUTORIZADA");
+                    lblStatusResultado.setForeground(new Color(0, 128, 0)); // Verde
+                } else {
+                    lblStatusResultado.setText("VISITA NÃO AUTORIZADA");
+                    lblStatusResultado.setForeground(Color.RED);
+                }
             }
 
         } catch (Exception ex) {

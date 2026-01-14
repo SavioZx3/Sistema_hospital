@@ -3,22 +3,23 @@ package ufjf.dcc025.hospital.interfac.view.paciente;
 import javax.swing.*;
 import java.awt.*;
 import ufjf.dcc025.hospital.Hospital;
+import ufjf.dcc025.hospital.interfac.view.BaseView;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
-public class DadosPacienteView extends JFrame {
+public class DadosPacienteView extends BaseView {
 
     private Paciente paciente;
-    private Hospital hospital;
 
     public DadosPacienteView(Paciente paciente, Hospital hospital) {
-        this.paciente = paciente;
-        this.hospital = hospital;
+        
+       super(hospital, "Prontuário e Dados - " + paciente.getNome());
+       this.paciente = paciente;
 
-        setTitle("Prontuário e Dados - " + paciente.getNome());
         setSize(500, 600);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
 
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         // Criar componentes
         add(criarCabecalho(), BorderLayout.NORTH);
         
@@ -51,13 +52,17 @@ public class DadosPacienteView extends JFrame {
         painel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
 
         painel.add(new JLabel("Telefone:"));
-        painel.add(new JTextField(paciente.getTelefone()));
+        JTextField txtTel = new JTextField(paciente.getTelefone());
+        txtTel.setEditable(false); 
+        painel.add(txtTel);
 
         painel.add(new JLabel("E-mail:"));
-        painel.add(new JTextField(paciente.getEmail().toString()));
+        JTextField txtEmail = new JTextField(paciente.getEnderecoEmail());
+        txtEmail.setEditable(false);
+        painel.add(txtEmail);
 
         painel.add(new JLabel("Endereço:"));
-        JTextField txtEnd = new JTextField(paciente.getLogradouro());
+        JTextField txtEnd = new JTextField(paciente.getEndereco().getRua());
         txtEnd.setEditable(false);
         painel.add(txtEnd);
 
@@ -77,9 +82,9 @@ public class DadosPacienteView extends JFrame {
         
         // Botão para ver Histórico (Conectando com a classe Historico que configuramos)
         JButton btnVerHistorico = new JButton(" Ver Histórico Clínico (Receitas/Exames)");
+        
         btnVerHistorico.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this, paciente.getHistorico().toString(), 
-                "Histórico de " + paciente.getNome(), JOptionPane.INFORMATION_MESSAGE);
+            new HistoricoPacienteView(this, paciente).setVisible(true);
         });
 
         painel.add(lblInternacao);
