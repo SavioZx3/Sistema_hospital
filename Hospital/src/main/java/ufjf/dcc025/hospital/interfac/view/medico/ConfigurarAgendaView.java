@@ -5,26 +5,29 @@ import java.awt.*;
 import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.List;
+import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.medico.DisponibilidadeDiaSemana;
-
 
 public class ConfigurarAgendaView extends JDialog {
 
     private final Medico medico;
-    private final List<DisponibilidadeDiaSemana> disponibilidades =
-            new ArrayList<>();
+    private final Hospital hospital;
 
-    public ConfigurarAgendaView(Frame owner, Medico medico) {
+    private final List<DisponibilidadeDiaSemana> disponibilidades
+            = new ArrayList<>();
+
+    public ConfigurarAgendaView(Frame owner, Medico medico, Hospital hospital) {
         super(owner, "Configurar Agenda Semanal", true);
         this.medico = medico;
+        this.hospital = hospital;
 
         setLayout(new BorderLayout(15, 15));
 
         JLabel lblInfo = new JLabel(
                 "<html><div style='text-align:center;padding:10px;'>"
-                        + "Clique nos dias para configurar os horários."
-                        + "</div></html>"
+                + "Clique nos dias para configurar os horários."
+                + "</div></html>"
         );
 
         add(lblInfo, BorderLayout.NORTH);
@@ -55,15 +58,15 @@ public class ConfigurarAgendaView extends JDialog {
     private void configurarDia(
             DayOfWeek dia, JButton btn, String nome) {
 
-        ConfigurarHorarioDiaView view =
-                new ConfigurarHorarioDiaView(
+        ConfigurarHorarioDiaView view
+                = new ConfigurarHorarioDiaView(
                         (Frame) getOwner(), dia);
 
         view.setVisible(true);
 
         if (view.getResultado() != null) {
-            disponibilidades.removeIf(d ->
-                    d.getDiaSemana().equals(dia));
+            disponibilidades.removeIf(d
+                    -> d.getDiaSemana().equals(dia));
 
             disponibilidades.add(view.getResultado());
 
@@ -84,16 +87,16 @@ public class ConfigurarAgendaView extends JDialog {
 
     private void finalizar() {
         if (disponibilidades.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Configure ao menos um dia.");
+            JOptionPane.showMessageDialog(this, "Configure ao menos um dia.");
             return;
         }
 
         medico.atualizarDisponibilidadeSemanal(disponibilidades);
         medico.getAgenda().carregarNovaGrade(disponibilidades);
 
-        JOptionPane.showMessageDialog(this,
-                "Agenda gerada com sucesso!");
+        hospital.salvarAlteracoes();
+
+        JOptionPane.showMessageDialog(this, "Agenda gerada e salva com sucesso!");
         dispose();
     }
 }

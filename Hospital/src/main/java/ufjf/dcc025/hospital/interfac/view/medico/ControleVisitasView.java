@@ -18,7 +18,7 @@ public class ControleVisitasView extends JFrame {
 
     public ControleVisitasView(Hospital hospital) {
         this.hospital = hospital;
-        
+
         setTitle("Controle de Visitas - Hospital");
         setSize(600, 450);
         setLocationRelativeTo(null);
@@ -32,7 +32,7 @@ public class ControleVisitasView extends JFrame {
 
     private void criarTabela() {
         String[] colunas = {"Paciente", "CPF", "Status Visita", "Internação"};
-        
+
         model = new DefaultTableModel(colunas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -48,15 +48,15 @@ public class ControleVisitasView extends JFrame {
     }
 
     private void atualizarDados() {
-        model.setRowCount(0); 
-        
-        List<Paciente> pacientes = hospital.listarPacientes(); 
+        model.setRowCount(0);
+
+        List<Paciente> pacientes = hospital.listarPacientes();
 
         for (Paciente p : pacientes) {
             model.addRow(new Object[]{
                 p.getNome(),
                 p.getCpf(),
-                p.getStatusVisita(), 
+                p.getStatusVisita(),
                 p.getStatusInternacao()
             });
         }
@@ -65,7 +65,7 @@ public class ControleVisitasView extends JFrame {
     private void criarPainelAcoes() {
         JPanel painelAcoes = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnAlternar = new JButton("Alternar Permissão de Visita");
-        JButton btnAtualizar = new JButton("🔄 Atualizar");
+        JButton btnAtualizar = new JButton(" Atualizar");
 
         btnAlternar.addActionListener(new ActionListener() {
             @Override
@@ -74,20 +74,18 @@ public class ControleVisitasView extends JFrame {
                 if (linha != -1) {
                     // Pegamos o CPF da coluna 1 para buscar o paciente único
                     String cpf = (String) model.getValueAt(linha, 1);
-                    
+
                     try {
                         Paciente p = hospital.buscarPacientePorCpf(cpf);
-                        
+
                         // Lógica de alternância
-                        if (p.getStatusVisita() == StatusVisita.APTO) {
-                            p.setStatusVisita(StatusVisita.INAPTO);
-                        } else {
-                            p.setStatusVisita(StatusVisita.APTO);
-                        }
-                        
+                        p.setStatusVisita(p.getStatusVisita() == StatusVisita.APTO ? StatusVisita.INAPTO : StatusVisita.APTO);
+                        hospital.salvarAlteracoes(); //Salva o JSON
+                        atualizarDados();
+
                         atualizarDados();
                         JOptionPane.showMessageDialog(null, "Status de visitas de " + p.getNome() + " alterado!");
-                        
+
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(null, "Erro ao buscar paciente: " + ex.getMessage());
                     }

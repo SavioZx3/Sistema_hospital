@@ -114,6 +114,7 @@ public class VisitasMedicoView extends BasePanel  {
 
         if (escolha == 1) {
             paciente.setStatusInternacao(StatusInternacao.ALTA);
+            hospital.salvarAlteracoes();
             mostrarInfo("Alta registrada.");
 
         }

@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.time.format.DateTimeFormatter;
+import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.interfac.view.BasePanel;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.*;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
@@ -12,6 +13,7 @@ public class AgendaMedicoView extends BasePanel {
 
     private final Medico medico;
     private final VisitasMedicoView visitasView;
+    private final Hospital hospital;
 
     private JTable tabela;
     private DefaultTableModel model;
@@ -19,9 +21,10 @@ public class AgendaMedicoView extends BasePanel {
     private static final DateTimeFormatter HORA
             = DateTimeFormatter.ofPattern("HH:mm");
 
-    public AgendaMedicoView(Medico medico, VisitasMedicoView visitasView) {
+    public AgendaMedicoView(Medico medico, VisitasMedicoView visitasView, Hospital hospital) {
         this.medico = medico;
         this.visitasView = visitasView;
+        this.hospital = hospital;
 
         setLayout(new BorderLayout(10, 10));
         criarTabela();
@@ -73,40 +76,40 @@ public class AgendaMedicoView extends BasePanel {
     }
 
     private void abrirConsulta(int linha) {
-    Consulta consulta = medico.getAgenda().getConsultas().get(linha);
+        Consulta consulta = medico.getAgenda().getConsultas().get(linha);
 
-    try {
-        switch (consulta.getStatus()) {
+        try {
+            switch (consulta.getStatus()) {
 
-            case AGENDADA -> {
-                consulta.marcarInicioConsulta();
-            }
-
-            case EM_ANDAMENTO -> {
-                // segue normalmente
-            }
-
-            case REALIZADA -> {
-                mostrarAviso("Consulta já finalizada.");
-                return;
-            }
-        }
-
-        new AtendimentoMedicoView(
-                SwingUtilities.getWindowAncestor(this),
-                medico,
-                consulta,
-                () -> {
-                    atualizar();
-                    visitasView.atualizar();
+                case AGENDADA -> {
+                    consulta.marcarInicioConsulta();
                 }
-        ).setVisible(true);
 
-    } catch (Exception e) {
-        mostrarErro(e.getMessage());
+                case EM_ANDAMENTO -> {
+                    // segue normalmente
+                }
+
+                case REALIZADA -> {
+                    mostrarAviso("Consulta já finalizada.");
+                    return;
+                }
+            }
+
+            new AtendimentoMedicoView(
+                    SwingUtilities.getWindowAncestor(this),
+                    medico,
+                    consulta,
+                    hospital, // Agora o objeto existe aqui!
+                    () -> {
+                        atualizar();
+                        visitasView.atualizar();
+                    }
+            ).setVisible(true);
+
+        } catch (Exception e) {
+            mostrarErro(e.getMessage());
+        }
     }
-}
-
 
     private class BotaoRenderer extends JButton implements TableCellRenderer {
 

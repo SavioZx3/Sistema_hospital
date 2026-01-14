@@ -3,17 +3,18 @@ package ufjf.dcc025.hospital.interfac.view.medico;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
+import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.StatusConsulta;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.StatusInternacao;
-
 
 public class AtendimentoMedicoView extends JDialog {
 
     private final Medico medico;
     private final Consulta consulta;
     private final Runnable onFinalizar;
+    private final Hospital hospital;
 
     private JTextField txtDiasAtestado, txtRemedio, txtDose;
     private JTextArea txtExamesPedididos;
@@ -23,6 +24,7 @@ public class AtendimentoMedicoView extends JDialog {
             Window parent,
             Medico medico,
             Consulta consulta,
+            Hospital hospital,
             Runnable onFinalizar
     ) {
         super(parent, "Prontuário: " + consulta.getPaciente().getNome(),
@@ -30,6 +32,7 @@ public class AtendimentoMedicoView extends JDialog {
 
         this.medico = medico;
         this.consulta = consulta;
+        this.hospital = hospital;
         this.onFinalizar = onFinalizar;
 
         iniciarConsulta();
@@ -53,7 +56,6 @@ public class AtendimentoMedicoView extends JDialog {
     }
 
     // ======================= FORMULÁRIO =======================
-
     private void criarFormulario() {
         JPanel container = new JPanel();
         container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
@@ -99,7 +101,6 @@ public class AtendimentoMedicoView extends JDialog {
     }
 
     // ======================= INTERNAÇÃO =======================
-
     private void alternarInternacao() {
         if (consulta.getPaciente().getStatusInternacao() == StatusInternacao.INTERNADO) {
             consulta.getPaciente().setStatusInternacao(StatusInternacao.ALTA);
@@ -110,58 +111,55 @@ public class AtendimentoMedicoView extends JDialog {
     }
 
     private void atualizarBotaoInternacao() {
-        boolean internado =
-                consulta.getPaciente().getStatusInternacao() == StatusInternacao.INTERNADO;
+        boolean internado
+                = consulta.getPaciente().getStatusInternacao() == StatusInternacao.INTERNADO;
 
         btnInternacao.setText(
                 internado ? "PACIENTE INTERNADO (Dar Alta)"
-                          : "PACIENTE EM ALTA (Internar)"
+                        : "PACIENTE EM ALTA (Internar)"
         );
 
         btnInternacao.setBackground(
                 internado ? new Color(231, 76, 60)
-                          : new Color(189, 195, 199)
+                        : new Color(189, 195, 199)
         );
         btnInternacao.setForeground(Color.WHITE);
     }
 
     // ======================= FINALIZAÇÃO =======================
-
     private void concluir() {
         try {
-            int dias = Integer.parseInt(txtDiasAtestado.getText().trim());
+            int dias = 0;
+            if (!txtDiasAtestado.getText().trim().isEmpty()) {
+                dias = Integer.parseInt(txtDiasAtestado.getText().trim());
+            }
 
-            if (dias > 0) consulta.getAtestado(dias);
+            if (dias > 0) {
+                consulta.getAtestado(dias);
+            }
 
             if (!txtRemedio.getText().isBlank()) {
-                consulta.getReceita(
-                        txtRemedio.getText(),
-                        txtDose.getText(),
-                        LocalDate.now().plusMonths(1)
-                );
+                consulta.getReceita(txtRemedio.getText(), txtDose.getText(), LocalDate.now().plusMonths(1));
             }
 
             if (!txtExamesPedididos.getText().isBlank()) {
                 consulta.setExame(txtExamesPedididos.getText());
             }
 
-            consulta.marcarConcluida();
-            consulta.getPaciente().getHistorico().adicionaConsulta(consulta);
+            medico.realizarAtendimento(consulta, hospital);
 
             if (onFinalizar != null) {
-                onFinalizar.run(); 
+                onFinalizar.run();
             }
 
-            JOptionPane.showMessageDialog(this,
-                    "Atendimento finalizado com sucesso!");
+            JOptionPane.showMessageDialog(this, "Atendimento finalizado e salvo com sucesso!");
             dispose();
 
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this,
-                    "Dias de atestado inválido.");
+            JOptionPane.showMessageDialog(this, "Dias de atestado inválido. Use apenas números.");
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    "Erro ao finalizar: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Erro ao finalizar: " + e.getMessage());
         }
     }
 }
+

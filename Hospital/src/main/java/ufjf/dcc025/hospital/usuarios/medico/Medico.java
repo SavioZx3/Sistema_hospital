@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import ufjf.dcc025.hospital.Hospital;
 
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Agenda;
@@ -18,6 +19,7 @@ import ufjf.dcc025.hospital.usuarios.paciente.StatusInternacao;
 import ufjf.dcc025.hospital.usuarios.paciente.StatusVisita;
 
 public class Medico extends Usuario {
+
     private Especialidade especialidade;
     private boolean ativo;
     private final Agenda agenda;
@@ -36,12 +38,29 @@ public class Medico extends Usuario {
 
     // Getters e Setters
     @Override
-    public String getTipo() { return "Médico"; }
-    public Agenda getAgenda() { return this.agenda; }
-    public Especialidade getEspecialidade() { return especialidade; }
-    public boolean isAtivo() { return ativo; }
-    public void desativar() { this.ativo = false; }
-    public void ativar() { this.ativo = true; }
+    public String getTipo() {
+        return "Médico";
+    }
+
+    public Agenda getAgenda() {
+        return this.agenda;
+    }
+
+    public Especialidade getEspecialidade() {
+        return especialidade;
+    }
+
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    public void desativar() {
+        this.ativo = false;
+    }
+
+    public void ativar() {
+        this.ativo = true;
+    }
 
     // Disponibilidade
     public void atualizarDisponibilidadeSemanal(List<DisponibilidadeDiaSemana> novaDisponibilidade) {
@@ -74,7 +93,9 @@ public class Medico extends Usuario {
     }
 
     private void validarDisponibilidadeSemanal(List<DisponibilidadeDiaSemana> lista) {
-        if (lista == null || lista.isEmpty()) throw new IllegalArgumentException("Disponibilidade inválida");
+        if (lista == null || lista.isEmpty()) {
+            throw new IllegalArgumentException("Disponibilidade inválida");
+        }
 
         Set<DayOfWeek> diasUsados = new HashSet<>();
         Duration cargaHorariaTotal = Duration.ZERO;
@@ -105,16 +126,31 @@ public class Medico extends Usuario {
     }
 
     // Ações Médicas
-    public void realizarAtendimento(Consulta consulta, int diasAtestado, String remedio, String dose, LocalDate validade) {
-        Paciente p = consulta.getPaciente();
-        if (p == null) return;
+   public void realizarAtendimento(Consulta consulta, Hospital hospital) {
+    Paciente p = consulta.getPaciente();
+    if (p == null) return;
 
-        consulta.getAtestado(diasAtestado);
-        consulta.getReceita(remedio, dose, validade);
-        p.adicionarAtestado(consulta.getAtestado());
-        p.adicionarReceita(consulta.getReceita());
-        consulta.marcarConcluida();
+    // 1. Se o médico gerou atestado na consulta, joga pro histórico do paciente
+    if (consulta.getAtestado() != null) {
+        p.getHistorico().adicionaAtestado(consulta.getAtestado());
     }
+
+    // 2. Se gerou receita, joga pro histórico
+    if (consulta.getReceita() != null) {
+        p.getHistorico().adicionaReceita(consulta.getReceita());
+    }
+
+    // 3. Se gerou exame, joga pro histórico
+    if (consulta.getExame() != null) {
+        p.getHistorico().adicionaExame(consulta.getExame());
+    }
+
+    // 4. Finaliza o status da consulta
+    consulta.marcarConcluida();
+
+    // 5. SALVA NO JSON
+    hospital.salvarAlteracoes();
+}
 
     @Override
     public String toString() {

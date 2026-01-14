@@ -41,7 +41,7 @@ public class ConsultasMedicoView extends JFrame {
         model = new DefaultTableModel(colunas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 4; 
+                return column == 4;
             }
         };
 
@@ -73,9 +73,9 @@ public class ConsultasMedicoView extends JFrame {
         // Busca a consulta correspondente na agenda
         Consulta consultaSelecionada = null;
         int count = 0;
-        for(Consulta c : medicoLogado.getAgenda().getConsultas()){
-            if(c.getStatus() != StatusConsulta.DISPONIVEL){
-                if(count == linha){
+        for (Consulta c : medicoLogado.getAgenda().getConsultas()) {
+            if (c.getStatus() != StatusConsulta.DISPONIVEL) {
+                if (count == linha) {
                     consultaSelecionada = c;
                     break;
                 }
@@ -83,7 +83,9 @@ public class ConsultasMedicoView extends JFrame {
             }
         }
 
-        if (consultaSelecionada == null) return;
+        if (consultaSelecionada == null) {
+            return;
+        }
 
         final Consulta consultaFinal = consultaSelecionada;
         JDialog dialog = new JDialog(this, "Prontuário: " + consultaFinal.getPaciente().getNome(), true);
@@ -104,7 +106,7 @@ public class ConsultasMedicoView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String dias = JOptionPane.showInputDialog("Quantidade de dias:");
-                if(dias != null && !dias.isEmpty()) {
+                if (dias != null && !dias.isEmpty()) {
                     consultaFinal.getAtestado(Integer.parseInt(dias));
                     JOptionPane.showMessageDialog(dialog, "Atestado gerado!");
                 }
@@ -116,7 +118,7 @@ public class ConsultasMedicoView extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String remedio = JOptionPane.showInputDialog("Medicamento:");
-                if(remedio != null) {
+                if (remedio != null) {
                     consultaFinal.getReceita(remedio, "1x ao dia", LocalDate.now().plusDays(30));
                     JOptionPane.showMessageDialog(dialog, "Receita adicionada à consulta!");
                 }
@@ -127,11 +129,21 @@ public class ConsultasMedicoView extends JFrame {
         btnConcluir.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Chama o método do médico para processar o atendimento físico
-                medicoLogado.realizarAtendimento(consultaFinal, 0, "N/A", "N/A", LocalDate.now());
-                JOptionPane.showMessageDialog(dialog, "Atendimento finalizado com sucesso!");
-                dialog.dispose();
-                popularTabela(); // Atualiza a lista principal
+                try {
+                    // Inicia a consulta (muda status para EM_ANDAMENTO se ainda não estiver)
+                    if (!consultaFinal.isEmAndamento()) {
+                        consultaFinal.marcarInicioConsulta();
+                    }
+
+                    // O médico finaliza processando os documentos e salvando no hospital
+                    medicoLogado.realizarAtendimento(consultaFinal, hospital);
+
+                    JOptionPane.showMessageDialog(dialog, "Atendimento finalizado e dados salvos!");
+                    dialog.dispose();
+                    popularTabela();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(dialog, "Erro ao finalizar: " + ex.getMessage());
+                }
             }
         });
 
@@ -147,17 +159,21 @@ public class ConsultasMedicoView extends JFrame {
     }
 
     // ===== RENDERERS E EDITORS =====
-
     private class ButtonRenderer extends JButton implements javax.swing.table.TableCellRenderer {
-        public ButtonRenderer() { setText("Atender"); }
+
+        public ButtonRenderer() {
+            setText("Atender");
+        }
+
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, 
+        public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
             return this;
         }
     }
 
     private class ButtonEditor extends DefaultCellEditor {
+
         private JButton button;
         private int row;
 
@@ -172,8 +188,9 @@ public class ConsultasMedicoView extends JFrame {
                 }
             });
         }
+
         @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, 
+        public Component getTableCellEditorComponent(JTable table, Object value,
                 boolean isSelected, int row, int column) {
             this.row = row;
             return button;

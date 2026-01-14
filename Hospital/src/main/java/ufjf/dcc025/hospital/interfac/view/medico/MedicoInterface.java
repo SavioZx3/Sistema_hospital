@@ -37,7 +37,7 @@ public class MedicoInterface extends BaseView {
         JButton btnConfigAgenda = new JButton("Configurar Agenda");
         btnConfigAgenda.addActionListener(e -> {
             ConfigurarAgendaView view =
-                    new ConfigurarAgendaView(this, medico);
+                    new ConfigurarAgendaView(this, medico, hospital);
             view.setVisible(true);
 
             // 🔄 sincroniza agenda após fechar
@@ -65,7 +65,7 @@ public class MedicoInterface extends BaseView {
         VisitasMedicoView visitasView =
                 new VisitasMedicoView(hospital, medico);
 
-        agendaView = new AgendaMedicoView(medico, visitasView);
+        agendaView = new AgendaMedicoView(medico, visitasView, hospital);
 
         abas.addTab("Consultas", agendaView);
         abas.addTab("Visitas / Internação", visitasView);

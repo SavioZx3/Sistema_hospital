@@ -11,10 +11,11 @@ public class PacienteController {
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     /**
-     * Lista os exames reais do paciente para a JTable.
+     * Lista os exames buscando explicitamente do Histórico do paciente.
      */
     public Object[][] listarExames(Paciente p) {
-        List<Exame> lista = p.getExames();
+        // Acessando via Historico para garantir consistência com a Persistência
+        List<Exame> lista = p.getHistorico().getExames();
         Object[][] dados = new Object[lista.size()][3];
 
         for (int i = 0; i < lista.size(); i++) {
@@ -27,10 +28,11 @@ public class PacienteController {
     }
 
     /**
-     * Lista as receitas reais do paciente para a JTable.
+     * Lista as receitas buscando explicitamente do Histórico do paciente.
      */
     public Object[][] listarReceitas(Paciente p) {
-        List<Receita> lista = p.getReceitas();
+        // Acessando via Historico
+        List<Receita> lista = p.getHistorico().getReceitas();
         Object[][] dados = new Object[lista.size()][3];
 
         for (int i = 0; i < lista.size(); i++) {
