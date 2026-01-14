@@ -112,19 +112,12 @@ public class Consulta {
         this.receita = new Receita(medicamento, quantidade, paciente, medico, LocalDate.now(), validade);
     }
 
-    public void emitirExame(String tipoExame, String resultado) throws IllegalStateException {
+    public void emitirExame() throws IllegalStateException {
         if(!isRealizada() && !isEmAndamento())
             throw new IllegalStateException("Status inválido para solicitar exame.");
+        if(this.exame != null)
+            throw new IllegalStateException("Exame já solicitado para esta consulta.");
         this.exame = new Exame(LocalDate.now(), medico, paciente);
-    }
-   
-    public void setExame(String descricao) throws IllegalStateException {
-        if(!isRealizada() && !isEmAndamento())
-            throw new IllegalStateException("Status inválido para solicitar exame.");
-
-        // Usamos o seu método existente emitirExame
-        // O primeiro parâmetro é o tipo/descrição, o segundo é o resultado (vazio no início)
-        this.emitirExame(descricao, "AGUARDANDO RESULTADO");
     }
 
     @Override

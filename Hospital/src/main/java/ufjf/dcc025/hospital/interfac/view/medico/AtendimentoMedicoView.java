@@ -63,10 +63,17 @@ public class AtendimentoMedicoView extends JDialog {
         txtDose = criarCampo(container, "Dosagem:");
         txtDiasAtestado = criarCampo(container, "Dias de Atestado:", "0");
 
-        container.add(new JLabel("Solicitar Exames:"));
-        txtExamesPedididos = new JTextArea(3, 20);
-        txtExamesPedididos.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-        container.add(new JScrollPane(txtExamesPedididos));
+        container.add(new JLabel("Exames:"));
+
+        JButton btnEmitirExame = new JButton("EMITIR EXAME");
+        btnEmitirExame.setFont(new Font("Arial", Font.BOLD, 13));
+        btnEmitirExame.setBackground(new Color(52, 152, 219));
+        btnEmitirExame.setForeground(Color.WHITE);
+
+        btnEmitirExame.addActionListener(e -> emitirExame());
+
+        container.add(btnEmitirExame);
+
 
         container.add(Box.createVerticalStrut(20));
 
@@ -97,6 +104,26 @@ public class AtendimentoMedicoView extends JDialog {
         p.add(Box.createVerticalStrut(10));
         return campo;
     }
+
+    private void emitirExame() {
+        try {
+            consulta.emitirExame();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Exame emitido com sucesso!",
+                    "Sucesso",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    ex.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
 
     // ======================= INTERNAÇÃO =======================
 
@@ -139,10 +166,6 @@ public class AtendimentoMedicoView extends JDialog {
                         txtDose.getText(),
                         LocalDate.now().plusMonths(1)
                 );
-            }
-
-            if (!txtExamesPedididos.getText().isBlank()) {
-                consulta.setExame(txtExamesPedididos.getText());
             }
 
             consulta.marcarConcluida();
