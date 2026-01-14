@@ -59,19 +59,24 @@ public class AtendimentoMedicoView extends JDialog {
         container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
         container.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        txtRemedio = criarCampo(container, "Medicamento:");
-        txtDose = criarCampo(container, "Dosagem:");
+        container.add(new JLabel("Receita:"));
+        JButton btnEmitirReceita = new JButton("EMITIR RECEITA");
+        btnEmitirReceita.setFont(new Font("Arial", Font.BOLD, 13));
+        btnEmitirReceita.setBackground(new Color(155, 89, 182));
+        btnEmitirReceita.setForeground(Color.WHITE);
+        btnEmitirReceita.addActionListener(e -> emitirReceita());
+
+        container.add(btnEmitirReceita);
+
+
         txtDiasAtestado = criarCampo(container, "Dias de Atestado:", "0");
 
         container.add(new JLabel("Exames:"));
-
         JButton btnEmitirExame = new JButton("EMITIR EXAME");
         btnEmitirExame.setFont(new Font("Arial", Font.BOLD, 13));
         btnEmitirExame.setBackground(new Color(52, 152, 219));
         btnEmitirExame.setForeground(Color.WHITE);
-
         btnEmitirExame.addActionListener(e -> emitirExame());
-
         container.add(btnEmitirExame);
 
 
@@ -104,6 +109,26 @@ public class AtendimentoMedicoView extends JDialog {
         p.add(Box.createVerticalStrut(10));
         return campo;
     }
+
+    private void emitirReceita() {
+        try {
+            consulta.emitirReceita();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Receita emitida com sucesso!",
+                    "Sucesso",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    ex.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
 
     private void emitirExame() {
         try {
@@ -158,15 +183,7 @@ public class AtendimentoMedicoView extends JDialog {
         try {
             int dias = Integer.parseInt(txtDiasAtestado.getText().trim());
 
-            if (dias > 0) consulta.getAtestado(dias);
-
-            if (!txtRemedio.getText().isBlank()) {
-                consulta.getReceita(
-                        txtRemedio.getText(),
-                        txtDose.getText(),
-                        LocalDate.now().plusMonths(1)
-                );
-            }
+            if (dias > 0) consulta.emitirAtestado(dias);
 
             consulta.marcarConcluida();
             consulta.getPaciente().getHistorico().adicionaConsulta(consulta);

@@ -100,16 +100,18 @@ public class Consulta {
     }
 
     // ================= Emissão de Documentos ================= //
-    public void getAtestado(int duracaoDias) throws IllegalStateException, DadosInvalidosException, DataInvalidaException {
+    public void emitirAtestado(int duracaoDias) throws IllegalStateException, DadosInvalidosException, DataInvalidaException {
         if(!isRealizada() && !isEmAndamento())
             throw new IllegalStateException("Status inválido para emitir atestado.");
         this.atestado = new Atestado(medico, paciente, LocalDate.now(), duracaoDias);
     }
 
-    public void getReceita(String medicamento, String quantidade, LocalDate validade) throws IllegalStateException, DadosInvalidosException, DataInvalidaException {
+    public void emitirReceita() throws IllegalStateException, DadosInvalidosException, DataInvalidaException {
         if(!isRealizada() && !isEmAndamento())
             throw new IllegalStateException("Status inválido para emitir receita.");
-        this.receita = new Receita(medicamento, quantidade, paciente, medico, LocalDate.now(), validade);
+        if(this.receita != null)
+            throw new IllegalStateException("Receita já emitida para esta consulta.");
+        this.receita = new Receita(paciente, medico, LocalDate.now());
     }
 
     public void emitirExame() throws IllegalStateException {

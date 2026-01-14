@@ -33,9 +33,7 @@ public class PacienteController {
 
         for (int i = 0; i < lista.size(); i++) {
             Receita r = lista.get(i);
-            dados[i][0] = r.getMedicamento();
-            dados[i][1] = r.getDataEmissao().format(dtf);
-            dados[i][2] = r.getValidade().format(dtf);
+            dados[i][0] = r.getDataEmissao().format(dtf);
         }
         return dados;
     }

@@ -8,24 +8,11 @@ import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
 public class Receita implements DocumentoMedico {
 
-    private final LocalDate validade;
     private final LocalDate dataEmissao;
-
-    private final String medicamento;
-    private final String quantidade;
     private final Paciente paciente;
     private final Medico medico;
     
-    public Receita(String medicamento , String quantidade , Paciente paciente , Medico medico , LocalDate dataEmissao , LocalDate validade) throws  DadosInvalidosException, DataInvalidaException {
-        
-        if(medicamento == null || medicamento.trim().isEmpty()){
-            throw new DadosInvalidosException("É obrigatório o informar o nome do medicamento ");
-        }
-        
-        if(quantidade == null || quantidade.trim().isEmpty()){
-            throw new DadosInvalidosException("A quantidade deve ser informada! ");
-        }
-        
+    public Receita(Paciente paciente , Medico medico , LocalDate dataEmissao) throws  DadosInvalidosException {    
         if(paciente == null ){
             throw new DadosInvalidosException("O paciente da receita deve ser informado! ");
         }
@@ -34,22 +21,12 @@ public class Receita implements DocumentoMedico {
             throw new DadosInvalidosException("O medico responsavél deve ser informado! ");
         }
         
-        if(dataEmissao == null || validade == null){
-            throw new DataInvalidaException("As datas de emissão e validade são obrigatórias.");
+        if(dataEmissao == null){
+            throw new DataInvalidaException("A data de emissão é obrigatória.");
         }
-        
-        if(validade.isBefore(dataEmissao)){
-            throw new DataInvalidaException("A data de validade ( " + validade.toString() +
-            " ) não pode ser anterior à data de emissão ( " + dataEmissao.toString() + " )" );
-        }
-        
-        this.medicamento = medicamento;
-        this.quantidade = quantidade;
         this.paciente = paciente;
         this.medico = medico;
         this.dataEmissao = dataEmissao;
-        this.validade = validade;
-        
     }
     
     @Override
@@ -60,10 +37,6 @@ public class Receita implements DocumentoMedico {
  
     @Override
     public LocalDate getDataEmissao() { return dataEmissao; }
-
-    public String getMedicamento() { return medicamento; }
-    public LocalDate getValidade() { return validade; }  
-    
     
     @Override
     public String toString() {
@@ -74,11 +47,10 @@ public class Receita implements DocumentoMedico {
            MÉDICO: """ + medico.getNome() + "\n" +
            "PACIENTE: " + paciente.getNome() + "\n" +
            "------------------------------------------\n" +
-           "MEDICAMENTO: " + medicamento + "\n" +
-           "QUANTIDADE: " + quantidade + "\n" +
+           "MEDICAMENTO: Dipirona" +
+           "QUANTIDADE: 100mg 2x ao dia" +
            "------------------------------------------\n" +
            "DATA DE EMISSÃO: " + dataEmissao + "\n" +
-           "VALIDADE: " + validade + "\n" +
            "==========================================";
     }
 }

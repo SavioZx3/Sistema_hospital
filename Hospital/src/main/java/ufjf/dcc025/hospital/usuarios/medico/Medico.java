@@ -109,8 +109,8 @@ public class Medico extends Usuario {
         Paciente p = consulta.getPaciente();
         if (p == null) return;
 
-        consulta.getAtestado(diasAtestado);
-        consulta.getReceita(remedio, dose, validade);
+        consulta.emitirAtestado(diasAtestado);
+        consulta.emitirReceita();
         p.adicionarAtestado(consulta.getAtestado());
         p.adicionarReceita(consulta.getReceita());
         consulta.marcarConcluida();
