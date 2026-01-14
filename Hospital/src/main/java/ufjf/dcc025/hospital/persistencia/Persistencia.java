@@ -5,6 +5,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializer;
+
+import ufjf.dcc025.hospital.usuarios.medico.Medico;
+
 import com.google.gson.JsonParseException;
 
 import java.io.File;
@@ -71,7 +74,16 @@ public class Persistencia {
         }
 
         try (FileReader reader = new FileReader(CAMINHO_ARQUIVO)) {
+
             HospitalData dadosCarregados = gson.fromJson(reader, HospitalData.class);
+
+            //  RECONSTRUIR RELAÇÕES
+            for (Medico m : dadosCarregados.getMedicos()) {
+                if (m.getAgenda() != null) {
+                    m.getAgenda().setMedico(m);
+                }
+            }
+
             if (dadosCarregados == null) {
                 HospitalData dadosDefault = HospitalData.criarComDadosDefault();
                 salvar(dadosDefault);

@@ -22,7 +22,7 @@ import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
 public class Agenda {
 
-    private final transient Medico medico;
+    private transient Medico medico;
     private final List<Consulta> consultas;
 
     // Flags de Notificação
@@ -197,15 +197,10 @@ public class Agenda {
      * @param novasDisponibilidades Lista vinda da interface
      * ConfigurarAgendaView
      */
-<<<<<<< HEAD
     public void carregarNovaGrade(List<DisponibilidadeDiaSemana> novasDisponibilidades) {
         if (novasDisponibilidades == null || novasDisponibilidades.isEmpty()) {
             return;
         }
-=======
-    public void carregarNovaGrade(List<DisponibilidadeDiaSemana> novasDisponibilidades, Medico medico) {
-        if (novasDisponibilidades == null || novasDisponibilidades.isEmpty()) return;
->>>>>>> 0c9a4fa236c33ebb1b5ce44e1a8fa22e1f671bb4
 
         LocalDate dataInicio = LocalDate.now().plusDays(1);
 
@@ -229,6 +224,12 @@ public class Agenda {
                 }
             }
         }
+    }
+
+    public void setMedico(Medico m) {
+        // Método usado apenas na desserialização JSON
+        // para reconstruir a relação Médico <-> Agenda
+        this.medico = m;
     }
 
 }
