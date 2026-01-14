@@ -139,6 +139,7 @@ public class PacienteInterface extends BaseView {
             if (row != -1) {
                 Consulta c = (Consulta) modelAgenda.getValueAt(row, 4);
                 hospital.cancelarAgendamento(c);
+                hospital.salvarAlteracoes();
                 c.getMedico().getAgenda().notificarCancelamento();
                 atualizarTabelas();
             }
@@ -163,6 +164,7 @@ public class PacienteInterface extends BaseView {
             if (row != -1) {
                 Consulta c = (Consulta) modelNovoAgendamento.getValueAt(row, 4);
                 hospital.agendarConsultaNaAgenda(paciente, c.getMedico(), c);
+                hospital.salvarAlteracoes();
                 c.getMedico().getAgenda().notificarAgendamento();
                 atualizarTabelas();
             }
