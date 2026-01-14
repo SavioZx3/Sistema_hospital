@@ -3,6 +3,8 @@ package ufjf.dcc025.hospital.interfac.view.secretaria;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.time.format.DateTimeFormatter;
+
 import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.interfac.view.BaseView;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
@@ -79,6 +81,7 @@ public class SecretariaInterface extends BaseView {
 
 private void atualizarConsultas() {
     modelConsultas.setRowCount(0);
+    DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     for (Consulta c : hospital.getConsultasGerais()) {
 
@@ -96,7 +99,7 @@ private void atualizarConsultas() {
         modelConsultas.addRow(new Object[]{
             c.getMedico().getNome(),
             c.getPaciente() != null ? c.getPaciente().getNome() : "Livre",
-            c.getData(),
+            c.getDataHoraInicio().format(fmt), // 👈 DATA + HORA,
             c.getStatus(),
             c
         });
