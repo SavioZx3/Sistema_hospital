@@ -66,6 +66,7 @@ public class SecretariaInterface extends BaseView {
             try {
                 hospital.cancelarAgendamento(c);
                 mostrarInfo("Consulta desmarcada com sucesso.");
+                c.getMedico().getAgenda().notificarCancelamento();
                 atualizarConsultas();
             } catch (Exception ex) {
                 mostrarErro(ex.getMessage());

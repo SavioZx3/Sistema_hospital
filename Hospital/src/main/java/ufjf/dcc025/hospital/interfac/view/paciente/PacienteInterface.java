@@ -136,7 +136,9 @@ public class PacienteInterface extends BaseView {
         btnCancelar.addActionListener(e -> {
             int row = t.getSelectedRow();
             if (row != -1) {
-                hospital.cancelarAgendamento((Consulta) modelAgenda.getValueAt(row, 4));
+                Consulta c = (Consulta) modelAgenda.getValueAt(row, 4);
+                hospital.cancelarAgendamento(c);
+                c.getMedico().getAgenda().notificarCancelamento();
                 atualizarTabelas();
             }
         });
@@ -160,6 +162,7 @@ public class PacienteInterface extends BaseView {
             if (row != -1) {
                 Consulta c = (Consulta) modelNovoAgendamento.getValueAt(row, 4);
                 hospital.agendarConsultaNaAgenda(paciente, c.getMedico(), c);
+                c.getMedico().getAgenda().notificarAgendamento();
                 atualizarTabelas();
             }
         });
