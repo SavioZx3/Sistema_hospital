@@ -103,6 +103,10 @@ public class Consulta {
     public void emitirAtestado(int duracaoDias) throws IllegalStateException, DadosInvalidosException, DataInvalidaException {
         if(!isRealizada() && !isEmAndamento())
             throw new IllegalStateException("Status inválido para emitir atestado.");
+        if(this.atestado != null)
+            throw new IllegalStateException("Atestado já emitido para esta consulta.");
+        if(duracaoDias <= 0)
+            throw new DadosInvalidosException("Duração do atestado deve ser maior que zero.");
         this.atestado = new Atestado(medico, paciente, LocalDate.now(), duracaoDias);
     }
 
