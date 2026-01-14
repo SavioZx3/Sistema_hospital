@@ -1,4 +1,9 @@
 package ufjf.dcc025.hospital.servicos_hospital.consulta;
+/*
+    Mateus Gomes da Silva Matrícula: 202465565C 
+    Marcos José De Oliveira Júnior Matrícula: 202135011 
+    Sávio Machado Lima Matrícula: 202435014
+*/
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -16,9 +21,10 @@ import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
 public class Agenda {
+
     private final transient Medico medico;
     private final List<Consulta> consultas;
-    
+
     // Flags de Notificação
     private boolean houveAgendamento;
     private boolean houveCancelamento;
@@ -33,7 +39,6 @@ public class Agenda {
     }
 
     // ============================ Getters ========================== //
-
     public List<Consulta> getConsultas() {
         return new ArrayList<>(consultas);
     }
@@ -45,7 +50,7 @@ public class Agenda {
                 marcadas.add(c);
             }
         }
-        
+
         // Ordenação manual por data e hora
         Collections.sort(marcadas, new Comparator<Consulta>() {
             @Override
@@ -57,15 +62,14 @@ public class Agenda {
     }
 
     // ======================== Lógica de Negócio ===================== //
-
     public void adicionarConsultaManual(Consulta c) {
         if (c != null) {
             this.consultas.add(c);
         }
     }
-    
+
     public List<Consulta> listarConsultasDoDia(LocalDate data) {
-    List<Consulta> consultasDoDia = new ArrayList<>();
+        List<Consulta> consultasDoDia = new ArrayList<>();
         for (Consulta c : consultas) {
             if (c.getData().equals(data)) {
                 consultasDoDia.add(c);
@@ -82,12 +86,12 @@ public class Agenda {
 
         return consultasDoDia;
     }
-    
+
     public void marcarConsulta(Consulta consulta, Paciente paciente) throws DadosInvalidosException {
         if (consulta == null || consulta.getStatus() != StatusConsulta.DISPONIVEL) {
             throw new DadosInvalidosException("Consulta indisponível para agendamento.");
         }
-        
+
         consulta.agendar(paciente);
         notificarAgendamento();
     }
@@ -101,7 +105,9 @@ public class Agenda {
 
     public void gerarConsultasProximaSemana() {
         List<DisponibilidadeDiaSemana> disponibilidades = medico.getDisponibilidadesProximaSemana();
-        if (disponibilidades.isEmpty()) return;
+        if (disponibilidades.isEmpty()) {
+            return;
+        }
 
         LocalDate proximaSegunda = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
         LocalDate proximoDomingo = proximaSegunda.plusDays(6);
@@ -149,67 +155,75 @@ public class Agenda {
     }
 
     // ========================== Notificações ======================== //
-
-    public void notificarAgendamento() { 
-        this.houveAgendamento = true; 
+    public void notificarAgendamento() {
+        this.houveAgendamento = true;
     }
 
-    public void notificarCancelamento() { 
-        this.houveCancelamento = true; 
+    public void notificarCancelamento() {
+        this.houveCancelamento = true;
     }
 
-    public void notificarFalta() { 
-        this.houveFalta = true; 
+    public void notificarFalta() {
+        this.houveFalta = true;
     }
 
     public List<String> consumirNotificacoes() {
         List<String> avisos = new ArrayList<>();
-        
-        if (houveAgendamento) 
+
+        if (houveAgendamento) {
             avisos.add("Há novos agendamentos na sua agenda.");
-        
-        if (houveCancelamento) 
+        }
+
+        if (houveCancelamento) {
             avisos.add("Atenção: Algumas consultas foram canceladas.");
-            
-        if (houveFalta) 
+        }
+
+        if (houveFalta) {
             avisos.add("Aviso: Houve registro de falta de paciente.");
+        }
 
         // Reset das flags após leitura
-        this.houveAgendamento = false; 
+        this.houveAgendamento = false;
         this.houveCancelamento = false;
         this.houveFalta = false;
-        
+
         return avisos;
     }
-    
+
     /**
-     * Gera consultas baseadas em uma lista de disponibilidades configuradas na View.
-     * @param novasDisponibilidades Lista vinda da interface ConfigurarAgendaView
+     * Gera consultas baseadas em uma lista de disponibilidades configuradas na
+     * View.
+     *
+     * @param novasDisponibilidades Lista vinda da interface
+     * ConfigurarAgendaView
      */
     public void carregarNovaGrade(List<DisponibilidadeDiaSemana> novasDisponibilidades) {
-        if (novasDisponibilidades == null || novasDisponibilidades.isEmpty()) return;
+        if (novasDisponibilidades == null || novasDisponibilidades.isEmpty()) {
+            return;
+        }
 
-        // Define o horizonte de tempo (ex: a partir de amanhã por 4 semanas)
         LocalDate dataInicio = LocalDate.now().plusDays(1);
-        
+
         for (DisponibilidadeDiaSemana d : novasDisponibilidades) {
-            // Gera para as próximas 4 semanas aquele dia específico
             for (int i = 0; i < 4; i++) {
                 LocalDate dataAlvo = dataInicio.with(TemporalAdjusters.nextOrSame(d.getDiaSemana())).plusWeeks(i);
-                
-                // Reaproveita sua lógica interna de geração de slots
+
                 LocalTime inicio = d.getHorarioInicio();
                 LocalTime fim = d.getHorarioFim();
 
                 while (!inicio.plus(d.getDuracaoConsulta()).isAfter(fim)) {
                     LocalTime termino = inicio.plus(d.getDuracaoConsulta());
                     if (isDataDisponivel(dataAlvo, inicio, termino)) {
-                        consultas.add(new Consulta(dataAlvo, inicio, termino, medico));
+                        try {
+                            consultas.add(new Consulta(dataAlvo, inicio, termino, this.medico));
+                        } catch (Exception e) {
+                            System.out.println("Erro ao gerar slot: " + e.getMessage());
+                        }
                     }
                     inicio = termino;
                 }
             }
         }
     }
-    
+
 }

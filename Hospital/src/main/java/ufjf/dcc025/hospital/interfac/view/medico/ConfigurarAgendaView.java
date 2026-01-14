@@ -1,5 +1,10 @@
 package ufjf.dcc025.hospital.interfac.view.medico;
 
+/*
+    Mateus Gomes da Silva Matrícula: 202465565C 
+    Marcos José De Oliveira Júnior Matrícula: 202135011 
+    Sávio Machado Lima Matrícula: 202435014
+ */
 import javax.swing.*;
 import java.awt.*;
 import java.time.DayOfWeek;
@@ -91,12 +96,28 @@ public class ConfigurarAgendaView extends JDialog {
             return;
         }
 
-        medico.atualizarDisponibilidadeSemanal(disponibilidades);
-        medico.getAgenda().carregarNovaGrade(disponibilidades);
+        // Confirmação para evitar perda de dados acidental
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Isso irá gerar novos horários. Deseja continuar?",
+                "Confirmar Agenda", JOptionPane.YES_NO_OPTION);
 
-        hospital.salvarAlteracoes();
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
 
-        JOptionPane.showMessageDialog(this, "Agenda gerada e salva com sucesso!");
-        dispose();
+        try {
+            // Atualiza os dados no objeto Medico
+            medico.atualizarDisponibilidadeSemanal(disponibilidades);
+            medico.getAgenda().carregarNovaGrade(disponibilidades);
+
+            // Persistência física no JSON através do hospital
+            hospital.salvarAlteracoes();
+
+            JOptionPane.showMessageDialog(this, "Agenda gerada e salva com sucesso!");
+            dispose();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Erro ao salvar os dados: " + ex.getMessage(),
+                    "Erro Crítico", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

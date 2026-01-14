@@ -8,7 +8,6 @@ package ufjf.dcc025.hospital;
 
 import java.util.ArrayList;
 import java.util.List;
-import ufjf.dcc025.hospital.data.BancoDados;
 import ufjf.dcc025.hospital.exception.DadosInvalidosException;
 import ufjf.dcc025.hospital.exception.UsuarioNaoEncontradoException;
 import ufjf.dcc025.hospital.persistencia.HospitalData;
