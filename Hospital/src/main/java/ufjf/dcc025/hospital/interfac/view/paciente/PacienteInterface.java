@@ -33,23 +33,10 @@ public class PacienteInterface extends BaseView {
         JPanel topo = criarTopo("Paciente: " + paciente.getNome());
 
         JButton btnLogout = new JButton("Logout");
-        btnLogout.addActionListener(e -> confirmarLogout());
+        btnLogout.addActionListener(e -> executarLogout());
 
         topo.add(btnLogout, BorderLayout.EAST);
         return topo;
-    }
-
-    private void confirmarLogout() {
-        int op = JOptionPane.showConfirmDialog(
-                this,
-                "Deseja encerrar a sessão?",
-                "Logout",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (op == JOptionPane.YES_OPTION) {
-            executarLogout();
-        }
     }
 
     // ======================= ABAS =======================
@@ -150,8 +137,9 @@ public class PacienteInterface extends BaseView {
         btnCancelar.addActionListener(e -> {
             int row = t.getSelectedRow();
             if (row != -1) {
-                hospital.cancelarAgendamento((Consulta) modelAgenda.getValueAt(row, 4));
-                hospital.salvarAlteracoes();
+                Consulta c = (Consulta) modelAgenda.getValueAt(row, 4);
+                hospital.cancelarAgendamento(c);
+                c.getMedico().getAgenda().notificarCancelamento();
                 atualizarTabelas();
             }
         });
@@ -175,7 +163,7 @@ public class PacienteInterface extends BaseView {
             if (row != -1) {
                 Consulta c = (Consulta) modelNovoAgendamento.getValueAt(row, 4);
                 hospital.agendarConsultaNaAgenda(paciente, c.getMedico(), c);
-                hospital.salvarAlteracoes();
+                c.getMedico().getAgenda().notificarAgendamento();
                 atualizarTabelas();
             }
         });
@@ -224,22 +212,33 @@ public class PacienteInterface extends BaseView {
         }
     }
 
-    private void atualizarNovoAgendamento() {
-        modelNovoAgendamento.setRowCount(0);
-        for (Medico m : hospital.listarMedicos()) {
-            for (Consulta c : m.getAgenda().getConsultas()) {
-                if (c.getStatus() == StatusConsulta.DISPONIVEL) {
-                    modelNovoAgendamento.addRow(new Object[]{
-                            m.getNome(),
-                            m.getEspecialidade(),
-                            c.getData(),
-                            c.getDataHoraInicio().toLocalTime(),
-                            c
-                    });
-                }
+private void atualizarNovoAgendamento() {
+    modelNovoAgendamento.setRowCount(0);
+
+    for (Medico m : hospital.listarMedicos()) {
+
+        // 1. Ignora médicos inativos
+        if (!m.isAtivo()) {
+            continue;
+        }
+
+        for (Consulta c : m.getAgenda().getConsultas()) {
+
+            // 2. Apenas consultas disponíveis
+            if (c.getStatus() != StatusConsulta.DISPONIVEL) {
+                continue;
             }
+
+            modelNovoAgendamento.addRow(new Object[]{
+                m.getNome(),
+                m.getEspecialidade(),
+                c.getData(),
+                c.getDataHoraInicio().toLocalTime(),
+                c
+            });
         }
     }
+}
 
     private void atualizarHistorico() {
         modelHistorico.setRowCount(0);

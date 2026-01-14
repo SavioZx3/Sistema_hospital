@@ -2,7 +2,7 @@ package ufjf.dcc025.hospital.interfac.view.medico;
 
 import javax.swing.*;
 import java.awt.*;
-import java.time.LocalDate;
+
 import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.StatusConsulta;
@@ -16,8 +16,7 @@ public class AtendimentoMedicoView extends JDialog {
     private final Runnable onFinalizar;
     private final Hospital hospital;
 
-    private JTextField txtDiasAtestado, txtRemedio, txtDose;
-    private JTextArea txtExamesPedididos;
+    private JTextField txtDiasAtestado;
     private JButton btnInternacao;
 
     public AtendimentoMedicoView(
@@ -61,14 +60,33 @@ public class AtendimentoMedicoView extends JDialog {
         container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
         container.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        txtRemedio = criarCampo(container, "Medicamento:");
-        txtDose = criarCampo(container, "Dosagem:");
-        txtDiasAtestado = criarCampo(container, "Dias de Atestado:", "0");
+        container.add(new JLabel("Receita:"));
+        JButton btnEmitirReceita = new JButton("EMITIR RECEITA");
+        btnEmitirReceita.setFont(new Font("Arial", Font.BOLD, 13));
+        btnEmitirReceita.setBackground(new Color(155, 89, 182));
+        btnEmitirReceita.setForeground(Color.WHITE);
+        btnEmitirReceita.addActionListener(e -> emitirReceita());
+        container.add(btnEmitirReceita);
 
-        container.add(new JLabel("Solicitar Exames:"));
-        txtExamesPedididos = new JTextArea(3, 20);
-        txtExamesPedididos.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-        container.add(new JScrollPane(txtExamesPedididos));
+
+        txtDiasAtestado = criarCampo(container, "Dias de Atestado:", "0");
+        container.add(new JLabel("Atestado:"));
+        JButton btnEmitirAtestado = new JButton("EMITIR ATESTADO");
+        btnEmitirAtestado.setFont(new Font("Arial", Font.BOLD, 13));
+        btnEmitirAtestado.setBackground(new Color(241, 196, 15));
+        btnEmitirAtestado.setForeground(Color.BLACK);
+        btnEmitirAtestado.addActionListener(e -> emitirAtestado());
+        container.add(btnEmitirAtestado);
+
+
+        container.add(new JLabel("Exames:"));
+        JButton btnEmitirExame = new JButton("EMITIR EXAME");
+        btnEmitirExame.setFont(new Font("Arial", Font.BOLD, 13));
+        btnEmitirExame.setBackground(new Color(52, 152, 219));
+        btnEmitirExame.setForeground(Color.WHITE);
+        btnEmitirExame.addActionListener(e -> emitirExame());
+        container.add(btnEmitirExame);
+
 
         container.add(Box.createVerticalStrut(20));
 
@@ -87,10 +105,6 @@ public class AtendimentoMedicoView extends JDialog {
         add(btnFinalizar, BorderLayout.SOUTH);
     }
 
-    private JTextField criarCampo(JPanel p, String rotulo) {
-        return criarCampo(p, rotulo, "");
-    }
-
     private JTextField criarCampo(JPanel p, String rotulo, String valor) {
         p.add(new JLabel(rotulo));
         JTextField campo = new JTextField(valor);
@@ -99,6 +113,69 @@ public class AtendimentoMedicoView extends JDialog {
         p.add(Box.createVerticalStrut(10));
         return campo;
     }
+
+    private void emitirReceita() {
+        try {
+            consulta.emitirReceita();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Receita emitida com sucesso!",
+                    "Sucesso",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    ex.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void emitirAtestado() {
+    try {
+        int dias = Integer.parseInt(txtDiasAtestado.getText());
+
+        consulta.emitirAtestado(dias);
+
+        JOptionPane.showMessageDialog(
+                this,
+                "Atestado emitido por " + dias + " dias.",
+                "Sucesso",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(
+                this,
+                e.getMessage(),
+                "Erro",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
+}
+
+
+
+    private void emitirExame() {
+        try {
+            consulta.emitirExame();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Exame emitido com sucesso!",
+                    "Sucesso",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    ex.getMessage(),
+                    "Erro",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
 
     // ======================= INTERNAÇÃO =======================
     private void alternarInternacao() {
@@ -129,24 +206,8 @@ public class AtendimentoMedicoView extends JDialog {
     // ======================= FINALIZAÇÃO =======================
     private void concluir() {
         try {
-            int dias = 0;
-            if (!txtDiasAtestado.getText().trim().isEmpty()) {
-                dias = Integer.parseInt(txtDiasAtestado.getText().trim());
-            }
-
-            if (dias > 0) {
-                consulta.getAtestado(dias);
-            }
-
-            if (!txtRemedio.getText().isBlank()) {
-                consulta.getReceita(txtRemedio.getText(), txtDose.getText(), LocalDate.now().plusMonths(1));
-            }
-
-            if (!txtExamesPedididos.getText().isBlank()) {
-                consulta.setExame(txtExamesPedididos.getText());
-            }
-
-            medico.realizarAtendimento(consulta, hospital);
+            consulta.marcarConcluida();
+            consulta.getPaciente().getHistorico().adicionaConsulta(consulta);
 
             if (onFinalizar != null) {
                 onFinalizar.run();

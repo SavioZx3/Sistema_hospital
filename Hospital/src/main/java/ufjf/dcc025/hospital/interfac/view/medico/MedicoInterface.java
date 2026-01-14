@@ -5,6 +5,8 @@ import java.awt.*;
 import ufjf.dcc025.hospital.Hospital;
 import ufjf.dcc025.hospital.interfac.view.BaseView;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MedicoInterface extends BaseView {
 
@@ -19,10 +21,26 @@ public class MedicoInterface extends BaseView {
 
         add(criarTopoMedico(), BorderLayout.NORTH);
         criarAbas();
-        criarRodape();
-
+        criarRodape();           
         setVisible(true);
+
+        exibirNotificacoesMedico();
+
     }
+
+    private void exibirNotificacoesMedico() {
+        List<String> avisos = medico.getAgenda().consumirNotificacoes();
+
+        for (String aviso : avisos) {
+            JOptionPane.showMessageDialog(
+                this,                // componente pai (panel ou frame)
+                aviso,               // mensagem
+                "Notificação",       // título
+                JOptionPane.INFORMATION_MESSAGE
+            );
+        }
+    }
+
 
     // ======================= TOPO =======================
 
@@ -40,12 +58,12 @@ public class MedicoInterface extends BaseView {
                     new ConfigurarAgendaView(this, medico, hospital);
             view.setVisible(true);
 
-            // 🔄 sincroniza agenda após fechar
+            // sincroniza agenda após fechar
             agendaView.atualizar();
         });
 
         JButton btnLogout = new JButton("Logout");
-        btnLogout.addActionListener(e -> confirmarLogout());
+        btnLogout.addActionListener(e -> executarLogout());
 
         JPanel direita = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         direita.setOpaque(false);
@@ -84,17 +102,4 @@ public class MedicoInterface extends BaseView {
     }
 
     // ======================= LOGOUT =======================
-
-    private void confirmarLogout() {
-        int op = JOptionPane.showConfirmDialog(
-                this,
-                "Deseja encerrar a sessão?",
-                "Confirmar Logout",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (op == JOptionPane.YES_OPTION) {
-            executarLogout(); // método herdado do BaseView
-        }
-    }
 }

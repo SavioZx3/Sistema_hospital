@@ -15,8 +15,6 @@ import ufjf.dcc025.hospital.servicos_hospital.consulta.Agenda;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
 import ufjf.dcc025.hospital.usuarios.Usuario;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
-import ufjf.dcc025.hospital.usuarios.paciente.StatusInternacao;
-import ufjf.dcc025.hospital.usuarios.paciente.StatusVisita;
 
 public class Medico extends Usuario {
 

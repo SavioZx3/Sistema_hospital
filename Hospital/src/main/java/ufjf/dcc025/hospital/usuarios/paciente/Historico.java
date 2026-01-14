@@ -98,9 +98,7 @@ public class Historico {
         if (!receitas.isEmpty()) {
             sb.append("--- RECEITAS ---\n");
             for (Receita r : receitas) {
-                sb.append(String.format("- %s | Qtd: %s | (Validade: %s)\n",
-                        r.getMedicamento(),
-                        r.getValidade().format(dtf)));
+                sb.append(r.toString());
             }
         }
 
