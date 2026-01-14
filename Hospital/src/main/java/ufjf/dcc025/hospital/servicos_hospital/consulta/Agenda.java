@@ -186,7 +186,7 @@ public class Agenda {
      * Gera consultas baseadas em uma lista de disponibilidades configuradas na View.
      * @param novasDisponibilidades Lista vinda da interface ConfigurarAgendaView
      */
-    public void carregarNovaGrade(List<DisponibilidadeDiaSemana> novasDisponibilidades) {
+    public void carregarNovaGrade(List<DisponibilidadeDiaSemana> novasDisponibilidades, Medico medico) {
         if (novasDisponibilidades == null || novasDisponibilidades.isEmpty()) return;
 
         // Define o horizonte de tempo (ex: a partir de amanhã por 4 semanas)

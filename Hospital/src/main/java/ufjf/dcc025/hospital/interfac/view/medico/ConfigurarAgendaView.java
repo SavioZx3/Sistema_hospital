@@ -92,7 +92,7 @@ public class ConfigurarAgendaView extends JDialog {
         }
 
         medico.atualizarDisponibilidadeSemanal(disponibilidades);
-        medico.getAgenda().carregarNovaGrade(disponibilidades);
+        medico.getAgenda().carregarNovaGrade(disponibilidades, medico);
 
         hospital.salvarAlteracoes();
 
