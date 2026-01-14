@@ -54,15 +54,15 @@ public class Consulta {
 
     public void reconstruirReferencias(List<Medico> medicos, List<Paciente> pacientes) {
         if (medicoCpf != null) {
-            this.medico = medicos.stream()
-                    .filter(m -> m.getCpf().equals(medicoCpf))
-                    .findFirst().orElse(null);
+                this.medico = medicos.stream()
+                        .filter(m -> m.getCpf().equals(medicoCpf))
+                        .findFirst().orElse(null);
         }
         if (pacienteCpf != null) {
             this.paciente = pacientes.stream()
                     .filter(p -> p.getCpf().equals(pacienteCpf))
                     .findFirst().orElse(null);
-        }
+        }     
     }
 
     // ================= Getters (Restaurados para compatibilidade) ================= //
