@@ -57,6 +57,8 @@ public class MarcacaoConsultaView extends JDialog {
                 Consulta c = (Consulta) cbConsulta.getSelectedItem();
 
                 hospital.agendarConsultaNaAgenda(p, c.getMedico(), c);
+                hospital.salvarAlteracoes();
+                
                 JOptionPane.showMessageDialog(this, "Consulta marcada com sucesso!");
                 dispose();
                 onClose.run();

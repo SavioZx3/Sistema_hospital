@@ -3,12 +3,12 @@ package ufjf.dcc025.hospital.interfac.view.secretaria;
 import javax.swing.*;
 import java.awt.*;
 import ufjf.dcc025.hospital.Hospital;
+import ufjf.dcc025.hospital.interfac.view.BaseView;
 import ufjf.dcc025.hospital.usuarios.medico.Especialidade;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 
-public class CadastroMedicoInterface extends JFrame {
+public class CadastroMedicoInterface extends BaseView {
 
-    private final Hospital hospital;
     private JTextField txtNome, txtCpf, txtEmail, txtEspecialidade;
     private JComboBox<Especialidade> comboEspecialidade;
     private JPasswordField txtSenha;
@@ -16,12 +16,14 @@ public class CadastroMedicoInterface extends JFrame {
 
     // Construtor aceita o Hospital e uma ação de atualização
     public CadastroMedicoInterface(Hospital hospital, Runnable callbackAtualizacao) {
-        this.hospital = hospital;
+        super(hospital, "Cadastrar Novo Médico");
         this.callbackAtualizacao = callbackAtualizacao;
-        
+
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
         configurarJanela();
         criarFormulario();
-        
+
         setVisible(true);
     }
 
@@ -29,7 +31,6 @@ public class CadastroMedicoInterface extends JFrame {
         setTitle(" Cadastrar Novo Médico");
         setSize(400, 480);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(15, 15));
     }
 
@@ -50,11 +51,11 @@ public class CadastroMedicoInterface extends JFrame {
         txtNome = criarCampo("Nome Completo:", pnlCampos);
         txtCpf = criarCampo("CPF (Somente números):", pnlCampos);
         txtEmail = criarCampo("E-mail:", pnlCampos);
-        
+
         pnlCampos.add(new JLabel("Especialidade:"));
         comboEspecialidade = new JComboBox<>(Especialidade.values());
         pnlCampos.add(comboEspecialidade);
-        
+
         // Campo de Senha Manual (GridLayout não suporta labels flutuantes bem)
         pnlCampos.add(new JLabel("Senha de Acesso:"));
         txtSenha = new JPasswordField();
@@ -88,24 +89,24 @@ public class CadastroMedicoInterface extends JFrame {
         String senha = new String(txtSenha.getPassword());
 
         if (nome.isEmpty() || cpf.isEmpty() || email.isEmpty() || senha.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Todos os campos são obrigatórios!", "Aviso", JOptionPane.WARNING_MESSAGE);
+            mostrarAviso("Todos os campos são obrigatórios!");
             return;
         }
 
         try {
             Medico novoMedico = new Medico(nome, cpf, email, senha, especialidade);
             hospital.cadastrarMedico(novoMedico);
-            
-            JOptionPane.showMessageDialog(this, "Médico cadastrado com sucesso!");
-            
+            hospital.salvarAlteracoes(); // Salva JSON
+
+            mostrarInfo("Médico cadastrado com sucesso!");
             // Se houver uma tela de secretaria aberta, ela atualiza agora!
             if (callbackAtualizacao != null) {
                 callbackAtualizacao.run();
             }
-            
-            this.dispose(); 
+
+            this.dispose();
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Erro: " + ex.getMessage(), "Erro de Cadastro", JOptionPane.ERROR_MESSAGE);
+            mostrarErro(ex);
         }
     }
 }

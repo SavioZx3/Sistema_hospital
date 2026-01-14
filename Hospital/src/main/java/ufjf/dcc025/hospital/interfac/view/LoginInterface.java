@@ -22,6 +22,11 @@ public class LoginInterface extends BaseView {
         super(hospital, "Hospital - Acesso ao Sistema");
         this.controller = new LoginController(hospital);
 
+        
+        for (java.awt.event.WindowListener wl : getWindowListeners()) {
+            removeWindowListener(wl);
+        }
+
         configurarJanela();
         criarComponentes();
         setVisible(true);
@@ -30,7 +35,7 @@ public class LoginInterface extends BaseView {
     private void configurarJanela() {
         setSize(400, 350);
         setLayout(new BorderLayout());
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
         setLocationRelativeTo(null);
     }
 
@@ -52,10 +57,12 @@ public class LoginInterface extends BaseView {
 
         campos.add(new JLabel("Senha:"));
         senha = new JPasswordField();
+        // Permite dar 'Enter' no campo de senha para logar
         senha.addActionListener(e -> autenticar());
         campos.add(senha);
 
         JButton entrar = new JButton("Entrar no Sistema");
+        entrar.setPreferredSize(new Dimension(0, 40));
         entrar.addActionListener(e -> autenticar());
 
         add(campos, BorderLayout.CENTER);
@@ -64,12 +71,14 @@ public class LoginInterface extends BaseView {
 
     private void autenticar() {
         try {
+            // Se o login falhar, o controller deve lançar uma Exception
             Usuario u = controller.autenticar(
                     email.getText(),
                     new String(senha.getPassword())
             );
 
-            dispose();
+            // Se chegou aqui, login deu certo
+            dispose(); 
 
             if (u instanceof Paciente p) {
                 new PacienteInterface(hospital, p);
@@ -82,6 +91,7 @@ public class LoginInterface extends BaseView {
         } catch (Exception e) {
             mostrarErro("Acesso negado: " + e.getMessage());
             senha.setText("");
+            senha.requestFocus();
         }
     }
 }

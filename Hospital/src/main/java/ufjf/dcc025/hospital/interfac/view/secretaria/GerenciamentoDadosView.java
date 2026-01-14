@@ -56,7 +56,12 @@ public class GerenciamentoDadosView extends JPanel {
         pnlAcoes.add(btnInternarAlta);
 
         // Tabela
-        model = new DefaultTableModel(new String[]{"Tipo", "Nome", "CPF", "Status/Espec."}, 0);
+        model = new DefaultTableModel(new String[]{"Tipo", "Nome", "CPF", "Status/Espec."}, 0){
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         tabela = new JTable(model);
         
         add(pnlAcoes, BorderLayout.NORTH);
@@ -79,6 +84,11 @@ public class GerenciamentoDadosView extends JPanel {
 
             if (res == 0) p.setStatusInternacao(StatusInternacao.INTERNADO);
             else if (res == 1) p.setStatusInternacao(StatusInternacao.ALTA);
+            
+            if (res == 0 || res == 1) {
+                hospital.salvarAlteracoes(); 
+                JOptionPane.showMessageDialog(this, "Status atualizado com sucesso!");
+            }
 
             popularTabela("Pacientes");
             comboTipo.setSelectedItem("Pacientes");

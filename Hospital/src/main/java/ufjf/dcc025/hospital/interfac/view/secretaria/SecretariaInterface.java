@@ -27,66 +27,54 @@ public class SecretariaInterface extends BaseView {
         abas.addTab("Médicos", criarPainelMedicos());
 
         add(abas, BorderLayout.CENTER);
+        setSize(1000, 700);
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 
-    // ================= CONSULTAS =================
     private JPanel criarPainelConsultas() {
         JPanel p = new JPanel(new BorderLayout(10, 10));
-
-        modelConsultas = new DefaultTableModel(
-                new String[]{"Médico", "Paciente", "Data", "Status", "OBJ"}, 0);
+        modelConsultas = new DefaultTableModel(new String[]{"Médico", "Paciente", "Data", "Status", "OBJ"}, 0) {
+            @Override public boolean isCellEditable(int row, int col) { return false; }
+        };
+        
         JTable tabela = new JTable(modelConsultas);
         tabela.removeColumn(tabela.getColumnModel().getColumn(4));
-
-        JPanel botoes = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
         JButton btnMarcar = new JButton("Marcar Consulta");
         JButton btnCancelar = new JButton("Desmarcar Consulta");
 
-        // ===== MARCAR CONSULTA =====
         btnMarcar.addActionListener(e -> abrirMarcacaoConsulta());
-
-        // ===== DESMARCAR CONSULTA =====
         btnCancelar.addActionListener(e -> {
             int row = tabela.getSelectedRow();
-            if (row == -1) {
-                mostrarAviso("Selecione uma consulta.");
-                return;
-            }
+            if (row == -1) { mostrarAviso("Selecione uma consulta."); return; }
 
             Consulta c = (Consulta) modelConsultas.getValueAt(row, 4);
-
-            if (c.getPaciente() == null) {
-                mostrarAviso("Esta consulta não está marcada.");
-                return;
-            }
+            if (c.getPaciente() == null) { mostrarAviso("Esta consulta não está marcada."); return; }
 
             try {
                 hospital.cancelarAgendamento(c);
+                hospital.salvarAlteracoes(); // Persistência
                 mostrarInfo("Consulta desmarcada com sucesso.");
                 atualizarConsultas();
             } catch (Exception ex) {
-                mostrarErro(ex.getMessage());
+                mostrarErro(ex);
             }
         });
 
-        botoes.add(btnMarcar);
-        botoes.add(btnCancelar);
+        JPanel botoes = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        botoes.add(btnMarcar); botoes.add(btnCancelar);
 
         p.add(new JScrollPane(tabela), BorderLayout.CENTER);
         p.add(botoes, BorderLayout.SOUTH);
-
         atualizarConsultas();
         return p;
     }
 
     private void abrirMarcacaoConsulta() {
-        new MarcacaoConsultaView(
-                SwingUtilities.getWindowAncestor(this),
-                hospital,
-                this::atualizarConsultas
-        );
+        // Abre a AgendaConsultasView que criamos anteriormente
+        new AgendaConsultasView(hospital).setVisible(true);
+        // Opcional: Adicionar listener para atualizar ao fechar
     }
 
     private void atualizarConsultas() {
@@ -95,34 +83,21 @@ public class SecretariaInterface extends BaseView {
             modelConsultas.addRow(new Object[]{
                 c.getMedico().getNome(),
                 c.getPaciente() != null ? c.getPaciente().getNome() : "Livre",
-                c.getData(),
-                c.getStatus(),
-                c
+                c.getData(), c.getStatus(), c
             });
         }
     }
 
-    // ================= PACIENTES =================
     private JPanel criarPainelPacientes() {
         JPanel p = new JPanel(new BorderLayout(10, 10));
-
-        modelPacientes = new DefaultTableModel(
-                new String[]{"Nome", "CPF", "Internação"}, 0);
-
+        modelPacientes = new DefaultTableModel(new String[]{"Nome", "CPF", "Internação"}, 0);
         JTable t = new JTable(modelPacientes);
 
         JButton btnNovoPaciente = new JButton("Cadastrar Paciente");
-        btnNovoPaciente.addActionListener(e -> {
-            new CadastroPacienteView(hospital, this::atualizarPacientes)
-                    .setVisible(true);
-        });
-
-        JPanel botoes = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        botoes.add(btnNovoPaciente);
+        btnNovoPaciente.addActionListener(e -> new CadastroPacienteView(hospital, this::atualizarPacientes).setVisible(true));
 
         p.add(new JScrollPane(t), BorderLayout.CENTER);
-        p.add(botoes, BorderLayout.SOUTH);
-
+        p.add(btnNovoPaciente, BorderLayout.SOUTH);
         atualizarPacientes();
         return p;
     }
@@ -130,54 +105,33 @@ public class SecretariaInterface extends BaseView {
     private void atualizarPacientes() {
         modelPacientes.setRowCount(0);
         for (Paciente p : hospital.listarPacientes()) {
-            modelPacientes.addRow(new Object[]{
-                p.getNome(),
-                p.getCpf(),
-                p.getStatusInternacao()
-            });
+            modelPacientes.addRow(new Object[]{p.getNome(), p.getCpf(), p.getStatusInternacao()});
         }
     }
 
-    // ================= MÉDICOS =================
     private JPanel criarPainelMedicos() {
         JPanel p = new JPanel(new BorderLayout(10, 10));
-
-        modelMedicos = new DefaultTableModel(
-                new String[]{"Nome", "Especialidade", "Ativo", "OBJ"}, 0);
+        modelMedicos = new DefaultTableModel(new String[]{"Nome", "Especialidade", "Ativo", "OBJ"}, 0);
         JTable t = new JTable(modelMedicos);
         t.removeColumn(t.getColumnModel().getColumn(3));
 
         JButton btnToggle = new JButton("Ativar / Desativar");
         btnToggle.addActionListener(e -> {
             int row = t.getSelectedRow();
-            if (row == -1) {
-                mostrarAviso("Selecione um médico.");
-                return;
-            }
-
+            if (row == -1) { mostrarAviso("Selecione um médico."); return; }
             Medico m = (Medico) modelMedicos.getValueAt(row, 3);
-            if (m.isAtivo()) {
-                m.desativar();
-            } else {
-                m.ativar();
-            }
-
+            if (m.isAtivo()) m.desativar(); else m.ativar();
+            hospital.salvarAlteracoes();
             atualizarMedicos();
         });
 
         JButton btnNovoMedico = new JButton("Cadastrar Médico");
-        btnNovoMedico.addActionListener(e -> {
-            new CadastroMedicoInterface(hospital, this::atualizarMedicos)
-                    .setVisible(true);
-        });
+        btnNovoMedico.addActionListener(e -> new CadastroMedicoInterface(hospital, this::atualizarMedicos).setVisible(true));
 
         JPanel botoes = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        botoes.add(btnNovoMedico);
-        botoes.add(btnToggle);
-
+        botoes.add(btnNovoMedico); botoes.add(btnToggle);
         p.add(new JScrollPane(t), BorderLayout.CENTER);
         p.add(botoes, BorderLayout.SOUTH);
-
         atualizarMedicos();
         return p;
     }
@@ -185,12 +139,7 @@ public class SecretariaInterface extends BaseView {
     private void atualizarMedicos() {
         modelMedicos.setRowCount(0);
         for (Medico m : hospital.listarMedicos()) {
-            modelMedicos.addRow(new Object[]{
-                m.getNome(),
-                m.getEspecialidade(),
-                m.isAtivo() ? "Ativo" : "Inativo",
-                m
-            });
+            modelMedicos.addRow(new Object[]{m.getNome(), m.getEspecialidade(), m.isAtivo() ? "Ativo" : "Inativo", m});
         }
     }
 }

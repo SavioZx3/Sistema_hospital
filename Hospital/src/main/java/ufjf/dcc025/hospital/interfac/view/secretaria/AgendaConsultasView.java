@@ -5,12 +5,12 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 import ufjf.dcc025.hospital.Hospital;
+import ufjf.dcc025.hospital.interfac.view.BaseView;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.StatusConsulta;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
-public class AgendaConsultasView extends JFrame {
-    private final Hospital hospital;
+public class AgendaConsultasView extends BaseView {
     private Paciente pacienteSelecionado;
     
     private DefaultTableModel model;
@@ -20,8 +20,11 @@ public class AgendaConsultasView extends JFrame {
     private JLabel lblStatusSelecao;
 
     public AgendaConsultasView(Hospital hospital) {
-        this.hospital = hospital;
-        setTitle("Realizar Agendamento");
+        super(hospital, "Realizar Agendamento");
+        
+        // Garante que feche apenas esta janela e não o sistema todo
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        
         setSize(800, 550);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(15, 15));
@@ -34,7 +37,6 @@ public class AgendaConsultasView extends JFrame {
         JPanel pnlLista = new JPanel(new FlowLayout(FlowLayout.LEFT));
         pnlLista.add(new JLabel("Pacientes Cadastrados:"));
         
-        // Inicializa o combo vazio e carrega os dados
         comboPacientes = new JComboBox<>();
         recarregarPacientes(); 
         
@@ -43,7 +45,7 @@ public class AgendaConsultasView extends JFrame {
                 pacienteSelecionado = (Paciente) comboPacientes.getSelectedItem();
                 txtCpf.setText(pacienteSelecionado.getCpf());
                 lblStatusSelecao.setText("Selecionado: " + pacienteSelecionado.getNome());
-                lblStatusSelecao.setForeground(new Color(0, 100, 0)); // Verde se ok
+                lblStatusSelecao.setForeground(new Color(0, 100, 0)); 
             }
         });
         
@@ -94,6 +96,8 @@ public class AgendaConsultasView extends JFrame {
         add(pnlTopo, BorderLayout.NORTH);
         add(pnlCentro, BorderLayout.CENTER);
         add(pnlSul, BorderLayout.SOUTH);
+        
+        setVisible(true);
     }
 
     private void buscarPorCpf() {
@@ -104,7 +108,7 @@ public class AgendaConsultasView extends JFrame {
             lblStatusSelecao.setForeground(new Color(0, 100, 0));
             comboPacientes.setSelectedItem(pacienteSelecionado);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Paciente não encontrado!", "Erro", JOptionPane.ERROR_MESSAGE);
+            mostrarErro("Paciente não encontrado!");
         }
     }
 
@@ -126,23 +130,27 @@ public class AgendaConsultasView extends JFrame {
     private void realizarAgendamento() {
         int linha = tabela.getSelectedRow();
         if (pacienteSelecionado == null || linha == -1) {
-            JOptionPane.showMessageDialog(this, "Atenção: Selecione o PACIENTE e o HORÁRIO.");
+            mostrarAviso("Atenção: Selecione o PACIENTE e o HORÁRIO.");
             return;
         }
 
         Consulta consulta = (Consulta) model.getValueAt(linha, 4);
         try {
             hospital.agendarConsultaNaAgenda(pacienteSelecionado, consulta.getMedico(), consulta);
-            JOptionPane.showMessageDialog(this, "Sucesso! Consulta marcada para " + pacienteSelecionado.getNome());
+            
+            // Persiste a marcação no arquivo JSON
+            hospital.salvarAlteracoes();
+            
+            mostrarInfo("Sucesso! Consulta marcada para " + pacienteSelecionado.getNome());
             this.dispose();
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage());
+            mostrarErro(e);
         }
     }
     
     public final void recarregarPacientes() {
         comboPacientes.removeAllItems();
-        comboPacientes.addItem(null); // Opção nula padrão
+        comboPacientes.addItem(null); 
         List<Paciente> pacientes = hospital.listarPacientes();
         for (Paciente p : pacientes) {
             comboPacientes.addItem(p);

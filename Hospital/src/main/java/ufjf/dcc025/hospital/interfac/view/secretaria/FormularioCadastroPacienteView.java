@@ -7,14 +7,17 @@ import ufjf.dcc025.hospital.interfac.view.BaseView;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
 
 public class FormularioCadastroPacienteView extends BaseView {
+    
+    private Runnable aoSalvar;
 
     private JTextField txtNome, txtCpf, txtEmail, txtTelefone;
     private JTextField txtCidade, txtBairro, txtRua, txtNumero;
     private JPasswordField txtSenha;
 
-    public FormularioCadastroPacienteView(Hospital hospital) {
+    public FormularioCadastroPacienteView(Hospital hospital, Runnable aoSalvar) {
         
         super(hospital, "Cadastro de Novo Paciente");
+        this.aoSalvar = aoSalvar;
 
         setTitle("Cadastro de Paciente - Dados Completos");
         setSize(500, 600);
@@ -98,14 +101,18 @@ public class FormularioCadastroPacienteView extends BaseView {
             );
 
             hospital.cadastrarPaciente(novo);
-
             hospital.salvarAlteracoes(); // Salva no JSON
 
-            JOptionPane.showMessageDialog(this, "Paciente cadastrado com sucesso!");
+            mostrarInfo("Paciente cadastrado com sucesso!");
+            
+            if (aoSalvar != null) {
+                aoSalvar.run();
+            }
+            
             dispose();
 
         } catch (Exception ex) {
-            mostrarErro(ex); // Usando método da BaseView        }
+            mostrarErro(ex);  
         }
     }
 }
