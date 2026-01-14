@@ -197,10 +197,15 @@ public class Agenda {
      * @param novasDisponibilidades Lista vinda da interface
      * ConfigurarAgendaView
      */
+<<<<<<< HEAD
     public void carregarNovaGrade(List<DisponibilidadeDiaSemana> novasDisponibilidades) {
         if (novasDisponibilidades == null || novasDisponibilidades.isEmpty()) {
             return;
         }
+=======
+    public void carregarNovaGrade(List<DisponibilidadeDiaSemana> novasDisponibilidades, Medico medico) {
+        if (novasDisponibilidades == null || novasDisponibilidades.isEmpty()) return;
+>>>>>>> 0c9a4fa236c33ebb1b5ce44e1a8fa22e1f671bb4
 
         LocalDate dataInicio = LocalDate.now().plusDays(1);
 

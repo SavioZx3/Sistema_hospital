@@ -96,10 +96,15 @@ public class ConfigurarAgendaView extends JDialog {
             return;
         }
 
+<<<<<<< HEAD
         // Confirmação para evitar perda de dados acidental
         int confirm = JOptionPane.showConfirmDialog(this,
                 "Isso irá gerar novos horários. Deseja continuar?",
                 "Confirmar Agenda", JOptionPane.YES_NO_OPTION);
+=======
+        medico.atualizarDisponibilidadeSemanal(disponibilidades);
+        medico.getAgenda().carregarNovaGrade(disponibilidades, medico);
+>>>>>>> 0c9a4fa236c33ebb1b5ce44e1a8fa22e1f671bb4
 
         if (confirm != JOptionPane.YES_OPTION) {
             return;
