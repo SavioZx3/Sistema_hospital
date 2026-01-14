@@ -2,7 +2,6 @@ package ufjf.dcc025.hospital.interfac.view.medico;
 
 import javax.swing.*;
 import java.awt.*;
-import java.time.LocalDate;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.StatusConsulta;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
@@ -15,8 +14,7 @@ public class AtendimentoMedicoView extends JDialog {
     private final Consulta consulta;
     private final Runnable onFinalizar;
 
-    private JTextField txtDiasAtestado, txtRemedio, txtDose;
-    private JTextArea txtExamesPedididos;
+    private JTextField txtDiasAtestado;
     private JButton btnInternacao;
 
     public AtendimentoMedicoView(

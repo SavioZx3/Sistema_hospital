@@ -117,7 +117,7 @@ public class AgendaMedicoView extends BasePanel {
             Consulta consulta = medico.getAgenda().getConsultas().get(r);
 
             setText(getTextoBotao(consulta));
-            setEnabled(consulta.getStatus() != StatusConsulta.REALIZADA);
+            setEnabled(consulta.getStatus() != StatusConsulta.REALIZADA && consulta.getStatus() != StatusConsulta.DISPONIVEL);
 
             return this;
         }
@@ -148,7 +148,7 @@ public class AgendaMedicoView extends BasePanel {
             Consulta consulta = medico.getAgenda().getConsultas().get(r);
 
             btn.setText(getTextoBotao(consulta));
-            btn.setEnabled(consulta.getStatus() != StatusConsulta.REALIZADA);
+            btn.setEnabled(consulta.getStatus() != StatusConsulta.REALIZADA && consulta.getStatus() != StatusConsulta.DISPONIVEL);
 
             return btn;
         }

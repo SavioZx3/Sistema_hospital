@@ -40,7 +40,7 @@ public class MedicoInterface extends BaseView {
                     new ConfigurarAgendaView(this, medico);
             view.setVisible(true);
 
-            // 🔄 sincroniza agenda após fechar
+            // sincroniza agenda após fechar
             agendaView.atualizar();
         });
 
