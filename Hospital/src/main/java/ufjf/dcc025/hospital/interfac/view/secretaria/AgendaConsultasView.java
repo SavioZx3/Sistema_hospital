@@ -23,10 +23,11 @@ public class AgendaConsultasView extends BaseView {
     private JTextField txtCpf;
     private JComboBox<Paciente> comboPacientes; 
     private JLabel lblStatusSelecao;
+    private Runnable onAgendamentoRealizado;
 
-    public AgendaConsultasView(Hospital hospital) {
+    public AgendaConsultasView(Hospital hospital, Runnable callback) {
         super(hospital, "Realizar Agendamento");
-        
+        this.onAgendamentoRealizado = callback;
         // Garante que feche apenas esta janela e não o sistema todo
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         
@@ -147,6 +148,7 @@ public class AgendaConsultasView extends BaseView {
             hospital.salvarAlteracoes();
             
             mostrarInfo("Sucesso! Consulta marcada para " + pacienteSelecionado.getNome());
+            onAgendamentoRealizado.run();
             this.dispose();
         } catch (Exception e) {
             mostrarErro(e);

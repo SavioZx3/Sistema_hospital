@@ -74,9 +74,7 @@ public class SecretariaInterface extends BaseView {
     }
 
     private void abrirMarcacaoConsulta() {
-        // Abre a AgendaConsultasView que criamos anteriormente
-        new AgendaConsultasView(hospital).setVisible(true);
-        // Opcional: Adicionar listener para atualizar ao fechar
+        new AgendaConsultasView(hospital, this::atualizarConsultas).setVisible(true);
     }
 
 private void atualizarConsultas() {
