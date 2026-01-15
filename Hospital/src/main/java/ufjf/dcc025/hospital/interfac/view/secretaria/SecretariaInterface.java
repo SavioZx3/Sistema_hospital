@@ -12,12 +12,16 @@ import ufjf.dcc025.hospital.servicos_hospital.consulta.StatusConsulta;
 import ufjf.dcc025.hospital.usuarios.Recepcionista;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.Paciente;
+import ufjf.dcc025.hospital.usuarios.paciente.StatusInternacao;
 
 public class SecretariaInterface extends BaseView {
 
     private DefaultTableModel modelConsultas;
     private DefaultTableModel modelPacientes;
     private DefaultTableModel modelMedicos;
+
+    private JComboBox<String> filtroInternacao;
+
 
     public SecretariaInterface(Hospital hospital, Recepcionista r) {
         super(hospital, "Recepção - " + r.getNome());
@@ -99,7 +103,7 @@ private void atualizarConsultas() {
         modelConsultas.addRow(new Object[]{
             c.getMedico().getNome(),
             c.getPaciente() != null ? c.getPaciente().getNome() : "Livre",
-            c.getDataHoraInicio().format(fmt), // 👈 DATA + HORA,
+            c.getDataHoraInicio().format(fmt),
             c.getStatus(),
             c
         });
@@ -111,18 +115,34 @@ private void atualizarConsultas() {
         modelPacientes = new DefaultTableModel(new String[]{"Nome", "CPF", "Internação"}, 0);
         JTable t = new JTable(modelPacientes);
 
+        filtroInternacao = new JComboBox<>( new String[]{"Todos", "Internados", "Não internados"});
+
+        filtroInternacao.addActionListener(e -> atualizarPacientes());
+
         JButton btnNovoPaciente = new JButton("Cadastrar Paciente");
         btnNovoPaciente.addActionListener(e -> new CadastroPacienteView(hospital, this::atualizarPacientes).setVisible(true));
 
+        JPanel rodape = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        rodape.add(filtroInternacao);
+        rodape.add(btnNovoPaciente);
+
         p.add(new JScrollPane(t), BorderLayout.CENTER);
-        p.add(btnNovoPaciente, BorderLayout.SOUTH);
+        p.add(rodape, BorderLayout.SOUTH);
         atualizarPacientes();
         return p;
     }
 
     private void atualizarPacientes() {
         modelPacientes.setRowCount(0);
+
+        String filtro = (String) filtroInternacao.getSelectedItem();
+
         for (Paciente p : hospital.listarPacientes()) {
+        
+            boolean internado = p.getStatusInternacao() == StatusInternacao.INTERNADO;
+            if ("Internados".equals(filtro) && !internado) continue;
+            if ("Não internados".equals(filtro) && internado) continue;
+
             modelPacientes.addRow(new Object[]{p.getNome(), p.getCpf(), p.getStatusInternacao()});
         }
     }
