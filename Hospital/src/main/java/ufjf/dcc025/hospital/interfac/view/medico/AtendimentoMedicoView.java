@@ -15,6 +15,7 @@ import ufjf.dcc025.hospital.servicos_hospital.consulta.Consulta;
 import ufjf.dcc025.hospital.servicos_hospital.consulta.StatusConsulta;
 import ufjf.dcc025.hospital.usuarios.medico.Medico;
 import ufjf.dcc025.hospital.usuarios.paciente.StatusInternacao;
+import ufjf.dcc025.hospital.usuarios.paciente.StatusVisita;
 
 public class AtendimentoMedicoView extends JDialog {
 
@@ -25,6 +26,7 @@ public class AtendimentoMedicoView extends JDialog {
 
     private JTextField txtDiasAtestado;
     private JButton btnInternacao;
+        private JButton btnStatusVisita;
 
     public AtendimentoMedicoView(
             Window parent,
@@ -108,9 +110,64 @@ public class AtendimentoMedicoView extends JDialog {
         btnFinalizar.setForeground(Color.WHITE);
         btnFinalizar.addActionListener(e -> concluir());
 
+        btnStatusVisita = new JButton();
+        atualizarBotaoVisita(btnStatusVisita);
+
+        btnStatusVisita.addActionListener(e -> alternarStatusVisita(btnStatusVisita));
+
+        container.add(Box.createVerticalStrut(10));
+
+
         add(container, BorderLayout.CENTER);
         add(btnFinalizar, BorderLayout.SOUTH);
     }
+
+    private void alternarStatusVisita(JButton botao) {
+        if (consulta.getPaciente().getStatusInternacao() != StatusInternacao.INTERNADO) {
+            JOptionPane.showMessageDialog(this,
+                    "O paciente precisa estar internado para controlar visitas.");
+            return;
+        }
+
+        StatusVisita atual = consulta.getPaciente().getStatusVisita();
+        StatusVisita novo
+                = atual == StatusVisita.APTO ? StatusVisita.INAPTO : StatusVisita.APTO;
+
+        consulta.getPaciente().setStatusVisita(novo);
+        hospital.salvarAlteracoes();
+
+        atualizarBotaoVisita(botao);
+    }
+
+    private void atualizarBotaoVisita(JButton botao) {
+        boolean internado
+                = consulta.getPaciente().getStatusInternacao() == StatusInternacao.INTERNADO;
+
+        if (!internado) {
+            botao.setText("CONTROLE DE VISITAS (Disponível apenas se internado)");
+            botao.setEnabled(false);
+            botao.setBackground(Color.LIGHT_GRAY);
+            botao.setForeground(Color.BLACK);
+            return;
+        }
+
+        StatusVisita status = consulta.getPaciente().getStatusVisita();
+
+        botao.setEnabled(true);
+        botao.setText(
+                status == StatusVisita.APTO
+                        ? "VISITAS PERMITIDAS (Bloquear)"
+                        : "VISITAS BLOQUEADAS (Permitir)"
+        );
+
+        botao.setBackground(
+                status == StatusVisita.APTO
+                        ? new Color(39, 174, 96)
+                        : new Color(192, 57, 43)
+        );
+        botao.setForeground(Color.WHITE);
+    }
+
 
     private JTextField criarCampo(JPanel p, String rotulo, String valor) {
         p.add(new JLabel(rotulo));
@@ -191,7 +248,9 @@ public class AtendimentoMedicoView extends JDialog {
         } else {
             consulta.getPaciente().setStatusInternacao(StatusInternacao.INTERNADO);
         }
+        hospital.salvarAlteracoes();
         atualizarBotaoInternacao();
+        atualizarBotaoVisita(btnStatusVisita);
     }
 
     private void atualizarBotaoInternacao() {

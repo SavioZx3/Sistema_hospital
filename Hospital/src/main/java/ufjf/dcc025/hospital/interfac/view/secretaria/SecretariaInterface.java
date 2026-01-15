@@ -112,7 +112,7 @@ private void atualizarConsultas() {
 
     private JPanel criarPainelPacientes() {
         JPanel p = new JPanel(new BorderLayout(10, 10));
-        modelPacientes = new DefaultTableModel(new String[]{"Nome", "CPF", "Internação"}, 0);
+        modelPacientes = new DefaultTableModel(new String[]{"Nome", "CPF", "Internação", "Visitas"}, 0);
         JTable t = new JTable(modelPacientes);
 
         filtroInternacao = new JComboBox<>( new String[]{"Todos", "Internados", "Não internados"});
@@ -143,7 +143,15 @@ private void atualizarConsultas() {
             if ("Internados".equals(filtro) && !internado) continue;
             if ("Não internados".equals(filtro) && internado) continue;
 
-            modelPacientes.addRow(new Object[]{p.getNome(), p.getCpf(), p.getStatusInternacao()});
+            String statusVisita;
+
+            if (p.getStatusInternacao() == StatusInternacao.INTERNADO) {
+                statusVisita = p.getStatusVisita().toString();
+            } else {
+                statusVisita = "---";
+            }
+
+            modelPacientes.addRow(new Object[]{p.getNome(), p.getCpf(), p.getStatusInternacao(), statusVisita});
         }
     }
 

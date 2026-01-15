@@ -26,7 +26,7 @@ public class AgendaMedicoView extends BasePanel {
     private DefaultTableModel model;
 
     private static final DateTimeFormatter HORA
-            = DateTimeFormatter.ofPattern("HH:mm");
+            = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     public AgendaMedicoView(Medico medico, VisitasMedicoView visitasView, Hospital hospital) {
         this.medico = medico;
